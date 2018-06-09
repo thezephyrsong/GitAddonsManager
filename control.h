@@ -1,0 +1,133 @@
+/* Copyright 2018 WobLight
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef GITCONTROL_H
+#define GITCONTROL_H
+
+#include <QObject>
+#include <QQueue>
+#include <QUrl>
+#include <functional>
+
+class QThreadPool;
+
+class Control : public QObject
+{
+    Q_OBJECT
+
+    using TaskQueue = QQueue<QPair<QString,std::function<void()>>>;
+    TaskQueue m_tasks;
+
+    QList<QObject *> m_addons;
+
+    QString m_addonsPath;
+
+public:
+    Q_PROPERTY(QList<QObject *> addons READ addons WRITE setAddons NOTIFY addonsChanged)
+    Q_PROPERTY(QString addonsPath READ addonsPath WRITE setAddonsPath NOTIFY addonsPathChanged)
+    Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
+    Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
+    Q_PROPERTY(QString statusMessage READ statusMessage WRITE setStatusMessage NOTIFY statusMessageChanged)
+    Q_PROPERTY(bool firstBoot READ firstBoot WRITE setFirstBoot NOTIFY firstBootChanged)
+
+    enum class Status {
+        Error = -1,
+        Ready,
+        Busy
+    };
+    Q_ENUM(Status)
+    Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanged)
+
+    enum MinimizeToTray {
+        MinimizeToTrayAsk = -1,
+        MinimizeToTrayNo = 0,
+        MinimizeToTrayYes = 1
+    };
+    Q_ENUM(MinimizeToTray)
+    Q_PROPERTY(MinimizeToTray minimizeToTray READ minimizeToTray WRITE setMinimizeToTray NOTIFY minimizeToTrayChanged)
+
+    QList<QObject *> addons() const;
+
+    QString addonsPath() const;
+
+    static Control *instance();
+
+    int progress() const;
+
+    int total() const;
+
+    Status status() const;
+
+    QString statusMessage() const;
+
+    bool firstBoot() const;
+
+    MinimizeToTray minimizeToTray() const;
+
+private:
+    static Control *m_instance;
+    explicit Control(QObject *parent = nullptr);
+
+    int m_progress;
+
+    int m_total;
+
+    Status m_status;
+
+    QString m_statusMessage;
+
+    bool m_firstBoot;
+
+    MinimizeToTray m_minimizeToTray;
+
+    QThreadPool *m_pool;
+
+    void delegate(QString message, auto work, auto callback);
+    void delegate(QString message, auto work);
+
+signals:
+    void addonsChanged(QList<QObject *> addons);
+
+    void addonsPathChanged(QString addonsPath);
+
+    void progressChanged(int progress);
+
+    void totalChanged(int total);
+
+    void statusChanged(Status status);
+
+    void statusMessageChanged(QString statusMessage);
+
+    void firstBootChanged(bool firstBoot);
+
+    void minimizeToTrayChanged(MinimizeToTray minimizeToTray);
+
+public slots:
+    void setAddons(QList<QObject *> addons);
+    void setAddonsPath(QString addonsPath);
+    void saveAddonsPath();
+    void scanForAddons();
+    void clone(QUrl url);
+    void setProgress(int progress);
+    void setTotal(int total);
+    void setStatus(Status status);
+    void setStatusMessage(QString statusMessage);
+    void setFirstBoot(bool firstBoot);
+    void setMinimizeToTray(MinimizeToTray minimizeToTray);
+};
+Q_DECLARE_METATYPE(Control::MinimizeToTray)
+
+#endif // GITCONTROL_H

@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>Tray.qml</file>
+        <file>Options.qml</file>
+        <file>AddonUpdateButton.qml</file>
+        <file>AddonsPanel.qml</file>
+        <file>icons/breeze/svg/delete.svg</file>
+        <file>icons/breeze/svg/list-add.svg</file>
+        <file>icons/breeze/svg/overflow-menu.svg</file>
+        <file>icons/breeze/svg/update-high.svg</file>
+        <file>icons/breeze/svg/update-low.svg</file>
+        <file>icons/breeze/svg/update-medium.svg</file>
+        <file>icons/breeze/svg/update-none.svg</file>
+        <file>icons/breeze/svg/view-refresh.svg</file>
+        <file>icons/breeze/COPYING-ICONS</file>
+        <file>icons/breeze/index.theme</file>
+        <file>icons/breeze/svg/go-parent-folder.svg</file>
+        <file>icons/breeze/svg/help-whatsthis.svg</file>
+        <file>github_clone_url.jpg</file>
+        <file>gitlab_clone_url.jpg</file>
+    </qresource>
+</RCC>

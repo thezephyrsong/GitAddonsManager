@@ -1,0 +1,171 @@
+/* Copyright 2018 WobLight
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef ADDON_H
+#define ADDON_H
+
+#include <QObject>
+#include <QFileInfo>
+#include <memory>
+#include <functional>
+#include <QQueue>
+
+class git_repository;
+using repo_p = std::unique_ptr<git_repository, void(*)(git_repository *)>;
+
+class QThreadPool;
+
+class Addon : public QObject
+{
+    Q_OBJECT
+    using TaskQueue = QQueue<QPair<QString,std::function<void()>>>;
+    TaskQueue m_tasks;
+
+    QString m_name;
+    repo_p m_repo;
+
+    QStringList m_branches;
+
+    QString m_currentBranch;
+
+    QString m_remote;
+
+    QStringList m_remotes;
+
+    int m_progress;
+
+    int m_total;
+
+public:
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QStringList branches READ branches WRITE setBranches NOTIFY branchesChanged)
+    Q_PROPERTY(QString currentBranch READ currentBranch WRITE setCurrentBranch NOTIFY currentBranchChanged)
+    Q_PROPERTY(QString remote READ remote WRITE setRemote NOTIFY remoteChanged)
+    Q_PROPERTY(QStringList remotes READ remotes WRITE setRemotes NOTIFY remotesChanged)
+    Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
+    Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
+    Q_PROPERTY(QStringList subfolders READ subfolders WRITE setSubfolders NOTIFY subfoldersChanged)
+
+    enum class Status {
+        Error = -1,
+        Ready,
+        Busy
+    };
+    Q_ENUM(Status)
+    Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanged)
+
+    enum GitStatusFlag {
+        Error = -1,
+        UpToDate = 0,
+        Ahead = 1,
+        Behind = 2,
+        Diverged = 3,
+        FastForward = 4,
+        Merge = 5,
+        Conflict = 6,
+        MergeStatusMask = 0x1100
+    };
+    Q_ENUM(GitStatusFlag)
+    Q_DECLARE_FLAGS(GitStatus, GitStatusFlag)
+    Q_PROPERTY(GitStatus gitStatus READ gitStatus WRITE setGitStatus NOTIFY gitStatusChanged)
+    Q_FLAGS(GitStatus)
+
+    explicit Addon(QString name, git_repository *repo, QObject *parent = nullptr);
+
+    QString name() const;
+
+    QStringList branches() const;
+
+    QString currentBranch() const;
+
+    QString remote() const;
+
+    QStringList remotes() const;
+
+    int progress() const;
+
+    int total() const;
+
+    Status status() const;
+
+    GitStatus gitStatus() const;
+
+    QStringList subfolders() const;
+
+private:
+
+    Status m_status;
+
+    GitStatus m_gitStatus;
+
+    QStringList m_subfolders;
+
+    void closeRepo();
+
+    void openRepo();
+
+    void delegate(QString taskname, auto work, auto callback);
+    void delegate(QString taskname, auto work);
+
+    QThreadPool *m_pool;
+
+    void removeFolder(QString path);
+signals:
+
+    void nameChanged(QString name);
+
+    void branchesChanged(QStringList branches);
+
+    void currentBranchChanged(QString currentBranch);
+
+    void remoteChanged(QString remote);
+
+    void remotesChanged(QStringList remotes);
+
+    void progressChanged(int progress);
+
+    void totalChanged(int total);
+
+    void statusChanged(Status status);
+
+    void gitStatusChanged(GitStatus gitStatus);
+
+    void subfoldersChanged(QStringList subfolders);
+
+public slots:
+    void setName(QString name);
+    void update();
+    void scanBranches();
+    void scanSubfolders();
+    void setBranches(QStringList branches);
+    void setCurrentBranch(QString currentBranch);
+    void setRemote(QString remote);
+    void setRemotes(QStringList remotes);
+    void fetchRemote(QString remote);
+    void setProgress(int progress);
+    void setTotal(int total);
+    void setStatus(Status status);
+    void setGitStatus(GitStatus gitStatus);
+    void updateGitStatus();
+    void uninstall();
+    void setSubfolders(QStringList subfolders);
+    void removeSubfolders();
+    void unpackSubfolders();
+};
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Addon::GitStatus)
+
+#endif // ADDON_H
