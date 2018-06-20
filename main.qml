@@ -28,6 +28,7 @@ ApplicationWindow {
     id: window
 
     property int availableUpdates: 0
+    property bool addonsReady: false
     Component.onCompleted: {
         availableUpdates = Qt.binding(function(){
             var count = 0
@@ -37,6 +38,14 @@ ApplicationWindow {
                     count = count + 1
             }
             return count
+        })
+        addonsReady = Qt.binding(function(){
+            for (var i = 0; i < Engine.addons.length; i++) {
+                var addon = Engine.addons[i]
+                if (addon.status == Addon.Status.Busy)
+                    return false
+            }
+            return true
         })
     }
 
@@ -71,6 +80,7 @@ ApplicationWindow {
         icon.name: "view-refresh"
         onTriggered: Engine.scanForAddons()
         shortcut: StandardKey.Refresh
+        enabled: Control.status == Control.Ready && addonsReady
     }
     Action {
         id: addAction
