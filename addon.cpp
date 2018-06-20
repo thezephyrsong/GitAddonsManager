@@ -503,6 +503,7 @@ void Addon::openRepo()
 
 void Addon::delegate(QString taskname, auto work, auto callback)
 {
+    Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
     if (status() != Status::Ready) {
         qInfo() << name() << "Enqueueing" << taskname;
         m_tasks.enqueue({taskname, [this, taskname, work, callback](){delegate(taskname, work,callback);}});
@@ -525,8 +526,7 @@ void Addon::delegate(QString taskname, auto work, auto callback)
         else
             callback(fw->result());
 
-        while(!old.isEmpty())
-            m_tasks.enqueue(old.dequeue());
+        m_tasks.append(old);
 
         if (!m_tasks.isEmpty() && status() != Status::Busy)
             m_tasks.dequeue().second();

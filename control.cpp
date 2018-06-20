@@ -39,6 +39,7 @@ Control::Control(QObject *parent) : QObject(parent), m_progress(0), m_total(0), 
 
 void Control::delegate(QString taskname, auto work, auto callback)
 {
+    Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
     if (status() != Status::Ready) {
         qInfo() << "Enqueueing" << taskname;
         m_tasks.enqueue({taskname, [this, taskname, work, callback](){delegate(taskname, work,callback);}});
@@ -62,8 +63,7 @@ void Control::delegate(QString taskname, auto work, auto callback)
         else
             callback(fw->result());
 
-        while(!old.isEmpty())
-            m_tasks.enqueue(old.dequeue());
+        m_tasks.append(old);
 
         if (!m_tasks.isEmpty() && status() != Status::Busy)
             m_tasks.dequeue().second();
