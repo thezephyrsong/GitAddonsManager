@@ -34,8 +34,10 @@ ColumnLayout {
                 hoverEnabled: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Path to the folder containing the addons")
+                enabled: Control.status == Control.Ready && addonsReady
             }
             Button {
+                enabled: Control.status == Control.Ready && addonsReady
                 text: qsTr("Browse")
                 onClicked: fileDialog.visible = true
                 hoverEnabled: true
