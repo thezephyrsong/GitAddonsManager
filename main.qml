@@ -24,7 +24,6 @@ ApplicationWindow {
     visible: true
     width: 640
     height: 480
-    title: qsTr("Git Addon Updater")
     id: window
 
     property int availableUpdates: 0
