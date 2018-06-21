@@ -37,8 +37,14 @@ HEADERS += \
 LIBS += -lgit2
 
 win32 {
-    DEFINES += "_WIN32_WINNT=0x06010000"
+    DEFINES += _WIN32_WINNT=0x06010000
 }
+
+GIT_TAG = $$system(git describe --tags)
+GIT_SHA = $$system(git rev-parse --short HEAD)
+
+DEFINES += GIT_TAG=\\\"$$GIT_TAG\\\" \
+    GIT_SHA=\\\"$$GIT_SHA\\\"
 
 DISTFILES += \
     README.md

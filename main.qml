@@ -133,11 +133,19 @@ ApplicationWindow {
                 Label {
                     text: "Author: woblight <woblight@gmail.com>"
                 }
-
                 Label {
                     text: "Source code: <a href=https://gitlab.com/woblight/GitAddonsManager>GitLab</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
+                }
+                RowLayout {
+                    Label {
+                        text: "Version:"
+                    }
+                    TextArea {
+                        readOnly: true
+                        text: gitVersion
+                    }
                 }
             }
         }
