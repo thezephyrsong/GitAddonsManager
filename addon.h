@@ -22,6 +22,8 @@
 #include <memory>
 #include <functional>
 #include <QQueue>
+#include <QMutex>
+#include <QWaitCondition>
 
 class git_repository;
 using repo_p = std::unique_ptr<git_repository, void(*)(git_repository *)>;
@@ -49,6 +51,9 @@ class Addon : public QObject
 
     int m_total;
 
+    QMutex m_mutex;
+    QWaitCondition m_wait;
+    void *m_result;
 public:
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QStringList branches READ branches WRITE setBranches NOTIFY branchesChanged)
@@ -58,6 +63,7 @@ public:
     Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
     Q_PROPERTY(QStringList subfolders READ subfolders WRITE setSubfolders NOTIFY subfoldersChanged)
+    Q_PROPERTY(QString filesToRemove READ filesToRemove WRITE setFilesToRemove NOTIFY filesToRemoveChanged)
 
     enum class Status {
         Error = -1,
@@ -105,6 +111,8 @@ public:
 
     QStringList subfolders() const;
 
+    QString filesToRemove() const;
+
 private:
 
     Status m_status;
@@ -122,7 +130,9 @@ private:
 
     QThreadPool *m_pool;
 
-    void removeFolder(QString path);
+    void removeFolder(QString path, bool ask = true);
+    QString m_filesToRemove;
+
 signals:
 
     void nameChanged(QString name);
@@ -145,6 +155,8 @@ signals:
 
     void subfoldersChanged(QStringList subfolders);
 
+    void filesToRemoveChanged(QString filesToRemove);
+
 public slots:
     void setName(QString name);
     void update();
@@ -164,6 +176,8 @@ public slots:
     void setSubfolders(QStringList subfolders);
     void removeSubfolders();
     void unpackSubfolders();
+    void setFilesToRemove(QString filesToRemove);
+    void confirmFileRemove(bool confirmed);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Addon::GitStatus)

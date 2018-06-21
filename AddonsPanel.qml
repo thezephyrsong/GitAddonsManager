@@ -126,6 +126,26 @@ ColumnLayout {
                         }
                     }
                 }
+                Dialog {
+                    parent: window.overlay
+                    x: (parent.width - width) / 2
+                    y: (parent.height - height) / 2
+                    title: qsTr("Following files will be deleted:")
+                    standardButtons: Dialog.Ok | Dialog.Cancel
+                    onClosed: addon.confirmFileRemove(result == Dialog.Accepted)
+                    modal: true
+                    visible: addon.filesToRemove != ""
+                    closePolicy: Popup.NoAutoClose
+                    ScrollView{
+                        anchors.fill: parent
+                        TextArea {
+                            text: addon.filesToRemove
+                            readOnly: true
+                            anchors.fill: parent
+                            wrapMode: Text.NoWrap
+                        }
+                    }
+                }
             }
         }
         ScrollBar {id: scrollBar; Layout.fillHeight: true; visible: listView.contentHeight > listView.header}

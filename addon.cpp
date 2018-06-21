@@ -354,28 +354,38 @@ void Addon::setSubfolders(QStringList subfolders)
 
 void walkFolders(QFileInfo &info, auto f){
     if (info.isDir() && !info.isSymLink()) {
-        foreach (QFileInfo sub, QDir(info.filePath()).entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
+        foreach (QFileInfo sub, QDir(info.absoluteFilePath()).entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
             walkFolders(sub, f);
     }
     f(info);
 }
 
-void Addon::removeFolder(QString path) {
+void Addon::removeFolder(QString path, bool ask) {
     QFileInfo info(path);
+    QStringList files;
+    bool ok = ask;
     if (info.exists()) {
-        int i = 0;
-        walkFolders(info, [ &i](QFileInfo /*info*/){
-            i++;
+        walkFolders(info, [&files](QFileInfo info){
+            files << info.absoluteFilePath();
         });
-        emit totalChanged(i);
-        i = 0;
-        walkFolders(info, [this, &i](QFileInfo info){
-            if (!info.isSymLink() && info.isDir())
-                info.dir().rmdir(info.fileName());
-            else
-                QFile(info.filePath()).remove();
-            emit totalChanged(++i);
-        });
+        if (ask) {
+            m_mutex.lock();
+            m_result = &ok;
+            QMetaObject::invokeMethod(this, "setFilesToRemove", Q_ARG(QString, files.join('\n')));
+            m_wait.wait(&m_mutex);
+            m_mutex.unlock();
+        }
+        if (ok) {
+            emit totalChanged(files.size());
+            for (int i = 0; i < files.size(); i++) {
+                QFileInfo info(files[i]);
+                if (!info.isSymLink() && info.isDir())
+                    info.dir().rmdir(info.fileName());
+                else
+                    QFile(info.absoluteFilePath()).remove();
+                emit totalChanged(i);
+            }
+        }
     }
 }
 
@@ -444,6 +454,23 @@ void Addon::unpackSubfolders(){
     });
 }
 
+void Addon::setFilesToRemove(QString filesToRemove)
+{
+    if (m_filesToRemove == filesToRemove)
+        return;
+
+    m_filesToRemove = filesToRemove;
+    emit filesToRemoveChanged(m_filesToRemove);
+}
+
+void Addon::confirmFileRemove(bool confirmed)
+{
+    m_mutex.lock();
+    *static_cast<bool *>(m_result) = confirmed;
+    m_wait.wakeOne();
+    m_mutex.unlock();
+}
+
 QStringList Addon::branches() const
 {
     return m_branches;
@@ -487,6 +514,11 @@ Addon::GitStatus Addon::gitStatus() const
 QStringList Addon::subfolders() const
 {
     return m_subfolders;
+}
+
+QString Addon::filesToRemove() const
+{
+    return m_filesToRemove;
 }
 
 void Addon::closeRepo()
