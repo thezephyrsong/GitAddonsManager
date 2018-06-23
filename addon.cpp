@@ -376,14 +376,14 @@ void Addon::removeFolder(QString path, bool ask) {
             m_mutex.unlock();
         }
         if (ok) {
-            emit totalChanged(files.size());
+            setTotal(files.size());
             for (int i = 0; i < files.size(); i++) {
                 QFileInfo info(files[i]);
                 if (!info.isSymLink() && info.isDir())
                     info.dir().rmdir(info.fileName());
                 else
                     QFile(info.absoluteFilePath()).remove();
-                emit progressChanged(i);
+                setProgress(i);
             }
         }
     }
