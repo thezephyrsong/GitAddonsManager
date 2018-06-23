@@ -383,7 +383,7 @@ void Addon::removeFolder(QString path, bool ask) {
                     info.dir().rmdir(info.fileName());
                 else
                     QFile(info.absoluteFilePath()).remove();
-                emit totalChanged(i);
+                emit progressChanged(i);
             }
         }
     }
