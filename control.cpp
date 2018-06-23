@@ -221,7 +221,7 @@ void Control::clone(QUrl url)
     },[this](auto ret){
         if (ret.error.isEmpty()) {
             auto add = new Addon(ret.name, ret.repo);
-            m_addons << add;
+            m_addons.prepend(add);
             addonsChanged(m_addons);
             add->unpackSubfolders();
         } else {
