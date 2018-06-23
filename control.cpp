@@ -209,10 +209,13 @@ void Control::clone(QUrl url)
         QStringList toc = dir.entryList({"*.toc"});
         if (toc.isEmpty()) {
         } else if (toc[0].toLower() != dir.dirName().toLower() + ".toc") {
+            git_repository_free(data.repo);
             dir.cdUp();
             QString newName = toc[0].chopped(4);
             dir.rename(data.name, newName);
             data.name = newName;
+            dir.cd(data.name);
+            git_repository_open(&data.repo, dir.canonicalPath().toLocal8Bit());
         }
         return data;
     },[this](auto ret){
