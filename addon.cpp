@@ -402,6 +402,7 @@ void Addon::unpackSubfolders(){
         QStringList errors;
         QDir addonsDir(Control::instance()->addonsPath());
         if (m_subfolders.contains(m_name, Qt::CaseInsensitive)) {
+            closeRepo();
             QString oldName = m_name;
             setName(m_name + ".repo");
             addonsDir.rename(oldName, m_name);
