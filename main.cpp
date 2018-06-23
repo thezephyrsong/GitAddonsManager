@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         return Control::instance();
     });
     qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
-    engine.rootContext()->setContextProperty("gitVersion", QString("%1 (%2)").arg(GIT_TAG, GIT_SHA));
+    engine.rootContext()->setContextProperty("gitVersion", GIT_DESCRIBE);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;

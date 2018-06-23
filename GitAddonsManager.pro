@@ -40,11 +40,9 @@ win32 {
     DEFINES += _WIN32_WINNT=0x06010000
 }
 
-GIT_TAG = $$system(git describe --tags)
-GIT_SHA = $$system(git rev-parse --short HEAD)
+GIT_DESCRIBE = $$system(git describe --tags)
 
-DEFINES += GIT_TAG=\\\"$$GIT_TAG\\\" \
-    GIT_SHA=\\\"$$GIT_SHA\\\"
+DEFINES += GIT_DESCRIBE=\\\"$$GIT_DESCRIBE\\\"
 
 DISTFILES += \
     README.md
