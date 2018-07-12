@@ -1,4 +1,4 @@
-QT += quick widgets concurrent
+QT += quick widgets concurrent quickcontrols2
 CONFIG += c++1z
 
 # The following define makes your compiler emit warnings if you use

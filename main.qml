@@ -89,7 +89,6 @@ ApplicationWindow {
     }
     Action {
         id: updateAllAction
-        icon.name: availableUpdates > 0 ? "update-high" : "update-none"
         onTriggered: updateAll()
         enabled: availableUpdates > 0
     }
@@ -145,6 +144,8 @@ ApplicationWindow {
                     TextArea {
                         readOnly: true
                         text: gitVersion
+                        selectByMouse: true
+                        onFocusChanged: if (focus) selectAll()
                     }
                 }
             }
@@ -165,6 +166,7 @@ ApplicationWindow {
         visible: cloneHelpBtn.checked
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
+        standardButtons: Dialog.Close
         title: qsTr("Clone URL Help")
         ColumnLayout {
             anchors.fill: parent

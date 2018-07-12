@@ -21,9 +21,8 @@ import QtQuick.Layouts 1.3
 
 ToolButton {
     id: upBtn
-    enabled: addon.status == Addon.Ready && (addon.gitStatus != Addon.UpToDate && addon.gitStatus != Addon.Error)
+    enabled: addon.status === Addon.Ready && (addon.gitStatus !== Addon.UpToDate && addon.gitStatus !== Addon.Error)
     state: addon.gitStatus & ~Addon.MergeStatusMask
-    icon.color: enabled ? "transparent" : "lightgray"
     onClicked: addon.update()
     hoverEnabled: true
     states: [

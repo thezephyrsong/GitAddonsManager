@@ -21,29 +21,26 @@ import QtQuick.Layouts 1.3
 
 
 ColumnLayout {
-    Frame {
+    RowLayout {
         Layout.fillWidth: true
-        contentItem: RowLayout {
-            width: parent.width
-            TextField {
-                Layout.fillWidth: true
-                id: path
-                text: Engine.addonsPath
-                onAccepted: Engine.addonsPath = text
-                placeholderText: qsTr("Path to AddOns folder")
-                hoverEnabled: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Path to the folder containing the addons")
-                enabled: Control.status == Control.Ready && addonsReady
-            }
-            Button {
-                enabled: Control.status == Control.Ready && addonsReady
-                text: qsTr("Browse")
-                onClicked: fileDialog.visible = true
-                hoverEnabled: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Choose the folder containing the addons")
-            }
+        TextField {
+            Layout.fillWidth: true
+            id: path
+            text: Engine.addonsPath
+            onAccepted: Engine.addonsPath = text
+            placeholderText: qsTr("Path to AddOns folder")
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Path to the folder containing the addons")
+            enabled: Control.status == Control.Ready && addonsReady
+        }
+        Button {
+            enabled: Control.status == Control.Ready && addonsReady
+            text: qsTr("Browse")
+            onClicked: fileDialog.visible = true
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Choose the folder containing the addons")
         }
     }
     CheckBox {
@@ -57,5 +54,34 @@ ColumnLayout {
         hoverEnabled: true
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Minimize to System Tray when the main window is closed.")
+    }
+    RowLayout {
+        Label {
+            text: qsTr("Style")
+        }
+        ComboBox {
+            model: Engine.availableStyles
+            currentIndex: Engine.availableStyles.indexOf(Engine.style)
+            onActivated: {
+                Engine.style = Engine.availableStyles[currentIndex]
+                restartDialog.visible = true
+            }
+            ToolTip.text: qsTr("Requires restart")
+            ToolTip.visible: hovered
+            hoverEnabled: true
+        }
+    }
+    Dialog {
+        id: restartDialog
+        parent: overlay
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        standardButtons: Dialog.Yes | Dialog.No
+        Label {
+            anchors.fill: parent
+            text: qsTr("The application must be restarted for this change to take effect.\nRestart now?")
+            wrapMode: Text.WordWrap
+        }
+        onAccepted: Qt.exit(1)
     }
 }

@@ -20,9 +20,16 @@
 #include "addon.h"
 #include <QIcon>
 #include <QQmlContext>
+#include <QQuickStyle>
+#include <QInputDialog>
+#include <QSettings>
+#include <QProcess>
 
 int main(int argc, char *argv[])
 {
+    int res;
+
+    qmlClearTypeRegistrations();
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     app.setApplicationDisplayName("Git Addons Manager");
@@ -30,8 +37,18 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("Git Addons Manager");
 
     QIcon::setThemeName("breeze");
-
     QQmlApplicationEngine engine;
+    bool ok;
+    QSettings setts;
+    QStringList styles = QQuickStyle::availableStyles();
+    QString style = setts.value("style").toString();
+    if (style.isNull())
+        style = QInputDialog::getItem(nullptr, "Choose a style", "", styles, styles.indexOf(QQuickStyle::name()), false, &ok);
+    QQuickStyle::setStyle(style);
+    if (ok) {
+        setts.setValue("style", style);
+        setts.sync();
+    }
     qmlRegisterSingletonType<Control>("GitAddonsManager.engine",1,0,"Engine",[](QQmlEngine *, QJSEngine *)->QObject*{
         return Control::instance();
     });
@@ -40,6 +57,12 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
+    QObject::connect(Control::instance(), &Control::styleChanged,[&setts](const QString &style){
+        setts.setValue("style", style);
+    });
 
-    return app.exec();
+    res = app.exec();
+    if (res == 1)
+        QProcess().startDetached(app.arguments()[0],app.arguments().mid(1));
+    return res;
 }

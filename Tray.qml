@@ -21,8 +21,7 @@ import GitAddonsManager.engine 1.0
 
 SystemTrayIcon {
     visible: true
-    iconName: "update-none"
-
+    iconName: availableUpdates > 0 ? "update-high" : "update-none"
     onActivated: {
         window.show()
         window.raise()

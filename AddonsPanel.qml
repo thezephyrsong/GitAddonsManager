@@ -19,9 +19,9 @@ import GitAddonsManager.engine 1.0
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
-ColumnLayout {
-
-    ToolBar {
+Page {
+    title: "Addons"
+    header: ToolBar {
         Layout.fillWidth: true
         RowLayout {
             anchors.fill: parent
@@ -34,6 +34,7 @@ ColumnLayout {
             ToolButton {
                 hoverEnabled: true
                 action: updateAllAction
+                icon.name: availableUpdates > 0 ? "update-high" : "update-none"
                 ToolTip.visible: hovered
                 ToolTip.text: "Upgrade all addons"
             }
@@ -58,8 +59,8 @@ ColumnLayout {
         }
     }
     RowLayout {
-        Layout.fillHeight: true
-        Layout.fillWidth: true
+        anchors.fill: parent
+        anchors.leftMargin: 4
         spacing: 0
         ListView {
             ScrollBar.vertical: scrollBar
@@ -76,7 +77,6 @@ ColumnLayout {
                 hoverEnabled: true
                 id: ma
                 RowLayout {
-                    spacing: 0
                     width: parent.width
                     id: row
                     Rectangle {
@@ -88,13 +88,18 @@ ColumnLayout {
                     Label {
                         id: addonName
                         text: addon.name
+                    }
+                    Item {
                         Layout.fillWidth: true
-                        background: ProgressBar {
+                        Layout.fillHeight: true
+                        ProgressBar {
+                            anchors.fill: parent
+                            anchors.margins: 4
                             id: pBar
                             from: 0
                             to: addon.total
                             value: addon.progress
-                            visible: addon.status == Addon.Status.Busy
+                            visible: addon.status === Addon.Status.Busy
                             indeterminate: to == 0
                         }
                     }
@@ -105,26 +110,29 @@ ColumnLayout {
                         Component.onCompleted: currentIndex = find(addon.currentBranch)
                         onActivated: addon.currentBranch = currentText
                     }
-                    AddonUpdateButton {
-                        width: parent.width
-                    }
-                    ToolButton {
-                        icon.name: "overflow-menu"
-                        onClicked: if (!addonMenu.visible) addonMenu.visible = true
-                        checked: addonMenu.visible
-                        Menu {
-                            x: -width
-                            id: addonMenu
-                            visible: false
-                            MenuItem {
-                                enabled: addon.status == Addon.Status.Ready
-                                id: deleteButton
-                                text: qsTr("delete")
-                                icon.name: "delete"
-                                onTriggered: addon.uninstall()
+                        RowLayout {
+                            spacing: 0
+                            AddonUpdateButton {
+                            }
+                            ToolButton {
+                                icon.name: "overflow-menu"
+                                onClicked: if (!addonMenu.visible) addonMenu.visible = true
+                                checked: addonMenu.visible
+                                Menu {
+                                    x: -width
+                                    id: addonMenu
+                                    visible: false
+                                    MenuItem {
+                                        enabled: addon.status == Addon.Status.Ready
+                                        id: deleteButton
+                                        text: qsTr("delete")
+                                        icon.name: "delete"
+                                        onTriggered: addon.uninstall()
+                                        hoverEnabled: true
+                                    }
+                                }
                             }
                         }
-                    }
                 }
                 Dialog {
                     parent: window.overlay

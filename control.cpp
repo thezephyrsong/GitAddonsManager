@@ -18,6 +18,8 @@
 #include <QSettings>
 #include <QDir>
 #include <QFutureWatcher>
+#include <QQuickStyle>
+#include <QQuickStyle>
 #include "addon.h"
 #include <git2.h>
 #include <QDebug>
@@ -26,7 +28,9 @@
 
 Control *Control::m_instance = nullptr;
 
-Control::Control(QObject *parent) : QObject(parent), m_progress(0), m_total(0), m_status(Status::Ready), m_statusMessage(""), m_pool(new QThreadPool(this))
+Control::Control(QObject *parent) : QObject(parent),
+    m_progress(0), m_total(0), m_status(Status::Ready), m_statusMessage(""), m_pool(new QThreadPool(this)),
+    m_style(QQuickStyle::name()),m_availableStyles(QQuickStyle::availableStyles())
 {
     QSettings settings;
     setAddonsPath(settings.value("addonsPath").toString());
@@ -81,6 +85,11 @@ void Control::delegate(QString taskname, auto work)
         delegate(taskname, work, [](ret_t){});
 }
 
+Control::~Control()
+{
+    m_instance = nullptr;
+}
+
 QList<QObject *> Control::addons() const
 {
     return m_addons;
@@ -126,6 +135,16 @@ bool Control::firstBoot() const
 Control::MinimizeToTray Control::minimizeToTray() const
 {
     return m_minimizeToTray;
+}
+
+QString Control::style() const
+{
+    return m_style;
+}
+
+QStringList Control::availableStyles() const
+{
+    return m_availableStyles;
 }
 
 void Control::setAddons(QList<QObject *> addons)
@@ -288,4 +307,22 @@ void Control::setMinimizeToTray(MinimizeToTray minimizeToTray)
     emit minimizeToTrayChanged(m_minimizeToTray);
     QSettings s;
     s.setValue("minimizeToTray",(int)minimizeToTray);
+}
+
+void Control::setStyle(QString theme)
+{
+    if (m_style == theme)
+        return;
+
+    m_style = theme;
+    emit styleChanged(m_style);
+}
+
+void Control::setAvailableStyles(QStringList availableStyles)
+{
+    if (m_availableStyles == availableStyles)
+        return;
+
+    m_availableStyles = availableStyles;
+    emit availableStylesChanged(m_availableStyles);
 }

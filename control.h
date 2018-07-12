@@ -42,6 +42,10 @@ public:
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage WRITE setStatusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(bool firstBoot READ firstBoot WRITE setFirstBoot NOTIFY firstBootChanged)
+    Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
+    Q_PROPERTY(QStringList availableStyles READ availableStyles WRITE setAvailableStyles NOTIFY availableStylesChanged)
+
+    ~Control();
 
     enum class Status {
         Error = -1,
@@ -77,6 +81,10 @@ public:
 
     MinimizeToTray minimizeToTray() const;
 
+    QString style() const;
+
+    QStringList availableStyles() const;
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);
@@ -98,6 +106,10 @@ private:
     void delegate(QString message, auto work, auto callback);
     void delegate(QString message, auto work);
 
+    QString m_style;
+
+    QStringList m_availableStyles;
+
 signals:
     void addonsChanged(QList<QObject *> addons);
 
@@ -115,6 +127,10 @@ signals:
 
     void minimizeToTrayChanged(MinimizeToTray minimizeToTray);
 
+    void styleChanged(QString style);
+
+    void availableStylesChanged(QStringList availableStyles);
+
 public slots:
     void setAddons(QList<QObject *> addons);
     void setAddonsPath(QString addonsPath);
@@ -127,6 +143,8 @@ public slots:
     void setStatusMessage(QString statusMessage);
     void setFirstBoot(bool firstBoot);
     void setMinimizeToTray(MinimizeToTray minimizeToTray);
+    void setStyle(QString style);
+    void setAvailableStyles(QStringList availableStyles);
 };
 Q_DECLARE_METATYPE(Control::MinimizeToTray)
 
