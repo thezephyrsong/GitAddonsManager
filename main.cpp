@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     qmlClearTypeRegistrations();
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
-    app.setApplicationDisplayName("Git Addons Manager");
+    app.setApplicationDisplayName(QObject::tr("Git Addons Manager"));
     QCoreApplication::setOrganizationName("GitAddonsManager");
     QCoreApplication::setApplicationName("Git Addons Manager");
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     QStringList styles = QQuickStyle::availableStyles();
     QString style = setts.value("style").toString();
     if (style.isNull())
-        style = QInputDialog::getItem(nullptr, "Choose a style", "", styles, styles.indexOf(QQuickStyle::name()), false, &ok);
+        style = QInputDialog::getItem(nullptr, QObject::tr("Choose a style"), QObject::tr("You will be able to pick another style later by visiting the Options tab."), styles, styles.indexOf(QQuickStyle::name()), false, &ok);
     QQuickStyle::setStyle(style);
     if (ok) {
         setts.setValue("style", style);
