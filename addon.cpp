@@ -472,6 +472,19 @@ void Addon::confirmFileRemove(bool confirmed)
     m_mutex.unlock();
 }
 
+void Addon::reset()
+{
+    removeSubfolders();
+    delegate("Reset", [this](){
+        git_reference *ref = nullptr;
+        git_repository_head(&ref, m_repo.get());
+        git_object *obj = nullptr;
+        git_object_lookup(&obj, m_repo.get(), git_reference_target(ref), GIT_OBJ_ANY);
+        git_reset(m_repo.get(), obj, GIT_RESET_HARD, nullptr);
+    });
+    unpackSubfolders();
+}
+
 QStringList Addon::branches() const
 {
     return m_branches;

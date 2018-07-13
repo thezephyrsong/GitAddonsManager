@@ -20,5 +20,6 @@
         <file>icons/breeze/COPYING-ICONS</file>
         <file>icons/breeze/index.theme</file>
         <file>ColorPicker.qml</file>
+        <file>icons/breeze/svg/document-edit-decrypt.svg</file>
     </qresource>
 </RCC>

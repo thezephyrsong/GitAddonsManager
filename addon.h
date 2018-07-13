@@ -178,6 +178,7 @@ public slots:
     void unpackSubfolders();
     void setFilesToRemove(QString filesToRemove);
     void confirmFileRemove(bool confirmed);
+    void reset();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Addon::GitStatus)

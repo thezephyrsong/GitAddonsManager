@@ -128,6 +128,13 @@ Page {
                                     id: addonMenu
                                     visible: false
                                     MenuItem {
+                                        id: repairButton
+                                        text: qsTr("repair")
+                                        icon.name: "document-edit-decrypt"
+                                        onTriggered: addon.reset()
+                                    }
+
+                                    MenuItem {
                                         enabled: addon.status == Addon.Status.Ready
                                         id: deleteButton
                                         text: qsTr("delete")
