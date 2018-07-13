@@ -19,5 +19,6 @@
         <file>icons/breeze/svg/view-refresh.svg</file>
         <file>icons/breeze/COPYING-ICONS</file>
         <file>icons/breeze/index.theme</file>
+        <file>ColorPicker.qml</file>
     </qresource>
 </RCC>

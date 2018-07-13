@@ -18,7 +18,9 @@ import QtQuick 2.9
 import QtQuick.Controls 2.4
 import GitAddonsManager.engine 1.0
 import QtQuick.Layouts 1.3
-
+import QtQuick.Controls.Material 2.2
+import QtQuick.Controls.Universal 2.2
+import Qt.labs.settings 1.0
 
 ColumnLayout {
     RowLayout {
@@ -44,6 +46,7 @@ ColumnLayout {
         }
     }
     CheckBox {
+        Layout.fillWidth: true
         tristate: Engine.minimizeToTray == Engine.MinimizeToTrayAsk
         onCheckedChanged: Engine.minimizeToTray = checked ? Engine.MinimizeToTrayYes : Engine.MinimizeToTrayNo
         checkState: Engine.minimizeToTray == Engine.MinimizeToTrayAsk ?
@@ -55,20 +58,93 @@ ColumnLayout {
         ToolTip.visible: hovered
         ToolTip.text: qsTr("Minimize to System Tray when the main window is closed.")
     }
-    RowLayout {
-        Label {
-            text: qsTr("Style")
-        }
-        ComboBox {
-            model: Engine.availableStyles
-            currentIndex: Engine.availableStyles.indexOf(Engine.style)
-            onActivated: {
-                Engine.style = Engine.availableStyles[currentIndex]
-                restartDialog.visible = true
+    GroupBox {
+        Layout.fillWidth: true
+        title: qsTr("Style")
+        Flow {
+            anchors.fill: parent
+            spacing: 4
+            ComboBox {
+                model: Engine.availableStyles
+                currentIndex: Engine.availableStyles.indexOf(Engine.style)
+                onActivated: {
+                    Engine.style = Engine.availableStyles[currentIndex]
+                    restartDialog.visible = true
+                }
+                ToolTip.text: qsTr("Requires restart")
+                ToolTip.visible: hovered
+                hoverEnabled: true
             }
-            ToolTip.text: qsTr("Requires restart")
-            ToolTip.visible: hovered
-            hoverEnabled: true
+            ComboBox {
+                id: materialTheme
+                visible: Engine.style == "Material"
+                model: ["Light", "Dark"]
+                onCurrentIndexChanged: window.Material.theme = currentIndex
+            }
+            ComboBox {
+                id: universalTheme
+                visible: Engine.style == "Universal"
+                model: ["Light", "Dark", "System"]
+                onActivated: window.Universal.theme = currentIndex
+            }
+            ListModel {
+                id: materialColors
+                dynamicRoles: true
+                Component.onCompleted: {
+                    for (var i = 0; i < 19; i++)
+                        append({"color": Material.color(i)})}
+            }
+            ListModel {
+                id: materialDarkColors
+                dynamicRoles: true
+                Component.onCompleted: {
+                    for (var i = 0; i < 19; i++)
+                        append({"color": Material.color(i,Material.Shade200)})}
+            }
+            ListModel {
+                id: universalColors
+                dynamicRoles: true
+                Component.onCompleted: {
+                    for (var i = 0; i < 20; i++)
+                        append({"color": Universal.color(i)})}
+            }
+
+            ColorPicker {
+                id: materialPrimary
+                visible: Engine.style == "Material"
+                text: qsTr("Primary:")
+                model: materialTheme.currentIndex === Material.Dark ? materialDarkColors : materialColors
+                currentIndex: Material.Indigo
+                onColorChanged: window.Material.primary = color
+            }
+            ColorPicker {
+                id: materialAccent
+                visible: Engine.style == "Material"
+                text: qsTr("Accent:")
+                model: materialTheme.currentIndex === Material.Dark ? materialDarkColors : materialColors
+                currentIndex: Material.Pink
+                onColorChanged: window.Material.accent = color
+            }
+            ColorPicker {
+                id: universalAccent
+                visible: Engine.style == "Universal"
+                text: qsTr("Accent:")
+                model: universalColors
+                currentIndex: Universal.Cobalt
+                onColorChanged: window.Universal.accent = color
+            }
+
+            Settings {
+                category: "Material"
+                property alias primary: materialPrimary.currentIndex
+                property alias accent: materialAccent.currentIndex
+                property alias theme: materialTheme.currentIndex
+            }
+            Settings {
+                category: "Universal"
+                property alias accent: universalAccent.currentIndex
+                property alias theme: universalTheme.currentIndex
+            }
         }
     }
     Dialog {

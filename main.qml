@@ -125,7 +125,8 @@ ApplicationWindow {
             }
 
             Options {
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
 
             ColumnLayout {

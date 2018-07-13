@@ -18,6 +18,7 @@ import QtQuick 2.9
 import GitAddonsManager.engine 1.0
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.4
 
 Page {
     title: "Addons"
@@ -30,6 +31,7 @@ Page {
                 action: addAction
                 ToolTip.visible: hovered
                 ToolTip.text: "Download a new addon from a git repository"
+                Material.foreground: Material.background
             }
             ToolButton {
                 hoverEnabled: true
@@ -37,12 +39,14 @@ Page {
                 icon.name: availableUpdates > 0 ? "update-high" : "update-none"
                 ToolTip.visible: hovered
                 ToolTip.text: "Upgrade all addons"
+                Material.foreground: Material.background
             }
             ToolButton {
                 hoverEnabled: true
                 action: openAddonsFolder
                 ToolTip.visible: hovered
                 ToolTip.text: "Open addons folder externally"
+                Material.foreground: Material.background
             }
 
             Item {
@@ -55,6 +59,7 @@ Page {
                 action: refreshAction
                 ToolTip.visible: hovered
                 ToolTip.text: "Refresh addons list and check for updates"
+                Material.foreground: Material.background
             }
         }
     }
