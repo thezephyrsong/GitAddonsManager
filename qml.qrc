@@ -17,9 +17,13 @@
         <file>icons/breeze/svg/update-medium.svg</file>
         <file>icons/breeze/svg/update-none.svg</file>
         <file>icons/breeze/svg/view-refresh.svg</file>
-        <file>icons/breeze/COPYING-ICONS</file>
         <file>icons/breeze/index.theme</file>
         <file>ColorPicker.qml</file>
         <file>icons/breeze/svg/document-edit-decrypt.svg</file>
+        <file>icons/breeze/svg/help-about.svg</file>
+        <file>fonts/Hack-Bold.ttf</file>
+        <file>fonts/Hack-BoldItalic.ttf</file>
+        <file>fonts/Hack-Italic.ttf</file>
+        <file>fonts/Hack-Regular.ttf</file>
     </qresource>
 </RCC>

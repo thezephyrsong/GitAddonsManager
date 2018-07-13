@@ -128,6 +128,17 @@ Page {
                                     id: addonMenu
                                     visible: false
                                     MenuItem {
+                                        id: readmeButton
+                                        text: qsTr("readme")
+                                        enabled: addon.readme !== ""
+                                        icon.name: "help-about"
+                                        onTriggered: {
+                                            readmeDialog.addon = addon
+                                            readmeDialog.visible = true
+                                        }
+                                    }
+
+                                    MenuItem {
                                         id: repairButton
                                         text: qsTr("repair")
                                         icon.name: "document-edit-decrypt"
@@ -169,5 +180,24 @@ Page {
             }
         }
         ScrollBar {id: scrollBar; Layout.fillHeight: true; visible: listView.contentHeight > listView.header}
+    }
+    Dialog {
+        property Addon addon
+        id: readmeDialog
+        parent: window.overlay
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        title: addon?qsTr("%1 Readme").arg(addon.name):""
+        standardButtons: Dialog.Close
+        ScrollView{
+            anchors.fill: parent
+            TextArea {
+                text: readmeDialog.addon?readmeDialog.addon.readme:""
+                readOnly: true
+                anchors.fill: parent
+                wrapMode: Text.NoWrap
+                font.family: monospaced.name
+            }
+        }
     }
 }

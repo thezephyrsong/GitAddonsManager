@@ -64,6 +64,7 @@ public:
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
     Q_PROPERTY(QStringList subfolders READ subfolders WRITE setSubfolders NOTIFY subfoldersChanged)
     Q_PROPERTY(QString filesToRemove READ filesToRemove WRITE setFilesToRemove NOTIFY filesToRemoveChanged)
+    Q_PROPERTY(QString readme READ readme WRITE setReadme NOTIFY readmeChanged)
 
     enum class Status {
         Error = -1,
@@ -113,6 +114,8 @@ public:
 
     QString filesToRemove() const;
 
+    QString readme() const;
+
 private:
 
     Status m_status;
@@ -132,6 +135,8 @@ private:
 
     void removeFolder(QString path, bool ask = true);
     QString m_filesToRemove;
+
+    QString m_readme;
 
 signals:
 
@@ -157,6 +162,8 @@ signals:
 
     void filesToRemoveChanged(QString filesToRemove);
 
+    void readmeChanged(QString readme);
+
 public slots:
     void setName(QString name);
     void update();
@@ -179,6 +186,8 @@ public slots:
     void setFilesToRemove(QString filesToRemove);
     void confirmFileRemove(bool confirmed);
     void reset();
+    void loadReadme();
+    void setReadme(QString readme);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Addon::GitStatus)

@@ -24,6 +24,7 @@
 #include <QInputDialog>
 #include <QSettings>
 #include <QProcess>
+#include <QFontDatabase>
 
 int main(int argc, char *argv[])
 {
@@ -36,6 +37,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("GitAddonsManager");
     QCoreApplication::setApplicationName("Git Addons Manager");
 
+    QFontDatabase::addApplicationFont(":/fonts/Hack-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Hack-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Hack-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/Hack-Regular.ttf");
     QIcon::setThemeName("breeze");
     QQmlApplicationEngine engine;
     bool ok;

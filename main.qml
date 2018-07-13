@@ -21,6 +21,7 @@ import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.3
 
 ApplicationWindow {
+    FontLoader { id: monospaced; name: "Hack" }
     visible: true
     width: 640
     height: 480

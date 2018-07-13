@@ -34,6 +34,7 @@ Addon::Addon(QString name, git_repository *repo, QObject *parent) : QObject(pare
     connect(this, &Addon::remoteChanged, this, &Addon::fetchRemote);
     connect(this, &Addon::currentBranchChanged, this, &Addon::updateGitStatus);
     scanBranches();
+    loadReadme();
 }
 
 QString Addon::name() const
@@ -485,6 +486,36 @@ void Addon::reset()
     unpackSubfolders();
 }
 
+void Addon::loadReadme()
+{
+    delegate("Readme Loading",[this](){
+        QFileInfo md(Control::instance()->addonsPath() + "/" + m_name + "/README.md");
+        if (!md.exists() && !md.isFile()) {
+            QDir repodir(Control::instance()->addonsPath() + "/" + m_name);
+            auto a = repodir.entryInfoList({"readme*"});
+            if (a.size() > 0)
+                md = a[0];
+        }
+        if (md.exists() && md.isFile()) {
+            QFile file(md.absoluteFilePath());
+            if (file.open(QFile::ReadOnly))
+                return QString(file.readAll());
+        }
+        return QString("");
+    }, [this](auto readme){
+        setReadme(readme);
+    });
+}
+
+void Addon::setReadme(QString readme)
+{
+    if (m_readme == readme)
+        return;
+
+    m_readme = readme;
+    emit readmeChanged(m_readme);
+}
+
 QStringList Addon::branches() const
 {
     return m_branches;
@@ -533,6 +564,11 @@ QStringList Addon::subfolders() const
 QString Addon::filesToRemove() const
 {
     return m_filesToRemove;
+}
+
+QString Addon::readme() const
+{
+    return m_readme;
 }
 
 void Addon::closeRepo()
