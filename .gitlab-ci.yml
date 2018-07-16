@@ -1,8 +1,5 @@
 image: opensuse/tumbleweed
 
-before_script:
-  - zypper -q dup -y && zypper -q install -y wine wine-32bit git libgit2-devel make gcc gcc-c++ p7zip libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel 
-
 cache:
   paths:
     - Qt/
@@ -11,6 +8,8 @@ cache:
     - mingw32
 
 build:
+  before_script:
+    - zypper -q install -y git libgit2-devel make gcc gcc-c++ p7zip libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
   stage: build
   script:
     - make -f CI.mk build
@@ -21,6 +20,8 @@ build:
 
 winbuild:
   stage: build
+  before_script:
+    - zypper -q install -y wine wine-32bit
   script:
     - make -f CI.mk windeploy
   artifacts:
