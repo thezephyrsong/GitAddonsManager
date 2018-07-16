@@ -41,6 +41,11 @@ win32 {
 }
 
 GIT_DESCRIBE = $$system(git describe --tags)
+isEmpty(GIT_DESCRIBE){
+    message("WARNING: empty git describe")
+} else {
+    message("Git describe: $$GIT_DESCRIBE")
+}
 
 DEFINES += GIT_DESCRIBE=\\\"$$GIT_DESCRIBE\\\"
 
