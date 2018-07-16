@@ -1,12 +1,14 @@
 # Intended for gitlab CI
 
+qt7z:=5.11.1-0-201806180838£-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z
 pwd:=$(shell pwd)
-wineenv=$(WINEPREFIX) $(WINEPATH) WINEDEBUG=-all
-winepath=$(wineenv) /opt/wine-vulkan/bin/winepath
-wine=$(wineenv) /opt/wine-vulkan/bin/wine
+wineenv=$(WINEPREFIX) $(WINEENV) WINEDEBUG=-all
+winepath=$(wineenv) winepath
+wine=$(WINEPATH) $(wineenv) wine
 WINEPREFIX:=WINEPREFIX="$(pwd)/wine"
-WINEPATH:=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/git/bin")'
-qmake_opts=QTDIR="Z:/$(pwd)/Qt/5.11.1/mingw53_32/bin/" "QMAKE_INCDIR+=Z:/$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:/$(pwd)/libgit2-0.27.2/build/"
+WINEPATH:=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin");$(shell $(winepath) -w "$(pwd)/git/bin")' QTDIR='$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
+qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
+qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 build:
 	qmake . -o build/Makefile
@@ -21,21 +23,45 @@ wine/drive_c/Program\ Files\ (x86)/CMake: cmake-3.12.0-rc3-win32-x86.msi
 qt-opensource-windows-x86-5.11.1.exe:
 	wget http://download.qt.io/official_releases/qt/5.11/5.11.1/qt-opensource-windows-x86-5.11.1.exe
 	
-Qt: qt-opensource-windows-x86-5.11.1.exe
-	$(wine) qt-opensource-windows-x86-5.11.1.exe --script install-qt.qs "PATH=$$($(winepath) -w "$$PWD/Qt")"
+5.11.1-0-201806180838%-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z:
+	wget http://ftp.fau.de/qtproject/online/qtsdkrepository/windows_x86/desktop/qt5_5111/qt.qt5.5111.win32_mingw53/$@
+	
+qt-modules:=Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets
+	
+Qt/5.11.1/mingw53_32/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
+	7zr x $< -oQt -aos
+	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/5.11.1/mingw53_32/mkspecs/qconfig.pri
+	touch -c $@
+	
+Qt/5.11.1/mingw53_32/bin/windeployqt.exe: $(subst £,qttools,$(qt7z))
+
+Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll: $(subst £,qtquickcontrols2,$(qt7z))
+
+Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets: $(subst £,qtquickcontrols,$(qt7z))
+
+Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll: $(subst £,qtdeclarative,$(qt7z))
+
+Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll: $(subst £,qtsvg,$(qt7z))
+
+$(qt-modules):
+	7zr x $< -oQt -aos
+	touch -c $@
+
+Qt: Qt/5.11.1/mingw53_32/bin/qmake.exe $(qt-modules)
+
 mingw.7z:
 	wget https://vorboss.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7zr -O mingw.7z
 	
 mingw32/bin/gcc.exe: mingw.7z
 	7zr x mingw.7z
-	touch -c mingw32/bin/gcc.exe
+	touch -c $@
 	
 libgit2-v0.27.2.tar.gz:
 	wget https://github.com/libgit2/libgit2/archive/v0.27.2.tar.gz -O libgit2-v0.27.2.tar.gz
 	
 libgit2-0.27.2/CMakeLists.txt: libgit2-v0.27.2.tar.gz
 	tar -xf libgit2-v0.27.2.tar.gz
-	touch -c libgit2-0.27.2/CMakeLists.txt
+	touch -c $@
 	
 libgit2-0.27.2/build/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgit2-0.27.2/CMakeLists.txt mingw32/bin/gcc.exe
 	mkdir -p libgit2-0.27.2/build
@@ -47,10 +73,10 @@ PortableGit-2.18.0-32-bit.7z.exe:
 	
 git/bin/git.exe: PortableGit-2.18.0-32-bit.7z.exe
 	7zr -ogit x PortableGit-2.18.0-32-bit.7z.exe
-	touch -c git/bin/git.exe
+	touch -c $@
 	
 build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll mingw32/bin/gcc.exe git/bin/git.exe
-	mkdir -p build_win32 && cd build_win32 && $(wine) ../Qt/5.11.1/mingw53_32/bin/qmake.exe -spec win32-g++ ../GitAddonsManager.pro $(qmake_opts)
+	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro
 	$(wine) mingw32-make -C build_win32
 
 winbuild: build_win32/GitAddonsManager.exe
