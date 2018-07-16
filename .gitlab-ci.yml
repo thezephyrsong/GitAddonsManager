@@ -21,11 +21,6 @@ build:
 winbuild:
   stage: build
   script:
-    - make -f CI.mk winbuild
-
-windeploy:
-  stage: deploy
-  script:
     - make -f CI.mk windeploy
   artifacts:
     paths:
