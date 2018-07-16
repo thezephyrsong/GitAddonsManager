@@ -12,8 +12,8 @@ build:
     stage: build
     script: make -f CI.mk build
     artifacts:
-        - paths: build/GitAddonsManager
-        - name: Linux_x64
+        paths: build/GitAddonsManager
+        name: Linux_x64
 
 winbuild:
     stage: build
