@@ -13,7 +13,8 @@ build:
   script:
     - make -f CI.mk build
   artifacts:
-    paths: build/GitAddonsManager
+    paths:
+      - build/GitAddonsManager
     name: "Linux_x64"
 
 winbuild:
@@ -26,5 +27,6 @@ windeploy:
   script:
     - make -f CI.mk windeploy
   artifacts:
-    paths: build_win32/deploy/*
+    paths:
+      - build_win32/deploy/*
     name: "Win32"
