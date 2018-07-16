@@ -21,7 +21,7 @@ build:
 winbuild:
   stage: build
   before_script:
-    - zypper -q install -y wine wine-32bit wget make p7zip tar
+    - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar
   script:
     - make -f CI.mk windeploy
   artifacts:
