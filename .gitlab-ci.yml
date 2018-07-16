@@ -13,7 +13,7 @@ build:
     script: make -f CI.mk build
     artifacts:
         paths: build/GitAddonsManager
-        name: Linux_x64
+        name: "Linux_x64"
 
 winbuild:
     stage: build
@@ -24,4 +24,4 @@ windeploy:
     script: make -f CI.mk windeploy
     artifacts:
         paths: build_win32/deploy/*
-        name: Win32
+        name: "Win32"
