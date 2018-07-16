@@ -26,13 +26,10 @@ qt-opensource-windows-x86-5.11.1.exe:
 5.11.1-0-201806180838%-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z:
 	wget http://ftp.fau.de/qtproject/online/qtsdkrepository/windows_x86/desktop/qt5_5111/qt.qt5.5111.win32_mingw53/$@
 	
-qt-modules:=Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets
+qt-modules:=Qt/5.11.1/mingw53_32/bin/qmake.exe Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets
 	
 Qt/5.11.1/mingw53_32/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
-	7zr x $< -oQt -aos
-	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/5.11.1/mingw53_32/mkspecs/qconfig.pri
-	touch -c $@
-	
+
 Qt/5.11.1/mingw53_32/bin/windeployqt.exe: $(subst £,qttools,$(qt7z))
 
 Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll: $(subst £,qtquickcontrols2,$(qt7z))
@@ -46,8 +43,13 @@ Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll: $(subst £,qtsvg,$(qt7z))
 $(qt-modules):
 	7zr x $< -oQt -aos
 	touch -c $@
+	
+Qt/5.11.1/mingw53_32/bin/qt.conf: Qt/5.11.1/mingw53_32/bin/qmake.exe
+	echo "[paths]" > $(pwd)/Qt/5.11.1/mingw53_32/bin/qt.conf
+	echo "Prefix=../" >> $(pwd)/Qt/5.11.1/mingw53_32/bin/qt.conf
 
-Qt: Qt/5.11.1/mingw53_32/bin/qmake.exe $(qt-modules)
+Qt: $(qt-modules) Qt/5.11.1/mingw53_32/bin/qt.conf
+	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/5.11.1/mingw53_32/mkspecs/qconfig.pri
 
 mingw.7z:
 	wget https://vorboss.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z -O mingw.7z
