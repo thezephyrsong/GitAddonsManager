@@ -21,7 +21,7 @@ build:
 winbuild:
   stage: build
   before_script:
-    - zypper -q install -y wine wine-32bit wget
+    - zypper -q install -y wine wine-32bit wget make
   script:
     - make -f CI.mk windeploy
   artifacts:
