@@ -11,7 +11,7 @@ qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pw
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 build:
-	qmake . -o build/Makefile
+	qmake-qt5 . -o build/Makefile
 	make -C build
 	
 cmake-3.12.0-rc3-win32-x86.msi:

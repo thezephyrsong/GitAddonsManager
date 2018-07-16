@@ -1,6 +1,7 @@
+image: opensuse/tumbleweed
+
 before_script:
-  - dpkg --add-architecture i386
-  - apt-get update -qq && apt-get install -y -qq wine wine32 git qt5-qmake qt5-default qtdeclarative5-dev qtbase5-dev qtquickcontrols2-5-dev libgit2-dev qtbase5-dev libqt5concurrent5 make gcc g++ p7zip
+  - zypper dup -q && zypper install -y -q wine wine-32bit git libgit2-dev make gcc gcc-g++ p7zip libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel 
 
 cache:
   paths:
