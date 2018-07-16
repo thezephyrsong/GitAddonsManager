@@ -2,8 +2,8 @@
 
 pwd:=$(shell pwd)
 wineenv=$(WINEPREFIX) $(WINEPATH) WINEDEBUG=-all
-winepath=$(wineenv) winepath
-wine=$(wineenv) wine
+winepath=$(wineenv) /opt/wine-vulkan/bin/winepath
+wine=$(wineenv) /opt/wine-vulkan/bin/wine
 WINEPREFIX:=WINEPREFIX="$(pwd)/wine"
 WINEPATH:=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/git/bin")'
 qmake_opts=QTDIR="Z:/$(pwd)/Qt/5.11.1/mingw53_32/bin/" "QMAKE_INCDIR+=Z:/$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:/$(pwd)/libgit2-0.27.2/build/"
@@ -24,10 +24,10 @@ qt-opensource-windows-x86-5.11.1.exe:
 Qt: qt-opensource-windows-x86-5.11.1.exe
 	$(wine) qt-opensource-windows-x86-5.11.1.exe --script install-qt.qs "PATH=$$($(winepath) -w "$$PWD/Qt")"
 mingw.7z:
-	wget https://vorboss.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z -O mingw.7z
+	wget https://vorboss.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7zr -O mingw.7z
 	
 mingw32/bin/gcc.exe: mingw.7z
-	7z x mingw.7z
+	7zr x mingw.7z
 	touch -c mingw32/bin/gcc.exe
 	
 libgit2-v0.27.2.tar.gz:
@@ -46,7 +46,7 @@ PortableGit-2.18.0-32-bit.7z.exe:
 	wget https://github.com/git-for-windows/git/releases/download/v2.18.0.windows.1/PortableGit-2.18.0-32-bit.7z.exe
 	
 git/bin/git.exe: PortableGit-2.18.0-32-bit.7z.exe
-	7z -ogit x PortableGit-2.18.0-32-bit.7z.exe
+	7zr -ogit x PortableGit-2.18.0-32-bit.7z.exe
 	touch -c git/bin/git.exe
 	
 build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll mingw32/bin/gcc.exe git/bin/git.exe
