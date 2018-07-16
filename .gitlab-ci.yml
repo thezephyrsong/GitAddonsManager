@@ -1,5 +1,5 @@
 before_script:
-  - apt-get update -qq && apt-get install -y -qq wine qt5-qmake qt5-default qtdeclarative5-dev qtbase5-dev qtquickcontrols2-5-dev libgit2-dev qtbase5-dev libqt5concurrent5 g++-mingw-w64-i686 gcc-mingw-w64-i686 make
+  - apt-get update -qq && apt-get install -y -qq wine wine32 qt5-qmake qt5-default qtdeclarative5-dev qtbase5-dev qtquickcontrols2-5-dev libgit2-dev qtbase5-dev libqt5concurrent5 g++-mingw-w64-i686 gcc-mingw-w64-i686 make
 
 cache:
   paths:
