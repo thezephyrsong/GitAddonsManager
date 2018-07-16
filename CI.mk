@@ -9,7 +9,7 @@ WINEPATH:=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(p
 qmake_opts=QTDIR="Z:/$(pwd)/Qt/5.11.1/mingw53_32/bin/" "QMAKE_INCDIR+=Z:/$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:/$(pwd)/libgit2-0.27.2/build/"
 
 build:
-	qmake-qt5 . -o build/Makefile
+	qt5-qmake . -o build/Makefile
 	make -C build
 	
 cmake-3.12.0-rc3-win32-x86.msi:
