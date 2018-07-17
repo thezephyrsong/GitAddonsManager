@@ -8,7 +8,7 @@ wine=$(WINEPATH) $(wineenv) wine
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
 WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
-qmake=$(WINEPATH) $(wineenv) wine $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
+qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 .PHONY: build
 build:
@@ -74,14 +74,7 @@ libgit2-0.27.2/build/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgi
 	cd libgit2-0.27.2/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=libgit2-0.27.2/build -G"MinGW Makefiles" -DBUILD_CLAR=OFF
 	$(wine) mingw32-make -C libgit2-0.27.2/build -j $(shell nproc)
 	
-PortableGit-2.18.0-32-bit.7z.exe:
-	wget https://github.com/git-for-windows/git/releases/download/v2.18.0.windows.1/PortableGit-2.18.0-32-bit.7z.exe
-	
-git/bin/git.exe: PortableGit-2.18.0-32-bit.7z.exe
-	7zr -ogit x PortableGit-2.18.0-32-bit.7z.exe
-	touch -c $@
-	
-build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll mingw32/bin/gcc.exe git/bin/git.exe
+build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll
 	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)"
 	$(wine) mingw32-make -C build_win32
 
