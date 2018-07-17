@@ -11,7 +11,7 @@ Linux_x64:
   artifacts:
     paths:
       - GitAddonsManager
-    name: "Linux_x64"
+    name: "GitAddonsManager_Linux_x64-$CI_COMMIT_SHA"
 
 Win32:
   cache:
@@ -27,4 +27,4 @@ Win32:
   artifacts:
     paths:
       - GitAddonsManager
-    name: "Win32"
+    name: "GitAddonsManager_Win32-$CI_COMMIT_SHA"
