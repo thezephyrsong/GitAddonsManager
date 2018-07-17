@@ -10,9 +10,9 @@ WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pw
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
+.PHONY: build
 build:
-	qmake-qt5 . -o build/Makefile -spec linux-g++
-	make -C build
+	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ && make
 	
 cmake-3.12.0-rc3-win32-x86.msi:
 	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
