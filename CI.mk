@@ -8,7 +8,7 @@ wine=$(WINEPATH) $(wineenv) wine
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
 WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
-qmake=$(WINEPATH) $(wineenv) WINEPATH="$$WINEPATH;$(shell $(winepath) -w "$(pwd)/git/bin")" wine $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
+qmake=$(WINEPATH) $(wineenv) wine $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 .PHONY: build
 build:
@@ -26,7 +26,7 @@ qt-opensource-windows-x86-5.11.1.exe:
 5.11.1-0-201806180838%-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z:
 	wget http://ftp.fau.de/qtproject/online/qtsdkrepository/windows_x86/desktop/qt5_5111/qt.qt5.5111.win32_mingw53/$@
 	
-qt-modules:=Qt/5.11.1/mingw53_32/bin/qmake.exe Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets
+qt-modules:=Qt/5.11.1/mingw53_32/bin/qmake.exe Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets/widgetsplugin.dll Qt/5.11.1/mingw53_32/qml/QtGraphicalEffects Qt/5.11.1/mingw53_32/translations
 	
 Qt/5.11.1/mingw53_32/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
 
@@ -34,11 +34,15 @@ Qt/5.11.1/mingw53_32/bin/windeployqt.exe: $(subst £,qttools,$(qt7z))
 
 Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll: $(subst £,qtquickcontrols2,$(qt7z))
 
-Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets: $(subst £,qtquickcontrols,$(qt7z))
+Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets/widgetsplugin.dll: $(subst £,qtquickcontrols,$(qt7z))
 
 Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll: $(subst £,qtdeclarative,$(qt7z))
 
 Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll: $(subst £,qtsvg,$(qt7z))
+
+Qt/5.11.1/mingw53_32/qml/QtGraphicalEffects: $(subst £,qtgraphicaleffects,$(qt7z))
+
+Qt/5.11.1/mingw53_32/translations: $(subst £,qttranslations,$(qt7z))
 
 $(qt-modules):
 	7zr x $< -oQt -aos
@@ -78,7 +82,7 @@ git/bin/git.exe: PortableGit-2.18.0-32-bit.7z.exe
 	touch -c $@
 	
 build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll mingw32/bin/gcc.exe git/bin/git.exe
-	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro
+	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)"
 	$(wine) mingw32-make -C build_win32
 
 winbuild: build_win32/GitAddonsManager.exe
