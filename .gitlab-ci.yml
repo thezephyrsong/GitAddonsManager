@@ -5,10 +5,9 @@ before_script:
   - export GIT_DESCRIBE=$(git describe --tags)
 
 Linux_x64:
-  before_script:
-    - zypper -q install -y git libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
   stage: build
   script:
+    - zypper -q install -y libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
     - make -f CI.mk build
   artifacts:
     paths:
@@ -23,10 +22,8 @@ Win32:
       - libgit2-0.27.2
       - mingw32
   stage: build
-  before_script:
-    - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar git
-    - export GIT_DESCRIBE=$(git describe --tags)
   script:
+    - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar
     - make -f CI.mk windeploy
   artifacts:
     paths:
