@@ -40,7 +40,9 @@ win32 {
     DEFINES += _WIN32_WINNT=0x06010000
 }
 
-GIT_DESCRIBE = $$system(git describe --tags)
+isEmpty(GIT_DESCRIBE){
+    GIT_DESCRIBE = $$system(git describe --tags)
+}
 isEmpty(GIT_DESCRIBE){
     message("WARNING: empty git describe")
 } else {
