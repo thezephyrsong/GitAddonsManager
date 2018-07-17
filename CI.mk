@@ -12,7 +12,7 @@ qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 .PHONY: build
 build:
-	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ && make
+	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ && make
 	
 cmake-3.12.0-rc3-win32-x86.msi:
 	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
@@ -83,9 +83,9 @@ winbuild: build_win32/GitAddonsManager.exe
 build_win32/release/GitAddonsManager.exe: winbuild
 
 windeploy: build_win32/release/GitAddonsManager.exe libgit2-0.27.2/build/libgit2.dll
-	mkdir -p build_win32/deploy/
-	cp libgit2-0.27.2/build/libgit2.dll -f build_win32/deploy/libgit2.dll
-	cp build_win32/release/GitAddonsManager.exe -f build_win32/deploy/
+	mkdir -p GitAddonsManager/
+	cp libgit2-0.27.2/build/libgit2.dll -f GitAddonsManager/libgit2.dll
+	cp build_win32/release/GitAddonsManager.exe -f GitAddonsManager/
 	mkdir -p tmpqmls && cp -f *.qml tmpqmls/
-	$(wine) Qt/5.11.1/mingw53_32/bin/windeployqt.exe --qmldir tmpqmls build_win32/deploy/GitAddonsManager.exe
+	$(wine) Qt/5.11.1/mingw53_32/bin/windeployqt.exe --qmldir tmpqmls GitAddonsManager/GitAddonsManager.exe
 	rm -fr tmpqmls
