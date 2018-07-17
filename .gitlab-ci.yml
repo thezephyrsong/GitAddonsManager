@@ -1,5 +1,9 @@
 image: opensuse/tumbleweed
 
+before_script:
+  - zypper -q install -y git
+  - export GIT_DESCRIBE=$(git describe --tags)
+
 cache:
   paths:
     - Qt/
@@ -10,7 +14,6 @@ cache:
 Linux_x64:
   before_script:
     - zypper -q install -y git libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
-    - export GIT_DESCRIBE=$(git describe --tags)
   stage: build
   script:
     - make -f CI.mk build
