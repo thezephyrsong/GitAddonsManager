@@ -20,13 +20,19 @@
 #include <QFutureWatcher>
 #include <QQuickStyle>
 #include <QQuickStyle>
+#include <QDesktopServices>
 #include "addon.h"
 #include <git2.h>
 #include <QDebug>
 #include <QtConcurrent>
 #include <type_traits>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QApplication>
 
 Control *Control::m_instance = nullptr;
+QNetworkAccessManager nam;
 
 Control::Control(QObject *parent) : QObject(parent),
     m_progress(0), m_total(0), m_status(Status::Ready), m_statusMessage(""), m_pool(new QThreadPool(this)),
@@ -39,6 +45,7 @@ Control::Control(QObject *parent) : QObject(parent),
     connect(this, &Control::addonsPathChanged, this, &Control::scanForAddons);
     connect(this, &Control::addonsPathChanged, this, &Control::saveAddonsPath);
     delegate("Initializing libgit2...", [](){git_libgit2_init();},[this](){scanForAddons();});
+    checkForUpdates();
 }
 
 void Control::delegate(QString taskname, auto work, auto callback)
@@ -145,6 +152,11 @@ QString Control::style() const
 QStringList Control::availableStyles() const
 {
     return m_availableStyles;
+}
+
+Control::UpdateStatus Control::updateStatus() const
+{
+    return m_updateStatus;
 }
 
 void Control::setAddons(QList<QObject *> addons)
@@ -325,4 +337,66 @@ void Control::setAvailableStyles(QStringList availableStyles)
 
     m_availableStyles = availableStyles;
     emit availableStylesChanged(m_availableStyles);
+}
+
+void Control::checkForUpdates()
+{
+#ifdef GAM_BUILD_NAME
+    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
+    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    auto reply = nam.head(req);
+    setUpdateStatus(UpdateStatus::CheckingForUpdate);
+    connect(reply, &QNetworkReply::finished,[this, reply](){
+        QRegExp shaCapt(QString("GitAddonsManager_%1-(\\w{40})\\.zip").arg(GAM_BUILD_NAME));
+        if (shaCapt.indexIn(reply->url().toString()) != -1) {
+            if (!QString(GIT_DESCRIBE).endsWith(shaCapt.cap(1).chopped(33)))
+                setUpdateStatus(UpdateStatus::UpdateAvailable);
+            else setUpdateStatus(UpdateStatus::NoUpdate);
+        };
+    });
+#endif
+}
+
+void Control::downloadUpdate()
+{
+#ifdef GAM_BUILD_NAME
+    QFile *zip = new QFile("GitAddonsManager.zip");
+    if (!zip->open(QFile::WriteOnly)) {
+        setUpdateStatus(UpdateStatus::UpdateError);
+        return;
+    }
+
+    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
+    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    auto reply = nam.get(req);
+    setUpdateStatus(UpdateStatus::DownloadingUpdate);
+    connect(reply, &QNetworkReply::readyRead,[reply, zip]() {
+        zip->write(reply->readAll());
+    });
+    connect(reply, &QNetworkReply::finished, [this, reply, zip]() {
+        zip->close();
+        delete zip;
+        setUpdateStatus(reply->error() == QNetworkReply::NoError ? UpdateStatus::UpdateReady : UpdateStatus::UpdateError);
+        reply->deleteLater();
+    });
+    connect(reply, &QNetworkReply::downloadProgress, [this](qint64 recieved, qint64 bytesTotal) {
+        setTotal(bytesTotal);
+        setProgress(recieved);
+    });
+#endif
+}
+
+void Control::executeUpdate()
+{
+    QDesktopServices::openUrl(QDir().absolutePath());
+    QApplication::exit(2);
+}
+
+void Control::setUpdateStatus(Control::UpdateStatus updateStatus)
+{
+    if (m_updateStatus == updateStatus)
+        return;
+
+    m_updateStatus = updateStatus;
+    emit updateStatusChanged(m_updateStatus);
 }

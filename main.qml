@@ -149,6 +149,37 @@ ApplicationWindow {
                         selectByMouse: true
                         onFocusChanged: if (focus) selectAll()
                     }
+                    Button {
+                        id: updateButton
+                        contentItem: RowLayout {
+                            BusyIndicator {
+                                implicitHeight: parent.height
+                                implicitWidth: implicitHeight
+                                running: !updateButton.enabled
+                                visible: running
+                            }
+                            Label {
+                                text:
+                                    Engine.updateStatus === Engine.NoUpdate ?
+                                        qsTr("Check for update") :
+                                        Engine.updateStatus === Engine.CheckingForUpdate ?
+                                            qsTr("Checking for update...") :
+                                            Engine.updateStatus === Engine.UpdateAvailable ?
+                                                qsTr("Download update") :
+                                                Engine.updateStatus === Engine.DownloadingUpdate ?
+                                                    qsTr("Downloading update...") :
+                                                    Engine.updateStatus === Engine.UpdateReady ?
+                                                        qsTr("Apply update") : qsTr("error")
+                            }
+                        }
+                        onClicked: Engine.updateStatus === Engine.NoUpdate ?
+                                       Engine.checkForUpdates() :
+                                       Engine.updateStatus === Engine.UpdateAvailable ?
+                                           Engine.downloadUpdate() :
+                                           Engine.updateStatus === Engine.UpdateReady ?
+                                               Engine.executeUpdate() : {}
+                        enabled: Engine.updateStatus === Engine.NoUpdate || Engine.updateStatus === Engine.UpdateAvailable || Engine.updateStatus === Engine.UpdateReady
+                    }
                 }
             }
         }
@@ -314,5 +345,48 @@ ApplicationWindow {
         }
         modal: true
         standardButtons: Dialog.Close
+    }
+    Dialog {
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        visible: Engine.updateStatus === Engine.UpdateAvailable || Engine.updateStatus === Engine.DownloadingUpdate || Engine.updateStatus === Engine.UpdateReady
+        id: updateDialog
+        ColumnLayout {
+            anchors.fill: parent
+            Label {
+                Layout.fillWidth: true
+                id: updateMessage
+                text: Engine.updateStatus === Engine.UpdateAvailable ?
+                          qsTr("<h1>A newer version of GitAddonsManager is available</h1>") :
+                          Engine.updateStatus === Engine.DownloadingUpdate ?
+                              qsTr("Downloading update...") : qsTr("Download finished.<br/>To complete the update click \"Close &amp; Update\", then extract GitAddonsManager.zip and replace old files.")
+                textFormat: Text.RichText
+                wrapMode: Text.WordWrap
+            }
+            ProgressBar {
+                Layout.fillWidth: true
+                id: updateProgress
+                to: Engine.total
+                value: Engine.progress
+                indeterminate: to == -1
+                visible: Engine.updateStatus === Engine.DownloadingUpdate
+            }
+        }
+
+        modal: true
+        footer: DialogButtonBox {
+            Button {
+                visible: Engine.updateStatus === Engine.UpdateAvailable
+                text: qsTr("Download")
+                onClicked: Engine.downloadUpdate()
+            }
+            Button {
+                visible: Engine.updateStatus === Engine.UpdateReady
+                text: qsTr("Close && Update")
+                onClicked: Engine.executeUpdate()
+            }
+        }
+        closePolicy: Engine.updateStatus !== Engine.DownloadingUpdate ? Dialog.CloseOnPressOutside | Dialog.CloseOnEscape : Dialog.NoAutoClose
+        standardButtons: Engine.updateStatus !== Engine.DownloadingUpdate ? Dialog.Close : Dialog.NoButton
     }
 }

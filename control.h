@@ -63,6 +63,16 @@ public:
     Q_ENUM(MinimizeToTray)
     Q_PROPERTY(MinimizeToTray minimizeToTray READ minimizeToTray WRITE setMinimizeToTray NOTIFY minimizeToTrayChanged)
 
+    enum class UpdateStatus {
+        UpdateError = -1,
+        NoUpdate,
+        UpdateAvailable,
+        DownloadingUpdate,
+        UpdateReady,
+        CheckingForUpdate
+    };
+    Q_ENUM(UpdateStatus)
+    Q_PROPERTY(UpdateStatus updateStatus READ updateStatus WRITE setUpdateStatus NOTIFY updateStatusChanged)
     QList<QObject *> addons() const;
 
     QString addonsPath() const;
@@ -84,6 +94,8 @@ public:
     QString style() const;
 
     QStringList availableStyles() const;
+
+    UpdateStatus updateStatus() const;
 
 private:
     static Control *m_instance;
@@ -110,6 +122,8 @@ private:
 
     QStringList m_availableStyles;
 
+    UpdateStatus m_updateStatus = UpdateStatus::NoUpdate;
+
 signals:
     void addonsChanged(QList<QObject *> addons);
 
@@ -131,6 +145,8 @@ signals:
 
     void availableStylesChanged(QStringList availableStyles);
 
+    void updateStatusChanged(UpdateStatus updateStatus);
+
 public slots:
     void setAddons(QList<QObject *> addons);
     void setAddonsPath(QString addonsPath);
@@ -145,6 +161,10 @@ public slots:
     void setMinimizeToTray(MinimizeToTray minimizeToTray);
     void setStyle(QString style);
     void setAvailableStyles(QStringList availableStyles);
+    void checkForUpdates();
+    void downloadUpdate();
+    void executeUpdate();
+    void setUpdateStatus(UpdateStatus updateStatus);
 };
 Q_DECLARE_METATYPE(Control::MinimizeToTray)
 
