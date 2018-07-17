@@ -7,7 +7,7 @@ cache:
     - libgit2-0.27.2
     - mingw32
 
-build:
+Linux_x64:
   before_script:
     - zypper -q install -y git libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
   stage: build
@@ -18,7 +18,7 @@ build:
       - build/GitAddonsManager
     name: "Linux_x64"
 
-winbuild:
+Win32:
   stage: build
   before_script:
     - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar git
