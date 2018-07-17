@@ -6,7 +6,7 @@ wineenv=$(WINEPREFIX) $(WINEENV) WINEDEBUG=-all
 winepath=$(wineenv) winepath
 wine=$(WINEPATH) $(wineenv) wine
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
-WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin");$(shell $(winepath) -w "$(pwd)/git/bin")' QTDIR='$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
+WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin");$(shell $(winepath) -w "$(pwd)/git/bin")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
