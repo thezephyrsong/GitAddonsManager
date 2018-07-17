@@ -2,7 +2,6 @@ image: opensuse/tumbleweed
 
 before_script:
   - zypper -q install -y git
-  - export GIT_DESCRIBE=$(git describe --tags)
 
 Linux_x64:
   stage: build
@@ -12,7 +11,7 @@ Linux_x64:
   artifacts:
     paths:
       - GitAddonsManager
-    name: "Linux_x64-$GIT_DESCRIBE"
+    name: "Linux_x64"
 
 Win32:
   cache:
@@ -28,4 +27,4 @@ Win32:
   artifacts:
     paths:
       - GitAddonsManager
-    name: "Win32-$GIT_DESCRIBE"
+    name: "Win32"
