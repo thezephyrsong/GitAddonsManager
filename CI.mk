@@ -10,7 +10,7 @@ WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pw
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
-.PHONY: build
+.PHONY: build winbuild windeploy
 build:
 	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' && make
 	
