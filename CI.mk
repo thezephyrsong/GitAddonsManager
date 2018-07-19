@@ -12,7 +12,7 @@ qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 .PHONY: build
 build:
-	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ GAM_BUILD_NAME="Linux_x64" && make
+	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' && make
 	
 cmake-3.12.0-rc3-win32-x86.msi:
 	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
@@ -75,7 +75,7 @@ libgit2-0.27.2/build/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgi
 	$(wine) mingw32-make -C libgit2-0.27.2/build -j $(shell nproc)
 	
 build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll
-	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)" GAM_BUILD_NAME="Win32"
+	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)" DEFINES+='GAM_BUILD_NAME=\\\"Win32\\\"'
 	$(wine) mingw32-make -C build_win32
 
 winbuild: build_win32/GitAddonsManager.exe
