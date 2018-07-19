@@ -10,7 +10,7 @@ Linux_x64:
     - make -f CI.mk build
   artifacts:
     paths:
-      - GitAddonsManager
+      - GitAddonsManager/GitAddonsManager
     name: "GitAddonsManager_Linux_x64-$CI_COMMIT_SHA"
 
 Win32:
