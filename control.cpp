@@ -30,21 +30,28 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QApplication>
+#include <quazip.h>
+#include <quazipfile.h>
 
 Control *Control::m_instance = nullptr;
-QNetworkAccessManager nam;
+QNetworkAccessManager *nam = nullptr;
 
 Control::Control(QObject *parent) : QObject(parent),
     m_progress(0), m_total(0), m_status(Status::Ready), m_statusMessage(""), m_pool(new QThreadPool(this)),
     m_style(QQuickStyle::name()),m_availableStyles(QQuickStyle::availableStyles())
 {
+    connect(this, &Control::addonsPathChanged, this, &Control::scanForAddons);
+    connect(this, &Control::addonsPathChanged, this, &Control::saveAddonsPath);
+}
+
+void Control::init() {
     QSettings settings;
     setAddonsPath(settings.value("addonsPath").toString());
     setFirstBoot(settings.value("firstBoot",true).toBool());
     setMinimizeToTray((MinimizeToTray)settings.value("minimizeToTray",(int)MinimizeToTrayAsk).toInt());
-    connect(this, &Control::addonsPathChanged, this, &Control::scanForAddons);
-    connect(this, &Control::addonsPathChanged, this, &Control::saveAddonsPath);
-    delegate("Initializing libgit2...", [](){git_libgit2_init();},[this](){scanForAddons();});
+    git_libgit2_init();
+    scanForAddons();
+    nam = new QNetworkAccessManager(this);
     checkForUpdates();
 }
 
@@ -157,6 +164,68 @@ QStringList Control::availableStyles() const
 Control::UpdateStatus Control::updateStatus() const
 {
     return m_updateStatus;
+}
+
+
+void walkFoldersIf(const QFileInfo &info, auto f, auto t){
+    int ret = t(info);
+    if (ret <= 0) {
+        if (info.isDir() && !info.isSymLink()) {
+            foreach (QFileInfo sub, QDir(info.absoluteFilePath()).entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
+                walkFoldersIf(sub, f, t);
+        }
+    }
+    if (ret >= 0)
+        f(info);
+}
+
+void Control::completeUpdate(const QString &path)
+{
+    delegate("Update Application",[this, path](){
+        QStringList files;
+        QStringList oldFiles;
+        QDir root(QApplication::applicationDirPath());
+        QDir newRoot(path);
+        if (!newRoot.mkpath(newRoot.absolutePath())) return false;
+        walkFoldersIf({root.absolutePath()},[&newRoot, &files, &root, &oldFiles](const QFileInfo &info){
+            QFileInfo dest(newRoot.absoluteFilePath(root.relativeFilePath(info.absoluteFilePath())));
+            files << info.absoluteFilePath();
+            if (dest.exists())
+                walkFoldersIf(dest,[&oldFiles](const QFileInfo &info){
+                    oldFiles << info.absoluteFilePath();
+                }, [](const auto&){return 0;});
+
+        }, [&path, &root](const QFileInfo &info){
+            QFileInfo dest(path + "/" + root.relativeFilePath(info.absoluteFilePath()));
+            return !dest.exists() ? 1 : dest.isDir() && info.isDir() && !info.isSymLink() && !dest.isSymLink() ? -1 : 1;
+        });
+        setTotal(files.size() + oldFiles.size());
+        int count = 0;
+        bool success = true;
+        foreach (auto file, oldFiles) {
+            QFileInfo info(file);
+            if (info.isDir() && !info.isSymLink())
+                success &= newRoot.rmdir(file);
+            else
+                success &= newRoot.remove(file);
+            setProgress(++count);
+        }
+        foreach (auto file, files) {
+            success &= root.rename(file, newRoot.absoluteFilePath(root.relativeFilePath(file))) || root.rmdir(file);
+            setProgress(++count);
+        }
+        setTotal(-1);
+        if (success)
+            root.removeRecursively();
+        return success;
+    },[this, &path](bool success){
+        if (success)
+            QApplication::exit(3);
+        else {
+            setStatusMessage(tr("Failed to move files to %1.").arg(path));
+            setStatus(Status::Error);
+        }
+    });
 }
 
 void Control::setAddons(QList<QObject *> addons)
@@ -344,7 +413,10 @@ void Control::checkForUpdates()
 #ifdef GAM_BUILD_NAME
     QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
     req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    auto reply = nam.head(req);
+    connect(nam, &QNetworkAccessManager::finished, [](auto reply){
+        QApplication::setApplicationDisplayName(reply->errorString());
+    });
+    auto reply = nam->head(req);
     setUpdateStatus(UpdateStatus::CheckingForUpdate);
     connect(reply, &QNetworkReply::finished,[this, reply](){
         QRegExp shaCapt(QString("GitAddonsManager_%1-(\\w{40})\\.zip").arg(GAM_BUILD_NAME));
@@ -360,7 +432,7 @@ void Control::checkForUpdates()
 void Control::downloadUpdate()
 {
 #ifdef GAM_BUILD_NAME
-    QFile *zip = new QFile("GitAddonsManager.zip");
+    QFile *zip = new QFile(QApplication::applicationDirPath() + "/GitAddonsManager.zip");
     if (!zip->open(QFile::WriteOnly)) {
         setUpdateStatus(UpdateStatus::UpdateError);
         return;
@@ -368,7 +440,7 @@ void Control::downloadUpdate()
 
     QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
     req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-    auto reply = nam.get(req);
+    auto reply = nam->get(req);
     setUpdateStatus(UpdateStatus::DownloadingUpdate);
     connect(reply, &QNetworkReply::readyRead,[reply, zip]() {
         zip->write(reply->readAll());
@@ -388,8 +460,36 @@ void Control::downloadUpdate()
 
 void Control::executeUpdate()
 {
-    QDesktopServices::openUrl(QDir().absolutePath());
-    QApplication::exit(2);
+    delegate("Apply Update", [this](){
+        QuaZip zip("GitAddonsManager.zip");
+        if (!zip.open(QuaZip::mdUnzip))
+            return;
+        QDir root(QApplication::applicationDirPath());
+        unsigned int size = 0;
+        foreach (const QuaZipFileInfo &info, zip.getFileInfoList())
+            size += info.uncompressedSize;
+        setTotal(size);
+        size = 0;
+        foreach (const QuaZipFileInfo &info, zip.getFileInfoList()) {
+            QuaZipFile z(zip.getZipName(), info.name);
+            z.open(QuaZipFile::ReadOnly);
+            QFileInfo finfo(root.absolutePath() + "/" + info.name);
+            QFile f(finfo.absoluteFilePath());
+            root.mkpath(finfo.absolutePath());
+            f.open(QFile::WriteOnly);
+            QByteArray chunk;
+            while (!(chunk = z.read(32*1024)).isEmpty()) {
+                f.write(chunk);
+                size += chunk.size();
+                setProgress(size);
+            }
+            f.close();
+        }
+
+    },[this](){
+        setUpdateStatus(UpdateStatus::UpdateDone);
+        exit(2);
+    });
 }
 
 void Control::setUpdateStatus(Control::UpdateStatus updateStatus)

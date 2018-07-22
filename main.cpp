@@ -25,49 +25,67 @@
 #include <QSettings>
 #include <QProcess>
 #include <QFontDatabase>
+#include <QCommandLineParser>
 
 int main(int argc, char *argv[])
 {
-    int res;
-
-    qmlClearTypeRegistrations();
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
+
+
+    QCommandLineParser parser;
+    parser.addOption({"update", "directory to update", "updateLocation"});
+    parser.process(app);
+    QString update = parser.value("update");
     app.setApplicationDisplayName(QObject::tr("Git Addons Manager"));
     QCoreApplication::setOrganizationName("GitAddonsManager");
     QCoreApplication::setApplicationName("Git Addons Manager");
-
     QFontDatabase::addApplicationFont(":/fonts/Hack-Bold.ttf");
     QFontDatabase::addApplicationFont(":/fonts/Hack-BoldItalic.ttf");
     QFontDatabase::addApplicationFont(":/fonts/Hack-Italic.ttf");
     QFontDatabase::addApplicationFont(":/fonts/Hack-Regular.ttf");
     QIcon::setThemeName("breeze");
-    QQmlApplicationEngine engine;
-    bool ok;
-    QSettings setts;
-    QStringList styles = QQuickStyle::availableStyles();
-    QString style = setts.value("style").toString();
-    if (style.isNull())
-        style = QInputDialog::getItem(nullptr, QObject::tr("Choose a style"), QObject::tr("You will be able to pick another style later by visiting the Options tab."), styles, styles.indexOf(QQuickStyle::name()), false, &ok);
-    QQuickStyle::setStyle(style);
-    if (ok) {
-        setts.setValue("style", style);
-        setts.sync();
-    }
-    qmlRegisterSingletonType<Control>("GitAddonsManager.engine",1,0,"Engine",[](QQmlEngine *, QJSEngine *)->QObject*{
-        return Control::instance();
-    });
-    qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
-    engine.rootContext()->setContextProperty("gitVersion", GIT_DESCRIBE);
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
-        return -1;
-    QObject::connect(Control::instance(), &Control::styleChanged,[&setts](const QString &style){
-        setts.setValue("style", style);
-    });
+    int res;
+    do {
+        qmlClearTypeRegistrations();
 
-    res = app.exec();
-    if (res == 1)
-        QProcess().startDetached(app.arguments()[0],app.arguments().mid(1));
+        QQmlApplicationEngine engine;
+        bool ok;
+        QSettings setts;
+        QStringList styles = QQuickStyle::availableStyles();
+        QString style = setts.value("style").toString();
+        if (style.isNull())
+            style = QInputDialog::getItem(nullptr, QObject::tr("Choose a style"), QObject::tr("You will be able to pick another style later by visiting the Options tab."), styles, styles.indexOf(QQuickStyle::name()), false, &ok);
+        QQuickStyle::setStyle(style);
+        if (ok) {
+            setts.setValue("style", style);
+            setts.sync();
+        }
+        qmlRegisterSingletonType<Control>("GitAddonsManager.engine",1,0,"Engine",[](QQmlEngine *, QJSEngine *)->QObject*{
+            return Control::instance();
+        });
+        if (!update.isEmpty()) {
+            Control::instance()->completeUpdate(update);
+            engine.load(QUrl(QStringLiteral("qrc:/Update.qml")));
+        } else {
+            Control::instance()->init();
+            qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
+            engine.rootContext()->setContextProperty("gitVersion", GIT_DESCRIBE);
+            engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+        }
+        if (engine.rootObjects().isEmpty())
+            return -1;
+        QObject::connect(Control::instance(), &Control::styleChanged,[&setts](const QString &style){
+            setts.setValue("style", style);
+        });
+        res = app.exec();
+    } while (res == 1);
+    if (res == 2) {
+        QStringList args = app.arguments().mid(1);
+        args << "--update" << QString("\"%1\"").arg(app.applicationDirPath());
+        QProcess().startDetached(app.applicationDirPath()+"/GitAddonsManager/GitAddonsManager", args);
+    }
+    if (res == 3)
+        QProcess().startDetached(update + "/GitAddonsManager", QApplication::arguments().mid(1) << "--update" << "");
     return res;
 }

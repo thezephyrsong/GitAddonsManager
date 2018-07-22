@@ -69,7 +69,8 @@ public:
         UpdateAvailable,
         DownloadingUpdate,
         UpdateReady,
-        CheckingForUpdate
+        CheckingForUpdate,
+        UpdateDone
     };
     Q_ENUM(UpdateStatus)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus WRITE setUpdateStatus NOTIFY updateStatusChanged)
@@ -96,6 +97,10 @@ public:
     QStringList availableStyles() const;
 
     UpdateStatus updateStatus() const;
+
+    void completeUpdate(const QString &path);
+
+    void init();
 
 private:
     static Control *m_instance;

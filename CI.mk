@@ -7,12 +7,12 @@ winepath=$(wineenv) winepath
 wine=$(WINEPATH) $(wineenv) wine
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
 WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
-qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/" -spec win32-g++
+qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include Z:$(pwd)/quazip/quazip" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/ Z:$(pwd)/quazip/build/release Z:$(pwd)/libz/build" -spec win32-g++ LIBS+=-lquazip
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
 .PHONY: build winbuild windeploy
 build:
-	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' && make
+	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' LIBS+=-lquazip5 INCLUDEPATH+=/usr/include/quazip5 && make
 	
 cmake-3.12.0-rc3-win32-x86.msi:
 	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
@@ -74,7 +74,23 @@ libgit2-0.27.2/build/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgi
 	cd libgit2-0.27.2/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=libgit2-0.27.2/build -G"MinGW Makefiles" -DBUILD_CLAR=OFF
 	$(wine) mingw32-make -C libgit2-0.27.2/build -j $(shell nproc)
 	
-build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll
+zlib/CMakeLists.txt:
+	git clone https://github.com/madler/zlib.git
+	
+zlib/build/libzlib.dll: zlib/CMakeLists.txt
+	mkdir -p zlib/build
+	cd zlib/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=zlib/build -G"MinGW Makefiles"
+	$(wine) mingw32-make -C zlib/build -j $(shell nproc)
+	
+quazip/quazip.pro:
+	git clone https://github.com/stachenov/quazip.git
+	
+quazip/build/release/quazip.dll: quazip/quazip.pro
+	mkdir -p quazip/build
+	cd quazip/build && $(qmake) ../quazip/quazip.pro QMAKE_LIBDIR+="Z:$(pwd)/zlib/build" LIBS+=-lzlib QMAKE_INCDIR+="Z:$(pwd)/zlib" -spec win32-g++
+	$(wine) mingw32-make -C quazip/build
+
+build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll zlib/build/libzlib.dll quazip/build/release/quazip.dll
 	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)" DEFINES+='GAM_BUILD_NAME=\\\"Win32\\\"'
 	$(wine) mingw32-make -C build_win32
 
@@ -85,6 +101,10 @@ build_win32/release/GitAddonsManager.exe: winbuild
 windeploy: build_win32/release/GitAddonsManager.exe libgit2-0.27.2/build/libgit2.dll
 	mkdir -p GitAddonsManager/
 	cp libgit2-0.27.2/build/libgit2.dll -f GitAddonsManager/libgit2.dll
+	cp zlib/build/libzlib.dll -f GitAddonsManager/libzlib.dll
+	cp quazip/build/release/quazip.dll -f GitAddonsManager/quazip.dll
+	cp mingw32/opt/bin/libeay32.dll -f GitAddonsManager/libeay32.dll
+	cp mingw32/opt/bin/ssleay32.dll -f GitAddonsManager/ssleay32.dll
 	cp build_win32/release/GitAddonsManager.exe -f GitAddonsManager/
 	mkdir -p tmpqmls && cp -f *.qml tmpqmls/
 	$(wine) Qt/5.11.1/mingw53_32/bin/windeployqt.exe --qmldir tmpqmls GitAddonsManager/GitAddonsManager.exe

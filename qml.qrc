@@ -25,5 +25,6 @@
         <file>fonts/Hack-BoldItalic.ttf</file>
         <file>fonts/Hack-Italic.ttf</file>
         <file>fonts/Hack-Regular.ttf</file>
+        <file>Update.qml</file>
     </qresource>
 </RCC>
