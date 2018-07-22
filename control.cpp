@@ -464,7 +464,7 @@ void Control::executeUpdate()
         QuaZip zip("GitAddonsManager.zip");
         if (!zip.open(QuaZip::mdUnzip))
             return;
-        QDir root(QApplication::applicationDirPath());
+        QDir root(QApplication::applicationDirPath() + "/update");
         unsigned int size = 0;
         foreach (const QuaZipFileInfo &info, zip.getFileInfoList())
             size += info.uncompressedSize;
@@ -473,9 +473,9 @@ void Control::executeUpdate()
         foreach (const QuaZipFileInfo &info, zip.getFileInfoList()) {
             QuaZipFile z(zip.getZipName(), info.name);
             z.open(QuaZipFile::ReadOnly);
-            QFileInfo finfo(root.absolutePath() + "/" + info.name);
-            QFile f(finfo.absoluteFilePath());
+            QFileInfo finfo(root.absoluteFilePath(info.name.section("/",1)));
             root.mkpath(finfo.absolutePath());
+            QFile f(finfo.absoluteFilePath());
             f.open(QFile::WriteOnly);
             QByteArray chunk;
             while (!(chunk = z.read(32*1024)).isEmpty()) {
@@ -485,10 +485,11 @@ void Control::executeUpdate()
             }
             f.close();
         }
-
+        QFile exe(root.absoluteFilePath("GitAddonsManager"));
+        exe.setPermissions(QFile::ExeOwner | exe.permissions());
     },[this](){
         setUpdateStatus(UpdateStatus::UpdateDone);
-        exit(2);
+        QApplication::exit(2);
     });
 }
 
