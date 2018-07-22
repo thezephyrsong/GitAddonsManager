@@ -6,7 +6,7 @@ before_script:
 Linux_x64:
   stage: build
   script:
-    - zypper -q install -y libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
+    - zypper -q install -y libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel quazip-qt5-devel
     - make -f CI.mk linuxdeploy
     - make -f CI.mk finalize
   artifacts:
