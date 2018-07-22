@@ -514,6 +514,8 @@ void Control::executeUpdate()
             }
             f.close();
         }
+        zip.close();
+        QFile::remove("GitAddonsManager.zip");
         QFile exe(root.absoluteFilePath("GitAddonsManager"));
         exe.setPermissions(QFile::ExeOwner | exe.permissions());
     },[this](){
