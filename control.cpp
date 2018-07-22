@@ -187,6 +187,34 @@ void Control::completeUpdate(const QString &path)
         QDir root(QApplication::applicationDirPath());
         QDir newRoot(path);
         if (!newRoot.mkpath(newRoot.absolutePath())) return false;
+        QFile oldFilesList(newRoot.absoluteFilePath(".installedFiles"));
+        if (oldFilesList.exists()) {
+            oldFilesList.open(QFile::ReadOnly);
+            QString line;
+            QStringList oldFiles;
+            QStringList oldDirs;
+            while (!(line = oldFilesList.readLine()).isEmpty()) {
+                if (line.startsWith('#') || line.startsWith('\n')) continue;
+                oldFiles << line.chopped(1);
+            }
+            oldFilesList.close();
+            setTotal(oldFiles.size());
+            int count = 0;
+            foreach (const QString &file, oldFiles) {
+                QFileInfo info(newRoot.absoluteFilePath(file));
+                if (info.exists() && (info.isFile() || info.isSymLink())) {
+                    newRoot.remove(file);
+                    setProgress(++count);
+                }
+                else if (info.isDir())
+                    oldDirs << file;
+            }
+            for (auto i = oldDirs.rbegin(); i != oldDirs.rend(); i++)
+                newRoot.rmdir(*i);
+
+            setProgress(0);
+            setTotal(-1);
+        }
         walkFoldersIf({root.absolutePath()},[&newRoot, &files, &root, &oldFiles](const QFileInfo &info){
             QFileInfo dest(newRoot.absoluteFilePath(root.relativeFilePath(info.absoluteFilePath())));
             files << info.absoluteFilePath();
@@ -200,6 +228,7 @@ void Control::completeUpdate(const QString &path)
             return !dest.exists() ? 1 : dest.isDir() && info.isDir() && !info.isSymLink() && !dest.isSymLink() ? -1 : 1;
         });
         setTotal(files.size() + oldFiles.size());
+        qDebug() << oldFiles.size();
         int count = 0;
         bool success = true;
         foreach (auto file, oldFiles) {

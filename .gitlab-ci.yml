@@ -7,10 +7,11 @@ Linux_x64:
   stage: build
   script:
     - zypper -q install -y libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel
-    - make -f CI.mk build
+    - make -f CI.mk linuxdeploy
+    - make -f CI.mk finalize
   artifacts:
     paths:
-      - GitAddonsManager/GitAddonsManager
+      - GitAddonsManager
     name: "GitAddonsManager_Linux_x64-$CI_COMMIT_SHA"
 
 Win32:
@@ -24,6 +25,7 @@ Win32:
   script:
     - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar
     - make -f CI.mk windeploy
+    - make -f CI.mk finalize
   artifacts:
     paths:
       - GitAddonsManager

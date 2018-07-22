@@ -10,9 +10,17 @@ WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pw
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include Z:$(pwd)/quazip/quazip" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/ Z:$(pwd)/quazip/build/release Z:$(pwd)/libz/build" -spec win32-g++ LIBS+=-lquazip
 qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
 
-.PHONY: build winbuild windeploy
+.PHONY: build winbuild windeploy linuxdeploy finalize
+
+finalize:
+	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
+	
 build:
-	mkdir -p GitAddonsManager && cd GitAddonsManager && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' LIBS+=-lquazip5 INCLUDEPATH+=/usr/include/quazip5 && make
+	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' LIBS+=-lquazip5 INCLUDEPATH+=/usr/include/quazip5 && make
+	
+linuxdeploy: build
+	mkdir GitAddonsManager
+	cp build/GitAddonsManager -f GitAddonsManager/GitAddonsManager
 	
 cmake-3.12.0-rc3-win32-x86.msi:
 	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
