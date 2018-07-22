@@ -353,7 +353,7 @@ void Addon::setSubfolders(QStringList subfolders)
     emit subfoldersChanged(m_subfolders);
 }
 
-void walkFolders(QFileInfo &info, auto f){
+void walkFolders(const QFileInfo &info, auto f){
     if (info.isDir() && !info.isSymLink()) {
         foreach (QFileInfo sub, QDir(info.absoluteFilePath()).entryInfoList(QDir::AllEntries|QDir::NoDotAndDotDot|QDir::Hidden))
             walkFolders(sub, f);
