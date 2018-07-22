@@ -83,9 +83,9 @@ int main(int argc, char *argv[])
     if (res == 2) {
         QStringList args = app.arguments().mid(1);
         args << "--update" << QString("\"%1\"").arg(app.applicationDirPath());
-        QProcess().startDetached(app.applicationDirPath()+"/update/GitAddonsManager", args);
+        QProcess().startDetached(app.applicationDirPath()+"/update/" + GAM_EXEC, args);
     }
     if (res == 3)
-        QProcess().startDetached(update + "/GitAddonsManager", QApplication::arguments().mid(1) << "--update" << "");
+        QProcess().startDetached(update + "/" + GAM_EXEC, QApplication::arguments().mid(1) << "--update" << "");
     return res;
 }

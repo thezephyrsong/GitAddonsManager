@@ -37,7 +37,10 @@ HEADERS += \
 LIBS += -lgit2
 
 win32 {
-    DEFINES += _WIN32_WINNT=0x06010000
+    DEFINES += _WIN32_WINNT=0x06010000 GAM_EXEC=\\\"$${TARGET}.exe\\\"
+}
+unix {
+    DEFINES += GAM_EXEC=\\\"$${TARGET}\\\"
 }
 
 isEmpty(GIT_DESCRIBE){

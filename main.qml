@@ -169,7 +169,7 @@ ApplicationWindow {
                                                 Engine.updateStatus === Engine.DownloadingUpdate ?
                                                     qsTr("Downloading update...") :
                                                     Engine.updateStatus === Engine.UpdateReady ?
-                                                        qsTr("Apply update") : qsTr("error")
+                                                        qsTr("Unpacking update") : qsTr("error")
                             }
                         }
                         onClicked: Engine.updateStatus === Engine.NoUpdate ?
