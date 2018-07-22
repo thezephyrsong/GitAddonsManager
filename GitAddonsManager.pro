@@ -50,7 +50,6 @@ isEmpty(GIT_DESCRIBE){
     message("WARNING: empty git describe")
 } else {
     message("Git describe: $$GIT_DESCRIBE")
-    touch(main.cpp,.git/logs/HEAD)
 }
 
 DEFINES += GIT_DESCRIBE=\\\"$$GIT_DESCRIBE\\\"
