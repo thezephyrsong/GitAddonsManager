@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
 
-
     QCommandLineParser parser;
     parser.addOption({"update", "directory to update", "updateLocation"});
     parser.process(app);
@@ -82,10 +81,10 @@ int main(int argc, char *argv[])
     } while (res == 1);
     if (res == 2) {
         QStringList args = app.arguments().mid(1);
-        args << "--update" << QString("\"%1\"").arg(app.applicationDirPath());
-        QProcess().startDetached(app.applicationDirPath()+"/update/" + GAM_EXEC, args);
+        args << "--update" << QString("%1").arg(app.applicationDirPath());
+        QProcess::startDetached(app.applicationDirPath()+"/update/" + GAM_EXEC, args);
     }
     if (res == 3)
-        QProcess().startDetached(update + "/" + GAM_EXEC, QApplication::arguments().mid(1) << "--update" << "");
+        QProcess::startDetached(update + "/" + GAM_EXEC, QApplication::arguments().mid(1) << "--update" << "");
     return res;
 }
