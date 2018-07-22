@@ -99,7 +99,7 @@ quazip/build/release/quazip.dll: quazip/quazip.pro
 	$(wine) mingw32-make -C quazip/build
 
 build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll zlib/build/libzlib.dll quazip/build/release/quazip.dll
-	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags)" DEFINES+='GAM_BUILD_NAME=\\\"Win32\\\"'
+	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags --long)" DEFINES+='GAM_BUILD_NAME=\\\"Win32\\\"'
 	$(wine) mingw32-make -C build_win32
 
 winbuild: build_win32/GitAddonsManager.exe

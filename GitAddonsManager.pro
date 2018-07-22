@@ -41,7 +41,7 @@ win32 {
 }
 
 isEmpty(GIT_DESCRIBE){
-    GIT_DESCRIBE = $$system(git describe --tags)
+    GIT_DESCRIBE = $$system(git describe --tags --long)
 }
 isEmpty(GIT_DESCRIBE){
     message("WARNING: empty git describe")
