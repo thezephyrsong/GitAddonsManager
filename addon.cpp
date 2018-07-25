@@ -276,6 +276,12 @@ void Addon::updateGitStatus()
         size_t ahead;
         size_t behind;
         git_graph_ahead_behind(&ahead, &behind, m_repo.get(), git_annotated_commit_id(lc), git_annotated_commit_id(uc));
+
+        git_reference_free(tr);
+        git_reference_free(lr);
+        git_annotated_commit_free(uc);
+        git_annotated_commit_free(lc);
+
         if (!(ahead || behind))
             return GitStatusFlag::UpToDate;
         else if (ahead && !behind)
@@ -285,11 +291,6 @@ void Addon::updateGitStatus()
         else
             return GitStatusFlag::Diverged;
 
-
-        git_reference_free(tr);
-        git_reference_free(lr);
-        git_annotated_commit_free(uc);
-        git_annotated_commit_free(lc);
         /// TODO: check for local changes/merge
         /*if (git_repository_head_detached(m_repo.get())) {
             setGitStatus(GitStatus::Conflicting);
