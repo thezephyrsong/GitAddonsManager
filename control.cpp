@@ -50,7 +50,6 @@ void Control::init() {
     setFirstBoot(settings.value("firstBoot",true).toBool());
     setMinimizeToTray((MinimizeToTray)settings.value("minimizeToTray",(int)MinimizeToTrayAsk).toInt());
     git_libgit2_init();
-    scanForAddons();
     nam = new QNetworkAccessManager(this);
     checkForUpdates();
 }
