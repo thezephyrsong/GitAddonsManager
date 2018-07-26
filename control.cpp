@@ -303,6 +303,8 @@ void Control::scanForAddons()
         QObjectList ol;
         foreach (init_t i, list)
             ol << new Addon(i.first, i.second);
+        foreach (QObject *addon, m_addons)
+            addon->deleteLater();
         setAddons(ol);
     });
 }
