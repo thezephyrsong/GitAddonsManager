@@ -383,8 +383,11 @@ void Addon::removeFolder(QString path, bool ask) {
                 QFileInfo info(files[i]);
                 if (!info.isSymLink() && info.isDir())
                     info.dir().rmdir(info.fileName());
-                else
-                    QFile(info.absoluteFilePath()).remove();
+                else {
+                    QFile f(info.absoluteFilePath());
+                    f.setPermissions(f.permissions()|QFile::WriteOther);
+                    f.remove();
+                }
                 setProgress(i);
             }
         }
