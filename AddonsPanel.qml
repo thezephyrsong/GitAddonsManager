@@ -163,7 +163,8 @@ Page {
                     y: (parent.height - height) / 2
                     title: qsTr("Following files will be deleted:")
                     standardButtons: Dialog.Ok | Dialog.Cancel
-                    onClosed: addon.confirmFileRemove(result == Dialog.Accepted)
+                    onAccepted: addon.confirmFileRemove(true)
+                    onRejected: addon.confirmFileRemove(false)
                     modal: true
                     visible: addon.filesToRemove != ""
                     closePolicy: Popup.NoAutoClose
