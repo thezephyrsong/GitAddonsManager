@@ -23,7 +23,7 @@ Win32:
       - mingw32
   stage: build
   script:
-    - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar
+    - zypper -q install -y wine-staging wine-staging-32bit wget make p7zip tar gzip
     - make -f CI.mk windeploy
     - make -f CI.mk finalize
   artifacts:
