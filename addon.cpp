@@ -362,43 +362,52 @@ void walkFolders(const QFileInfo &info, auto f){
     f(info);
 }
 
-void Addon::removeFolder(QString path, bool ask) {
-    QFileInfo info(path);
+
+void Addon::removeFolders(QStringList paths, bool ask) {
     QStringList files;
     bool ok = ask;
-    if (info.exists()) {
-        walkFolders(info, [&files](QFileInfo info){
-            files << info.absoluteFilePath();
-        });
-        if (ask) {
-            m_mutex.lock();
-            m_result = &ok;
-            QMetaObject::invokeMethod(this, "setFilesToRemove", Q_ARG(QString, files.join('\n')));
-            m_wait.wait(&m_mutex);
-            m_mutex.unlock();
-        }
-        if (ok) {
-            setTotal(files.size());
-            for (int i = 0; i < files.size(); i++) {
-                QFileInfo info(files[i]);
-                if (!info.isSymLink() && info.isDir())
-                    info.dir().rmdir(info.fileName());
-                else {
-                    QFile f(info.absoluteFilePath());
-                    f.setPermissions(f.permissions()|QFile::WriteOther);
-                    f.remove();
-                }
-                setProgress(i);
-            }
+    foreach (QString path, paths){
+        QFileInfo info(path);
+        if (info.exists()) {
+            walkFolders(info, [&files](QFileInfo info){
+                files << info.absoluteFilePath();
+            });
         }
     }
+    if (files.isEmpty()) return;
+    if (ask) {
+        m_mutex.lock();
+        m_result = &ok;
+        QMetaObject::invokeMethod(this, "setFilesToRemove", Q_ARG(QString, files.join('\n')));
+        m_wait.wait(&m_mutex);
+        m_mutex.unlock();
+    }
+    if (ok) {
+        setTotal(files.size());
+        for (int i = 0; i < files.size(); i++) {
+            QFileInfo info(files[i]);
+            if (!info.isSymLink() && info.isDir())
+                info.dir().rmdir(info.fileName());
+            else {
+                QFile f(info.absoluteFilePath());
+                f.setPermissions(f.permissions()|QFile::WriteOther);
+                f.remove();
+            }
+            setProgress(i);
+        }
+    }
+}
+
+void Addon::removeFolder(QString path, bool ask) {
+    removeFolders({path}, ask);
 }
 
 void Addon::removeSubfolders()
 {
     delegate("Removing Subfolders", [this](){
-        foreach (QString subf, m_subfolders)
-            removeFolder(Control::instance()->addonsPath() + "/" + subf);
+        QStringList paths(m_subfolders);
+        std::transform(paths.begin(), paths.end(), paths.begin(), [](auto p){return Control::instance()->addonsPath() + "/" + p;});
+        removeFolders(paths);
     });
 }
 

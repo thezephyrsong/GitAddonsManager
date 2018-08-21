@@ -133,11 +133,11 @@ private:
 
     QThreadPool *m_pool;
 
+    void removeFolders(QStringList paths, bool ask = true);
     void removeFolder(QString path, bool ask = true);
     QString m_filesToRemove;
 
     QString m_readme;
-
 signals:
 
     void nameChanged(QString name);
