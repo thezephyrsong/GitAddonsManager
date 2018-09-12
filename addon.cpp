@@ -135,7 +135,6 @@ void Addon::scanSubfolders()
         QStringList sf;
         git_object *obj = nullptr;
         git_revparse_single(&obj, m_repo.get(), "HEAD^{tree}");
-        if (!obj) return sf;
         git_tree *tree = reinterpret_cast<git_tree *>(obj);
         git_tree_walk(tree, GIT_TREEWALK_PRE, [](const char *root, const git_tree_entry *entry, void *payload) -> int{
             QString path = root;
@@ -206,7 +205,6 @@ void Addon::fetchRemote(QString remote)
         fetch_opts.callbacks.payload = this;
         git_remote *r;
         git_remote_lookup(&r, m_repo.get(), remote.toLocal8Bit());
-        if (!r) return;
         int error = git_remote_fetch(r,nullptr,&fetch_opts,nullptr);
         if (error < 0) {
             const git_error *e = giterr_last();
@@ -260,7 +258,8 @@ void Addon::updateGitStatus()
         git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL);
         if (!tr) {
             git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE);
-        } else {
+        }
+        else {
             git_reference *rbr;
             git_branch_upstream(&rbr, tr);
             git_reference_free(tr);
