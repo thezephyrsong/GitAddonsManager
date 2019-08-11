@@ -119,6 +119,32 @@ void Addon::scanBranches()
             git_reference_free(ref);
         }
         git_branch_iterator_free(iter);
+        if (data.cb.isEmpty()) {
+            git_reflog *reflog;
+            if (!git_reflog_read(&reflog, m_repo.get(), "HEAD")) {
+                for (size_t i = 0; i < git_reflog_entrycount(reflog); i++) {
+                    auto entry = git_reflog_entry_byindex(reflog, i);
+                    QRegExp rex("checkout: moving from \\S+ to (.*)");
+                    if (rex.indexIn(git_reflog_entry_message(entry)) != -1) {
+                        auto f = &git_branch_upstream_remote;
+                        git_branch_lookup(&ref, m_repo.get(), rex.cap(1).toLocal8Bit(), GIT_BRANCH_LOCAL);
+                        if (!ref) {
+                            f = &git_branch_remote_name;
+                            git_branch_lookup(&ref, m_repo.get(), rex.cap(1).toLocal8Bit(), GIT_BRANCH_REMOTE);
+                        }
+                        if (!ref) break;
+                        git_buf buf = GIT_BUF_INIT_CONST(0, nullptr);
+                        if (!f(&buf, m_repo.get(), git_reference_name(ref))) {
+                            data.cr = buf.ptr;
+                            data.cb = rex.cap(1);
+                        }
+                        git_buf_dispose(&buf);
+                        git_reference_free(ref);
+                        break;
+                    }
+                }
+            }
+        }
         return data;
     },[this](auto data){
         setRemote(data.cr);
