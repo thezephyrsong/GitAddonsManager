@@ -45,11 +45,11 @@ Control::Control(QObject *parent) : QObject(parent),
 }
 
 void Control::init() {
+    git_libgit2_init();
     QSettings settings;
     setAddonsPath(settings.value("addonsPath").toString());
     setFirstBoot(settings.value("firstBoot",true).toBool());
     setMinimizeToTray((MinimizeToTray)settings.value("minimizeToTray",(int)MinimizeToTrayAsk).toInt());
-    git_libgit2_init();
     nam = new QNetworkAccessManager(this);
     checkForUpdates();
 }
