@@ -138,7 +138,6 @@ void Addon::scanBranches()
                             data.cr = buf.ptr;
                             data.cb = rex.cap(1);
                         }
-                        git_buf_dispose(&buf);
                         git_reference_free(ref);
                         break;
                     }
