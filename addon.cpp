@@ -406,6 +406,7 @@ void Addon::removeFolders(QStringList paths, bool ask) {
         QMetaObject::invokeMethod(this, "setFilesToRemove", Q_ARG(QString, files.join('\n')));
         m_wait.wait(&m_mutex);
         m_mutex.unlock();
+        m_filesToRemove.clear();
     }
     if (ok) {
         setTotal(files.size());
