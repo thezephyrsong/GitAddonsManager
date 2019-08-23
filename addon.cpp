@@ -1,4 +1,4 @@
-/* Copyright 2018 WobLight
+/* Copyright 2018-2019 WobLight
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,30 +55,21 @@ void Addon::update()
 {
     removeSubfolders();
     delegate("Update", [this](){
-        git_reference *lbr = nullptr;
-        git_reference *rbr = nullptr;
-        git_reference *ubr = nullptr;
-        int error = git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL);
-        git_annotated_commit *ac;
+        AutoPtr lbr(&git_reference_free);
+        AutoPtr tr(&git_reference_free);
+        AutoPtr ubr(&git_reference_free);
+        int error = check_git_return(git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL));
         git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
         opts.checkout_strategy = GIT_CHECKOUT_FORCE;
-        if (error == GIT_ENOTFOUND) {
-            git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE);
-            git_annotated_commit_from_ref(&ac, m_repo.get(), lbr);
-        } else {
-            git_branch_upstream(&rbr, lbr);
-            git_annotated_commit_from_ref(&ac, m_repo.get(), rbr);
-        }
+        if (error == GIT_ENOTFOUND)
+            check_git_return(git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE));
+        else
+            check_git_return(git_branch_upstream(&tr, lbr));
+
         if (!git_branch_is_head(lbr))
             git_repository_set_head(m_repo.get(), git_reference_name(lbr));
-        git_reference_set_target(&ubr, lbr, git_annotated_commit_id(ac), nullptr);
-        git_checkout_head(m_repo.get(), &opts);
-
-        git_annotated_commit_free(ac);
-        if (rbr)
-            git_reference_free(rbr);
-        git_reference_free(lbr);
-        git_reference_free(ubr);
+        check_git_return(git_reference_set_target(&ubr, lbr, git_reference_target(!tr?lbr:tr), nullptr));
+        check_git_return(git_checkout_head(m_repo.get(), &opts));
     }, [this](){updateGitStatus();});
     unpackSubfolders();
 }
@@ -93,18 +84,18 @@ void Addon::scanBranches()
             QString cr;
         } data;
         git_strarray remotes;
-        int error = git_remote_list(&remotes, m_repo.get());
+        check_git_return(git_remote_list(&remotes, m_repo.get()));
         for (unsigned int i = 0; i < remotes.count; i++)
             data.rs << remotes.strings[i];
         git_strarray_free(&remotes);
 
-        git_branch_iterator *iter = nullptr;
-        error = git_branch_iterator_new(&iter, m_repo.get(), GIT_BRANCH_ALL);
+        AutoPtr iter(&git_branch_iterator_free);
+        check_git_return(git_branch_iterator_new(&iter, m_repo.get(), GIT_BRANCH_ALL));
 
-        git_reference *ref = nullptr;
+        AutoPtr ref(&git_reference_free);
         const char *bname = nullptr;
         git_branch_t btype;
-        while (!(error = git_branch_next(&ref, &btype, iter))) {
+        while (!check_git_return(git_branch_next(&ref, &btype, iter))) {
             git_branch_name(&bname, ref);
             data.bs << bname;
             if (git_branch_is_head(ref)) {
@@ -116,9 +107,8 @@ void Addon::scanBranches()
                             )(&buf, m_repo.get(), git_reference_name(ref));
                 data.cr = buf.ptr;
             }
-            git_reference_free(ref);
+            ref.reset();
         }
-        git_branch_iterator_free(iter);
         if (data.cb.isEmpty()) {
             git_reflog *reflog;
             if (!git_reflog_read(&reflog, m_repo.get(), "HEAD")) {
@@ -138,7 +128,7 @@ void Addon::scanBranches()
                             data.cr = buf.ptr;
                             data.cb = rex.cap(1);
                         }
-                        git_reference_free(ref);
+                        ref.reset();
                         break;
                     }
                 }
@@ -158,9 +148,11 @@ void Addon::scanSubfolders()
 {
     delegate("Subfolders Scan", [this](){
         QStringList sf;
-        git_object *obj = nullptr;
+        AutoPtr obj(git_object_free);
         git_revparse_single(&obj, m_repo.get(), "HEAD^{tree}");
-        git_tree *tree = reinterpret_cast<git_tree *>(obj);
+        git_tree *tree = reinterpret_cast<git_tree *>(obj.pointer);
+        if (!tree)
+            return sf;
         git_tree_walk(tree, GIT_TREEWALK_PRE, [](const char *root, const git_tree_entry *entry, void *payload) -> int{
             QString path = root;
             if (path.isEmpty())
@@ -175,7 +167,6 @@ void Addon::scanSubfolders()
                 return 1;
             return 0;
         }, &sf);
-        git_object_free(obj);
         return sf;
     },[this](auto subs){setSubfolders(subs);});
 }
@@ -228,14 +219,9 @@ void Addon::fetchRemote(QString remote)
         git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
         fetch_opts.callbacks.transfer_progress = &fetch_progress_cb;
         fetch_opts.callbacks.payload = this;
-        git_remote *r;
-        git_remote_lookup(&r, m_repo.get(), remote.toLocal8Bit());
-        int error = git_remote_fetch(r,nullptr,&fetch_opts,nullptr);
-        if (error < 0) {
-            const git_error *e = giterr_last();
-            qDebug() <<QString::asprintf("Error %d/%d: %s\n", error, e->klass, e->message);
-        }
-        git_remote_free(r);
+        AutoPtr r(git_remote_free);
+        check_git_return(git_remote_lookup(&r, m_repo.get(), remote.toLocal8Bit()));
+        check_git_return(git_remote_fetch(r,nullptr,&fetch_opts,nullptr));
     }, [this](){updateGitStatus();});
 
 }
@@ -279,33 +265,29 @@ void Addon::setGitStatus(Addon::GitStatus gitStatus)
 void Addon::updateGitStatus()
 {
     delegate("Git Status Update", [this](){
-        git_reference *tr;
-        git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL);
+        AutoPtr tr(&git_reference_free);
+        check_git_return(git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL));
         if (!tr) {
-            git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE);
+            check_git_return(git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE));
         }
         else {
-            git_reference *rbr;
-            git_branch_upstream(&rbr, tr);
-            git_reference_free(tr);
-            tr = rbr;
+            AutoPtr rbr(&git_reference_free);
+            check_git_return(git_branch_upstream(&rbr, tr));
+            tr = std::move(rbr);
         }
         if (!tr)
             return GitStatusFlag::UpToDate;
-        git_reference *lr;
-        git_repository_head(&lr, m_repo.get());
-        git_annotated_commit *uc;
-        git_annotated_commit *lc;
-        git_annotated_commit_from_ref(&uc, m_repo.get(), tr);
-        git_annotated_commit_from_ref(&lc, m_repo.get(), lr);
-        size_t ahead;
-        size_t behind;
+        AutoPtr lr(&git_reference_free);
+        check_git_return(git_repository_head(&lr, m_repo.get()));
+        AutoPtr uc(&git_annotated_commit_free);
+        AutoPtr lc(&git_annotated_commit_free);
+        check_git_return(git_annotated_commit_from_ref(&uc, m_repo.get(), tr));
+        check_git_return(git_annotated_commit_from_ref(&lc, m_repo.get(), lr));
+        if (!lc)
+            return GitStatusFlag::Error;
+        size_t ahead = 0;
+        size_t behind = 0;
         git_graph_ahead_behind(&ahead, &behind, m_repo.get(), git_annotated_commit_id(lc), git_annotated_commit_id(uc));
-
-        git_reference_free(tr);
-        git_reference_free(lr);
-        git_annotated_commit_free(uc);
-        git_annotated_commit_free(lc);
 
         if (!(ahead || behind))
             return GitStatusFlag::UpToDate;
@@ -321,13 +303,13 @@ void Addon::updateGitStatus()
             setGitStatus(GitStatus::Conflicting);
             return;
         }
-        git_reference *tr;
+        AutoPtr tr(&git_reference_free);
         git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL);
         if (!tr) {
             git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE);
         }
         else {
-            git_reference *rbr;
+            AutoPtr rbr(&git_reference_free);
             git_branch_upstream(&rbr, tr);
             git_reference_free(tr);
             tr = rbr;
@@ -337,11 +319,11 @@ void Addon::updateGitStatus()
         if (buf.ptr != remote())
             setRemote(buf.ptr);
         else {
-            git_annotated_commit *ac;
+            AutoPtr ac(&git_annotated_commit_free);
             git_annotated_commit_from_ref(&ac, m_repo.get(), tr);
             git_merge_analysis_t an;
             git_merge_preference_t pref;
-            git_merge_analysis(&an, &pref, m_repo.get(),(const git_annotated_commit **)&ac, 1);
+            git_merge_analysis(&an, &pref, m_repo.get(),(const AutoPtr *)&ac, 1)(&git_annotated_commit_free);
             if (an & GIT_MERGE_ANALYSIS_UP_TO_DATE) {
                 if (git_annotated_commit_id(*ac) != git_head)
                     setGitStatus(GitStatus::Conflicting);
@@ -516,7 +498,7 @@ void Addon::reset()
 {
     removeSubfolders();
     delegate("Reset", [this](){
-        git_reference *ref = nullptr;
+        AutoPtr ref(&git_reference_free);
         git_repository_head(&ref, m_repo.get());
         git_object *obj = nullptr;
         git_object_lookup(&obj, m_repo.get(), git_reference_target(ref), GIT_OBJ_ANY);
@@ -637,7 +619,17 @@ void Addon::delegate(QString taskname, auto work, auto callback)
     using ret_t = typename std::invoke_result<decltype(work)>::type;
     QFuture<ret_t> fut = QtConcurrent::run(m_pool, work);
     QFutureWatcher<ret_t> *fw = new QFutureWatcher<ret_t>();
-    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw](){
+    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw, taskname](){
+        if (fw->isCanceled()) {
+            try {
+                fw->waitForFinished();
+            } catch (const GitException &error) {
+                qCritical() << name() << "encountered an error while executing" << taskname << ": " << error.errorString();
+                setStatus(Status::Error);
+                setGitStatus(GitStatusFlag::Error);
+            }
+            return;
+        }
         setStatus(Status::Ready);
         TaskQueue old;
         m_tasks.swap(old);

@@ -1,4 +1,4 @@
-/* Copyright 2018 WobLight
+/* Copyright 2018-2019 WobLight
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,15 +75,15 @@ public:
     Q_PROPERTY(Status status READ status WRITE setStatus NOTIFY statusChanged)
 
     enum GitStatusFlag {
-        Error = -1,
-        UpToDate = 0,
-        Ahead = 1,
-        Behind = 2,
-        Diverged = 3,
-        FastForward = 4,
-        Merge = 5,
-        Conflict = 6,
-        MergeStatusMask = 0x1100
+        Error = 0x1,
+        UpToDate = 0x2,
+        Ahead = 0x4,
+        Behind = 0x8,
+        Diverged = 0x10,
+        FastForward = 0x20,
+        Merge = 0x40,
+        Conflict = 0x80,
+        MergeStatusMask = 0x0C00
     };
     Q_ENUM(GitStatusFlag)
     Q_DECLARE_FLAGS(GitStatus, GitStatusFlag)

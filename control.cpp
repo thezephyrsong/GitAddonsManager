@@ -1,4 +1,4 @@
-/* Copyright 2018 WobLight
+/* Copyright 2018-2019 WobLight
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -534,4 +534,38 @@ void Control::setUpdateStatus(Control::UpdateStatus updateStatus)
 
     m_updateStatus = updateStatus;
     emit updateStatusChanged(m_updateStatus);
+}
+
+#include <execinfo.h>
+GitException::GitException(int code) : m_code(code)
+{
+    const git_error *e = giterr_last();
+    m_errorString = QString::asprintf("Error %d/%d: %s", code,  e->klass, e->message);
+    giterr_clear();
+}
+
+int GitException::code()
+{
+    return m_code;
+}
+
+QString GitException::errorString() const
+{
+    return m_errorString;
+}
+
+void GitException::raise() const
+{
+    throw *this;
+}
+
+GitException *GitException::clone() const
+{
+    return new GitException(*this);
+}
+
+int check_git_return(int code)
+{
+    if (code < 0 && giterr_last() && code != GIT_ITEROVER && code != GIT_ENOTFOUND) throw GitException(code);
+    else return code;
 }

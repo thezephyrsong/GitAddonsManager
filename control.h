@@ -1,4 +1,4 @@
-/* Copyright 2018 WobLight
+/* Copyright 2018-2019 WobLight
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +17,49 @@
 #ifndef GITCONTROL_H
 #define GITCONTROL_H
 
+#include <QException>
 #include <QObject>
 #include <QQueue>
 #include <QUrl>
 #include <functional>
+#include <QDebug>
+
+template <class T>
+struct AutoPtr {
+    T pointer = nullptr;
+    void(*disposer)(T);
+    AutoPtr(void(*d)(T)) : disposer(d){ }
+
+    void reset(T t = nullptr) { disposer(pointer); pointer = t; }
+
+    ~AutoPtr(){ disposer(pointer); }
+    AutoPtr& operator =(AutoPtr &&other){ disposer(pointer); pointer = other.pointer; other.pointer = nullptr; return *this; }
+    AutoPtr& operator =(AutoPtr &other) = delete ;
+
+    operator T&(){ return pointer; }
+    T* operator &(){ return &pointer; }
+    bool operator !(){ return !pointer; }
+};
 
 class QThreadPool;
+class GitException : public QException
+{
+    int m_code;
+    QString m_errorString;
+public:
+    GitException(int code);
+    GitException(const GitException&) = default;
+
+    int code();
+    QString errorString() const;
+
+    // QException interface
+public:
+    void raise() const override;
+    GitException *clone() const override;
+};
+
+int check_git_return(int code);
 
 class Control : public QObject
 {
