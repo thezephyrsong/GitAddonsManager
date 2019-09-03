@@ -22,7 +22,6 @@
 #include <QQueue>
 #include <QUrl>
 #include <functional>
-#include <QDebug>
 
 class QThreadPool;
 class GitException : public QException

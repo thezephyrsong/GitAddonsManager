@@ -536,7 +536,6 @@ void Control::setUpdateStatus(Control::UpdateStatus updateStatus)
     emit updateStatusChanged(m_updateStatus);
 }
 
-#include <execinfo.h>
 GitException::GitException(int code) : m_code(code)
 {
     const git_error *e = giterr_last();
