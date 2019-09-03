@@ -32,7 +32,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     addon.h \
-    control.h
+    control.h \
+    utils.h
 
 LIBS += -lgit2
 

@@ -55,20 +55,16 @@ void Addon::update()
 {
     removeSubfolders();
     delegate("Update", [this](){
-        AutoPtr lbr(&git_reference_free);
-        AutoPtr tr(&git_reference_free);
+        auto lbr = branchRef(m_currentBranch.toLocal8Bit());
+        auto tr = remoteRefForBranch(m_currentBranch.toLocal8Bit());
         AutoPtr ubr(&git_reference_free);
-        int error = check_git_return(git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL));
-        git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
-        opts.checkout_strategy = GIT_CHECKOUT_FORCE;
-        if (error == GIT_ENOTFOUND)
-            check_git_return(git_branch_lookup(&lbr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE));
-        else
-            check_git_return(git_branch_upstream(&tr, lbr));
 
         if (!git_branch_is_head(lbr))
-            git_repository_set_head(m_repo.get(), git_reference_name(lbr));
+            check_git_return(git_repository_set_head(m_repo.get(), git_reference_name(lbr)));
+
         check_git_return(git_reference_set_target(&ubr, lbr, git_reference_target(!tr?lbr:tr), nullptr));
+
+        git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
         check_git_return(git_checkout_head(m_repo.get(), &opts));
     }, [this](){updateGitStatus();});
     unpackSubfolders();
@@ -110,7 +106,7 @@ void Addon::scanBranches()
             ref.reset();
         }
         if (data.cb.isEmpty()) {
-            git_reflog *reflog;
+            AutoPtr reflog(&git_reflog_free);
             if (!git_reflog_read(&reflog, m_repo.get(), "HEAD")) {
                 for (size_t i = 0; i < git_reflog_entrycount(reflog); i++) {
                     auto entry = git_reflog_entry_byindex(reflog, i);
@@ -265,16 +261,7 @@ void Addon::setGitStatus(Addon::GitStatus gitStatus)
 void Addon::updateGitStatus()
 {
     delegate("Git Status Update", [this](){
-        AutoPtr tr(&git_reference_free);
-        check_git_return(git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_LOCAL));
-        if (!tr) {
-            check_git_return(git_branch_lookup(&tr, m_repo.get(), m_currentBranch.toLocal8Bit(), GIT_BRANCH_REMOTE));
-        }
-        else {
-            AutoPtr rbr(&git_reference_free);
-            check_git_return(git_branch_upstream(&rbr, tr));
-            tr = std::move(rbr);
-        }
+        auto tr = remoteRefForBranch(m_currentBranch);
         if (!tr)
             return GitStatusFlag::UpToDate;
         AutoPtr lr(&git_reference_free);
@@ -370,7 +357,7 @@ void walkFolders(const QFileInfo &info, auto f){
 }
 
 
-void Addon::removeFolders(QStringList paths, bool ask) {
+bool Addon::removeFolders(QStringList paths, bool ask) {
     QStringList files;
     bool ok = ask;
     foreach (QString path, paths){
@@ -381,7 +368,7 @@ void Addon::removeFolders(QStringList paths, bool ask) {
             });
         }
     }
-    if (files.isEmpty()) return;
+    if (files.isEmpty()) return true;
     if (ask) {
         m_mutex.lock();
         m_result = &ok;
@@ -403,11 +390,13 @@ void Addon::removeFolders(QStringList paths, bool ask) {
             }
             setProgress(i);
         }
+        return true;
     }
+    return false;
 }
 
-void Addon::removeFolder(QString path, bool ask) {
-    removeFolders({path}, ask);
+bool Addon::removeFolder(QString path, bool ask) {
+    return removeFolders({path}, ask);
 }
 
 void Addon::removeSubfolders()
@@ -507,6 +496,48 @@ void Addon::reset()
     unpackSubfolders();
 }
 
+void Addon::reclone()
+{
+    delegate("Reclone", [this](){
+        git_strarray remotes;
+        AutoPtr rr(&remotes, git_strarray_free);
+        check_git_return(git_remote_list(rr, m_repo.get()));
+        QStringList urls;
+        for (size_t i = 0; i < remotes.count; i++) {
+            AutoPtr remote(&git_remote_free);
+            check_git_return(git_remote_lookup(&remote, m_repo.get(), remotes.strings[i]));
+            urls << git_remote_url(remote);
+        }
+        const char *remote = nullptr;
+        check_git_return(git_branch_name(&remote, remoteRefForBranch(m_currentBranch)));
+        QString oldRemote(remote);
+        closeRepo();
+        if (removeFolder(Control::instance()->addonsPath() + "/" + name() + "/.git")){
+            git_repository *repo = nullptr;
+            check_git_return(git_repository_init(&repo, (Control::instance()->addonsPath() + "/" + m_name).toLocal8Bit(), false));
+            m_repo.reset(repo);
+            for (size_t i = 0; i < remotes.count; i++) {
+                AutoPtr remote(&git_remote_free);
+                check_git_return(git_remote_create(&remote, m_repo.get(), remotes.strings[i], urls[i].toLocal8Bit()));
+                git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
+                fetch_opts.callbacks.transfer_progress = &fetch_progress_cb;
+                fetch_opts.callbacks.payload = this;
+                AutoPtr r(git_remote_free);
+                check_git_return(git_remote_lookup(&r, m_repo.get(),  git_remote_name(remote)));
+                check_git_return(git_remote_fetch(r,nullptr,&fetch_opts,nullptr));
+            }
+            setCurrentBranch(oldRemote);
+            return true;
+        }
+        return false;
+    },[this](bool ok){
+        if (ok) {
+            update();
+            scanBranches();
+        }
+    });
+}
+
 void Addon::loadReadme()
 {
     delegate("Readme Loading",[this](){
@@ -602,6 +633,30 @@ void Addon::openRepo()
     git_repository *repo = nullptr;
     git_repository_open(&repo, (Control::instance()->addonsPath() + "/" + m_name).toLocal8Bit());
     m_repo.reset(repo);
+}
+
+AutoPtr<git_reference> Addon::remoteRefForBranch(QString branch)
+{
+    AutoPtr lbr(&git_reference_free);
+    AutoPtr tr(&git_reference_free);
+    int error = check_git_return(git_branch_lookup(&lbr, m_repo.get(), branch.toLocal8Bit(), GIT_BRANCH_LOCAL));
+    if (error == GIT_ENOTFOUND)
+        check_git_return(git_branch_lookup(&lbr, m_repo.get(), branch.toLocal8Bit(), GIT_BRANCH_REMOTE));
+    else
+        check_git_return(git_branch_upstream(&tr, lbr));
+    if (!tr)
+        return lbr;
+    else
+        return tr;
+}
+
+AutoPtr<git_reference> Addon::branchRef(QString name)
+{
+    AutoPtr lbr(&git_reference_free);
+    int error = check_git_return(git_branch_lookup(&lbr, m_repo.get(), name.toLocal8Bit(), GIT_BRANCH_LOCAL));
+    if (error == GIT_ENOTFOUND)
+        check_git_return(git_branch_lookup(&lbr, m_repo.get(), name.toLocal8Bit(), GIT_BRANCH_REMOTE));
+    return lbr;
 }
 
 void Addon::delegate(QString taskname, auto work, auto callback)

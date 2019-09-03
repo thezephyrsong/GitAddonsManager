@@ -24,23 +24,6 @@
 #include <functional>
 #include <QDebug>
 
-template <class T>
-struct AutoPtr {
-    T pointer = nullptr;
-    void(*disposer)(T);
-    AutoPtr(void(*d)(T)) : disposer(d){ }
-
-    void reset(T t = nullptr) { disposer(pointer); pointer = t; }
-
-    ~AutoPtr(){ disposer(pointer); }
-    AutoPtr& operator =(AutoPtr &&other){ disposer(pointer); pointer = other.pointer; other.pointer = nullptr; return *this; }
-    AutoPtr& operator =(AutoPtr &other) = delete ;
-
-    operator T&(){ return pointer; }
-    T* operator &(){ return &pointer; }
-    bool operator !(){ return !pointer; }
-};
-
 class QThreadPool;
 class GitException : public QException
 {

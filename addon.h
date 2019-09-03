@@ -24,8 +24,10 @@
 #include <QQueue>
 #include <QMutex>
 #include <QWaitCondition>
+#include "utils.h"
 
 class git_repository;
+class git_reference;
 using repo_p = std::unique_ptr<git_repository, void(*)(git_repository *)>;
 
 class QThreadPool;
@@ -128,13 +130,16 @@ private:
 
     void openRepo();
 
+    AutoPtr<git_reference> remoteRefForBranch(QString name);
+    AutoPtr<git_reference> branchRef(QString name);
+
     void delegate(QString taskname, auto work, auto callback);
     void delegate(QString taskname, auto work);
 
     QThreadPool *m_pool;
 
-    void removeFolders(QStringList paths, bool ask = true);
-    void removeFolder(QString path, bool ask = true);
+    bool removeFolders(QStringList paths, bool ask = true);
+    bool removeFolder(QString path, bool ask = true);
     QString m_filesToRemove;
 
     QString m_readme;
@@ -186,6 +191,7 @@ public slots:
     void setFilesToRemove(QString filesToRemove);
     void confirmFileRemove(bool confirmed);
     void reset();
+    void reclone();
     void loadReadme();
     void setReadme(QString readme);
 };

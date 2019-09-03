@@ -81,6 +81,12 @@ Page {
                 implicitHeight: row.height
                 hoverEnabled: true
                 id: ma
+                Rectangle {
+                    anchors.fill: row
+                    color: "#ff8000"
+                    visible:  addon.status === Addon.Status.Error || addon.gitStatus === Addon.Error
+                }
+
                 RowLayout {
                     width: parent.width
                     id: row
@@ -136,13 +142,38 @@ Page {
                                             readmeDialog.addon = addon
                                             readmeDialog.visible = true
                                         }
+                                        hoverEnabled: true
                                     }
 
                                     MenuItem {
+                                        enabled: addon.status == Addon.Status.Ready
                                         id: repairButton
-                                        text: qsTr("repair")
-                                        icon.name: "document-edit-decrypt"
-                                        onTriggered: addon.reset()
+                                        hoverEnabled: true
+                                        state: addon.gitStatus === Addon.Error ? "reclone" : "reset"
+                                        states: [
+                                            State {
+                                                name: "reset"
+                                                PropertyChanges {
+                                                    target: repairButton
+                                                    text: qsTr("repair")
+                                                    icon.name: "document-edit-decrypt"
+                                                    ToolTip.visible: hovered
+                                                    ToolTip.text: "Restore addon files"
+                                                    onTriggered: addon.reset()
+                                                }
+                                            },
+                                            State {
+                                                name: "reclone"
+                                                PropertyChanges {
+                                                    target: repairButton
+                                                    text: qsTr("repair repository")
+                                                    icon.name: "view-refresh"
+                                                    ToolTip.visible: hovered
+                                                    ToolTip.text: "Attempts to re-download the repository"
+                                                    onTriggered: addon.reclone()
+                                                }
+                                            }
+                                        ]
                                     }
 
                                     MenuItem {
