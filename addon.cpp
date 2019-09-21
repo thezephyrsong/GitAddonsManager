@@ -65,6 +65,7 @@ void Addon::update()
         check_git_return(git_reference_set_target(&ubr, lbr, git_reference_target(!tr?lbr:tr), nullptr));
 
         git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
+        opts.checkout_strategy = GIT_CHECKOUT_FORCE;
         check_git_return(git_checkout_head(m_repo.get(), &opts));
     }, [this](){updateGitStatus();});
     unpackSubfolders();
