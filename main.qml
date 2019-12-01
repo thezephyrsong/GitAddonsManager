@@ -224,25 +224,34 @@ ApplicationWindow {
         id: addDialog
         title: "Clone Repository"
         standardButtons: Dialog.Ok | Dialog.Cancel
-        RowLayout {
+        ColumnLayout {
             anchors.fill: parent
-            TextField {
-                Layout.fillWidth: true
-                id: addField
-                placeholderText: "Git clone url"
-                onAccepted: addDialog.accept()
-                focus: visible
+            RowLayout {
+                TextField {
+                    Layout.fillWidth: true
+                    id: addField
+                    placeholderText: "Git clone url"
+                    onAccepted: addDialog.accept()
+                    focus: visible
+                }
+                ToolButton {
+                    id: cloneHelpBtn
+                    icon.name: "help-whatsthis"
+                    onClicked: cloneHelpDialog.visible = true
+                }
             }
-            ToolButton {
-                id: cloneHelpBtn
-                icon.name: "help-whatsthis"
-                onClicked: cloneHelpDialog.visible = true
+            ComboBox {
+                id: pathChooser
+                visible: Engine.addonsPaths.length > 1
+                model: Engine.addonsPaths
+                currentIndex: 1
+                Layout.fillWidth: true
             }
         }
         focus: visible
         modal: true
         onAccepted: {
-            Engine.clone(addField.text)
+            Engine.clone(addField.text, pathChooser.currentIndex)
             addField.clear()
         }
         onRejected: addField.clear()
@@ -285,11 +294,25 @@ ApplicationWindow {
     Dialog {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        visible: Engine.addonsPaths[0] != "" && !Engine.addonsPaths[0].toLowerCase().match("interface/addons$")
+        property var invalidPaths: {
+            var l = []
+            for (var i = 0; i < Engine.addonsPaths.length; i++)
+                if (Engine.addonsPaths[i] != "" && !Engine.addonsPaths[i].toLowerCase().match("interface/addons$"))
+                    l.push(Engine.addonsPaths[i])
+            return l
+        }
+        id: invalidDialog
+        visible: invalidPaths.length > 0
         title: qsTr("Warning")
         Label {
             anchors.fill: parent
-            text: qsTr("The path set for addons does not appear to be valid. Please make sure it is set to the Interface/AddOns folder inside your World of Warcraft folder.")
+            text: {
+                var m = qsTr("Following paths don't appears to be valid. Please make sure it is set to the Interface/AddOns folder inside your World of Warcraft folder.", "", invalidDialog.invalidPaths.length)
+                for (var i = 0; i < invalidDialog.invalidPaths.length; i++)
+                    m += "<br/><b>" + invalidDialog.invalidPaths[i]+"</b>"
+                return m
+            }
+            textFormat: Text.RichText
             wrapMode: Text.WordWrap
         }
         modal: true

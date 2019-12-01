@@ -48,6 +48,10 @@ Pane {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Choose the folder containing the addons")
                 }
+                Button {
+                    icon.name: "delete"
+                    onClicked: Engine.setAddonsPath(index)
+                }
             }
         }
         Button {
