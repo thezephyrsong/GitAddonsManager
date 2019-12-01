@@ -64,7 +64,7 @@ Qt: $(qt-modules) Qt/5.11.1/mingw53_32/bin/qt.conf
 	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/5.11.1/mingw53_32/mkspecs/qconfig.pri
 
 mingw.7z:
-	wget https://netix.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z -O mingw.7z
+	wget https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z/download -O mingw.7z
 	
 mingw32/bin/gcc.exe: mingw.7z
 	7zr x mingw.7z
