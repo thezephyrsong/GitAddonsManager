@@ -93,11 +93,6 @@ ApplicationWindow {
         onTriggered: updateAll()
         enabled: availableUpdates > 0
     }
-    Action {
-        id: openAddonsFolder
-        icon.name: "go-parent-folder"
-        onTriggered: Qt.openUrlExternally((Qt.platform.os == "windows" ? "file:///" : "file://")+Engine.addonsPath)
-    }
 
     ColumnLayout{
         anchors.fill: parent
@@ -186,11 +181,11 @@ ApplicationWindow {
     }
     FileDialog {
         id: fileDialog
+        property int selector: -1
         title: qsTr("Choose addons directory")
-        folder: Engine.addonsPath != "" ? Engine.addonsPath : shortcuts.home
-        onAccepted: Engine.addonsPath = fileUrl.toString().replace("file://","")
+        onAccepted: Engine.setAddonsPath(selector, fileUrl.toString().replace("file://",""))
         selectFolder: true
-        visible: Engine.addonsPath == ""
+        visible: Engine.addonsPaths.length == 0
     }
     Dialog {
         parent: ApplicationWindow.overlay
@@ -290,7 +285,7 @@ ApplicationWindow {
     Dialog {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
-        visible: Engine.addonsPath != "" && !Engine.addonsPath.toLowerCase().match("interface/addons$")
+        visible: Engine.addonsPaths[0] != "" && !Engine.addonsPaths[0].toLowerCase().match("interface/addons$")
         title: qsTr("Warning")
         Label {
             anchors.fill: parent

@@ -41,13 +41,6 @@ Page {
                 ToolTip.text: "Upgrade all addons"
                 Material.foreground: Material.background
             }
-            ToolButton {
-                hoverEnabled: true
-                action: openAddonsFolder
-                ToolTip.visible: hovered
-                ToolTip.text: "Open addons folder externally"
-                Material.foreground: Material.background
-            }
 
             Item {
                 Layout.fillWidth: true
@@ -75,8 +68,19 @@ Page {
             model: Engine.addons
             id: listView
 
+            section.property: "modelData.path"
+            section.criteria: ViewSection.FullString
+            section.delegate:
+                Button {
+                    text: section
+                    icon.name: "go-parent-folder"
+                    width: Math.min(listView.width, implicitWidth)
+                    onClicked: Qt.openUrlExternally((Qt.platform.os == "windows" ? "file:///" : "file://")+section)
+                    display: AbstractButton.TextBesideIcon
+                }
+
            delegate: MouseArea {
-                property Addon addon: Engine.addons[index]
+               property Addon addon: Engine.addons[index]
                 width: parent.width
                 implicitHeight: row.height
                 hoverEnabled: true

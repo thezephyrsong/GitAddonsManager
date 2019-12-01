@@ -53,6 +53,8 @@ class Addon : public QObject
 
     int m_total;
 
+    QString m_path;
+
     QMutex m_mutex;
     QWaitCondition m_wait;
     void *m_result;
@@ -67,6 +69,7 @@ public:
     Q_PROPERTY(QStringList subfolders READ subfolders WRITE setSubfolders NOTIFY subfoldersChanged)
     Q_PROPERTY(QString filesToRemove READ filesToRemove WRITE setFilesToRemove NOTIFY filesToRemoveChanged)
     Q_PROPERTY(QString readme READ readme WRITE setReadme NOTIFY readmeChanged)
+    Q_PROPERTY(QString path READ path)
 
     enum class Status {
         Error = -1,
@@ -92,7 +95,7 @@ public:
     Q_PROPERTY(GitStatus gitStatus READ gitStatus WRITE setGitStatus NOTIFY gitStatusChanged)
     Q_FLAGS(GitStatus)
 
-    explicit Addon(QString name, git_repository *repo, QObject *parent = nullptr);
+    explicit Addon(QString name, git_repository *repo, QString path, QObject *parent = nullptr);
 
     QString name() const;
 
@@ -117,6 +120,8 @@ public:
     QString filesToRemove() const;
 
     QString readme() const;
+
+    QString path() const;
 
 private:
 
@@ -168,6 +173,8 @@ signals:
     void filesToRemoveChanged(QString filesToRemove);
 
     void readmeChanged(QString readme);
+
+    void pathChanged(QString path);
 
 public slots:
     void setName(QString name);

@@ -28,8 +28,8 @@
 #include <QFutureWatcher>
 #include <QReadWriteLock>
 
-Addon::Addon(QString name, git_repository *repo, QObject *parent) : QObject(parent),
-    m_name(name), m_repo(repo, &git_repository_free), m_progress(0), m_total(0), m_status(Status::Ready), m_gitStatus(GitStatusFlag::UpToDate), m_pool(new QThreadPool(this))
+Addon::Addon(QString name, git_repository *repo, QString path, QObject *parent) : QObject(parent),
+    m_name(name), m_repo(repo, &git_repository_free), m_progress(0), m_total(0), m_status(Status::Ready), m_gitStatus(GitStatusFlag::UpToDate), m_pool(new QThreadPool(this)), m_path(path)
 {
     connect(this, &Addon::remoteChanged, this, &Addon::fetchRemote);
     connect(this, &Addon::currentBranchChanged, this, &Addon::updateGitStatus);
@@ -337,7 +337,7 @@ void Addon::uninstall()
     removeSubfolders();
     closeRepo();
     delegate("Removing addon folder", [this](){
-        removeFolder(Control::instance()->addonsPath() + "/" + m_name);
+        removeFolder(m_path + "/" + m_name);
     }, [](){Control::instance()->scanForAddons();});
 }
 
@@ -404,7 +404,7 @@ void Addon::removeSubfolders()
 {
     delegate("Removing Subfolders", [this](){
         QStringList paths(m_subfolders);
-        std::transform(paths.begin(), paths.end(), paths.begin(), [](auto p){return Control::instance()->addonsPath() + "/" + p;});
+        std::transform(paths.begin(), paths.end(), paths.begin(), [this](auto p){return m_path + "/" + p;});
         removeFolders(paths);
     });
 }
@@ -412,7 +412,7 @@ void Addon::removeSubfolders()
 void Addon::unpackSubfolders(){
     delegate("Unpacking Subfolders", [this](){
         QStringList errors;
-        QDir addonsDir(Control::instance()->addonsPath());
+        QDir addonsDir(m_path);
         if (m_subfolders.contains(m_name, Qt::CaseInsensitive)) {
             closeRepo();
             QString oldName = m_name;
@@ -513,9 +513,9 @@ void Addon::reclone()
         check_git_return(git_branch_name(&remote, remoteRefForBranch(m_currentBranch)));
         QString oldRemote(remote);
         closeRepo();
-        if (removeFolder(Control::instance()->addonsPath() + "/" + name() + "/.git")){
+        if (removeFolder(m_path + "/" + name() + "/.git")){
             git_repository *repo = nullptr;
-            check_git_return(git_repository_init(&repo, (Control::instance()->addonsPath() + "/" + m_name).toLocal8Bit(), false));
+            check_git_return(git_repository_init(&repo, (m_path + "/" + m_name).toLocal8Bit(), false));
             m_repo.reset(repo);
             for (size_t i = 0; i < remotes.count; i++) {
                 AutoPtr remote(&git_remote_free);
@@ -542,9 +542,9 @@ void Addon::reclone()
 void Addon::loadReadme()
 {
     delegate("Readme Loading",[this](){
-        QFileInfo md(Control::instance()->addonsPath() + "/" + m_name + "/README.md");
+        QFileInfo md(m_path + "/" + m_name + "/README.md");
         if (!md.exists() && !md.isFile()) {
-            QDir repodir(Control::instance()->addonsPath() + "/" + m_name);
+            QDir repodir(m_path + "/" + m_name);
             auto a = repodir.entryInfoList({"readme*"});
             if (a.size() > 0)
                 md = a[0];
@@ -624,6 +624,11 @@ QString Addon::readme() const
     return m_readme;
 }
 
+QString Addon::path() const
+{
+    return m_path;
+}
+
 void Addon::closeRepo()
 {
     m_repo.reset();
@@ -632,7 +637,7 @@ void Addon::closeRepo()
 void Addon::openRepo()
 {
     git_repository *repo = nullptr;
-    git_repository_open(&repo, (Control::instance()->addonsPath() + "/" + m_name).toLocal8Bit());
+    git_repository_open(&repo, (m_path + "/" + m_name).toLocal8Bit());
     m_repo.reset(repo);
 }
 

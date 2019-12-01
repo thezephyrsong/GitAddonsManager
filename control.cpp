@@ -41,17 +41,29 @@ Control::Control(QObject *parent) : QObject(parent),
     m_style(QQuickStyle::name()),m_availableStyles(QQuickStyle::availableStyles())
 {
     connect(this, &Control::addonsPathChanged, this, &Control::scanForAddons);
-    connect(this, &Control::addonsPathChanged, this, &Control::saveAddonsPath);
+    connect(this, &Control::addonsPathsChanged, this, &Control::saveAddonsPaths);
 }
 
 void Control::init() {
     git_libgit2_init();
     QSettings settings;
-    setAddonsPath(settings.value("addonsPath").toString());
+    if (settings.value("addonsPaths").isNull()) {
+        setAddonsPath(-1, settings.value("addonsPath").toString());
+        settings.remove("addonsPath");
+    } else {
+        auto paths = settings.value("addonsPaths").toStringList();
+        for (int i = 0; i < paths.length(); i++)
+            setAddonsPath(-1, paths[i]);
+    }
     setFirstBoot(settings.value("firstBoot",true).toBool());
     setMinimizeToTray((MinimizeToTray)settings.value("minimizeToTray",(int)MinimizeToTrayAsk).toInt());
     nam = new QNetworkAccessManager(this);
     checkForUpdates();
+}
+
+QStringList Control::addonsPaths() const
+{
+    return m_addonsPaths;
 }
 
 void Control::delegate(QString taskname, auto work, auto callback)
@@ -106,11 +118,6 @@ Control::~Control()
 QList<QObject *> Control::addons() const
 {
     return m_addons;
-}
-
-QString Control::addonsPath() const
-{
-    return m_addonsPath;
 }
 
 Control *Control::instance()
@@ -265,28 +272,61 @@ void Control::setAddons(QList<QObject *> addons)
     emit addonsChanged(m_addons);
 }
 
-void Control::setAddonsPath(QString addonsPath)
+void Control::setAddonsPath(int index, QString addonsPath)
 {
-    addonsPath = QUrl::fromLocalFile(addonsPath).adjusted(QUrl::NormalizePathSegments|QUrl::StripTrailingSlash).toLocalFile();
-    if (m_addonsPath == addonsPath)
+    if (addonsPath.isNull()) {
+        for (int i = 0; i < m_addons.size();) {
+            int s = m_addons.size();
+            if (static_cast<Addon*>(m_addons[i])->path() == m_addonsPaths[index])
+                delete m_addons.takeAt(i);
+            if (s != m_addons.size())
+                emit addonsChanged(m_addons);
+            else i++;
+        }
+        m_addonsPaths.removeAt(index);
+        emit addonsPathsChanged(m_addonsPaths);
         return;
+    }
+    addonsPath = QUrl::fromLocalFile(addonsPath).adjusted(QUrl::NormalizePathSegments|QUrl::StripTrailingSlash).toLocalFile();
+    if (index == -1) {
+        m_addonsPaths.append(addonsPath);
+        index = m_addonsPaths.size() -1;
+    } else {
+        if (m_addonsPaths[index] == addonsPath)
+            return;
+        for (int i = 0; i < m_addons.size();) {
+            if (static_cast<Addon*>(m_addons[i])->path() == m_addonsPaths[index])
+                delete m_addons.takeAt(i);
+            else i++;
+        }
+        m_addonsPaths[index] = addonsPath;
+    }
 
-    m_addonsPath = addonsPath;
-    emit addonsPathChanged(m_addonsPath);
+    emit addonsPathChanged(index, m_addonsPaths[index]);
+    emit addonsPathsChanged(m_addonsPaths);
 }
 
-void Control::saveAddonsPath()
+void Control::saveAddonsPaths()
 {
     QSettings settings;
-    settings.setValue("addonsPath", m_addonsPath);
+    settings.setValue("addonsPaths", m_addonsPaths);
 }
 
-void Control::scanForAddons()
+void Control::scanForAddons(int i)
 {
+    if (i == -1) {
+        foreach (QObject *addon, m_addons)
+            addon->deleteLater();
+        QObjectList ol;
+        setAddons(ol);
+        for (int k = 0; k < m_addonsPaths.size(); ++k)
+            scanForAddons(k);
+        return;
+    }
     using init_t = QPair<QString, git_repository*>;
-    delegate("Scanning addons folder...", [this](){
+    delegate("Scanning addons folder...", [this, i](){
         QList<init_t> list;
-        QDir addonsFolder(m_addonsPath);
+        QDir addonsFolder(m_addonsPaths[i]);
         foreach (QFileInfo dirInfo, addonsFolder.entryInfoList(QDir::AllDirs)) {
             QDir gitdir(dirInfo.canonicalFilePath() + "/.git");
             if (!gitdir.exists()) continue;
@@ -299,13 +339,10 @@ void Control::scanForAddons()
                 list << init_t(dirInfo.fileName(), repo);
         }
         return list;
-    }, [this](auto list){
-        QObjectList ol;
+    }, [this, k=i](auto list){
         foreach (init_t i, list)
-            ol << new Addon(i.first, i.second);
-        foreach (QObject *addon, m_addons)
-            addon->deleteLater();
-        setAddons(ol);
+            m_addons << new Addon(i.first, i.second, m_addonsPaths[k]);
+        emit addonsChanged(m_addons);
     });
 }
 
@@ -316,9 +353,9 @@ int clone_progress_cb(const git_transfer_progress *stats, void *payload) {
     return 0;
 }
 
-void Control::clone(QUrl url)
+void Control::clone(QUrl url, int i)
 {
-    delegate("Cloning addon...",[this, url]() {
+    delegate("Cloning addon...",[this, url, i]() {
         struct {
             QString name;
             git_repository *repo = nullptr;
@@ -327,14 +364,14 @@ void Control::clone(QUrl url)
         data.name = url.fileName().section('.',0,0);
         git_clone_options opts = GIT_CLONE_OPTIONS_INIT;
         opts.fetch_opts.callbacks.transfer_progress = &clone_progress_cb;
-        int error = git_clone(&data.repo, url.toString().toLocal8Bit(), (m_addonsPath + "/" + data.name).toLocal8Bit(), &opts);
+        int error = git_clone(&data.repo, url.toString().toLocal8Bit(), (m_addonsPaths[i] + "/" + data.name).toLocal8Bit(), &opts);
         if (error < 0) {
             const git_error *e = giterr_last();
             data.error = QString::asprintf("Error %d/%d: %s", error,  e->klass, e->message);
             return data;
         }
 
-        QDir dir(m_addonsPath);
+        QDir dir(m_addonsPaths[i]);
         dir.cd(data.name);
         QStringList toc = dir.entryList({"*.toc"});
         if (toc.isEmpty()) {
@@ -348,9 +385,9 @@ void Control::clone(QUrl url)
             git_repository_open(&data.repo, dir.canonicalPath().toLocal8Bit());
         }
         return data;
-    },[this](auto ret){
+    },[this, i](auto ret){
         if (ret.error.isEmpty()) {
-            auto add = new Addon(ret.name, ret.repo);
+            auto add = new Addon(ret.name, ret.repo, m_addonsPaths[i]);
             m_addons.prepend(add);
             addonsChanged(m_addons);
             add->unpackSubfolders();
@@ -534,6 +571,15 @@ void Control::setUpdateStatus(Control::UpdateStatus updateStatus)
 
     m_updateStatus = updateStatus;
     emit updateStatusChanged(m_updateStatus);
+}
+
+void Control::setAddonsPaths(QStringList addonsPaths)
+{
+    if (m_addonsPaths == addonsPaths)
+        return;
+
+    m_addonsPaths = addonsPaths;
+    emit addonsPathsChanged(m_addonsPaths);
 }
 
 GitException::GitException(int code) : m_code(code)

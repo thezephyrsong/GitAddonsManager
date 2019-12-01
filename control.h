@@ -52,17 +52,15 @@ class Control : public QObject
 
     QList<QObject *> m_addons;
 
-    QString m_addonsPath;
-
 public:
     Q_PROPERTY(QList<QObject *> addons READ addons WRITE setAddons NOTIFY addonsChanged)
-    Q_PROPERTY(QString addonsPath READ addonsPath WRITE setAddonsPath NOTIFY addonsPathChanged)
     Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage WRITE setStatusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(bool firstBoot READ firstBoot WRITE setFirstBoot NOTIFY firstBootChanged)
     Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
     Q_PROPERTY(QStringList availableStyles READ availableStyles WRITE setAvailableStyles NOTIFY availableStylesChanged)
+    Q_PROPERTY(QStringList addonsPaths READ addonsPaths WRITE setAddonsPaths NOTIFY addonsPathsChanged)
 
     ~Control();
 
@@ -95,8 +93,6 @@ public:
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus WRITE setUpdateStatus NOTIFY updateStatusChanged)
     QList<QObject *> addons() const;
 
-    QString addonsPath() const;
-
     static Control *instance();
 
     int progress() const;
@@ -120,6 +116,8 @@ public:
     void completeUpdate(const QString &path);
 
     void init();
+
+    QStringList addonsPaths() const;
 
 private:
     static Control *m_instance;
@@ -148,10 +146,10 @@ private:
 
     UpdateStatus m_updateStatus = UpdateStatus::NoUpdate;
 
+    QStringList m_addonsPaths;
+
 signals:
     void addonsChanged(QList<QObject *> addons);
-
-    void addonsPathChanged(QString addonsPath);
 
     void progressChanged(int progress);
 
@@ -171,12 +169,15 @@ signals:
 
     void updateStatusChanged(UpdateStatus updateStatus);
 
+    void addonsPathsChanged(QStringList addonsPaths);
+
+    void addonsPathChanged(int i, QString path);
+
 public slots:
     void setAddons(QList<QObject *> addons);
-    void setAddonsPath(QString addonsPath);
-    void saveAddonsPath();
-    void scanForAddons();
-    void clone(QUrl url);
+    void saveAddonsPaths();
+    void scanForAddons(int i = -1);
+    void clone(QUrl url, int i);
     void setProgress(int progress);
     void setTotal(int total);
     void setStatus(Status status);
@@ -189,6 +190,8 @@ public slots:
     void downloadUpdate();
     void executeUpdate();
     void setUpdateStatus(UpdateStatus updateStatus);
+    void setAddonsPaths(QStringList addonsPaths);
+    void setAddonsPath(int i, QString path = QString());
 };
 Q_DECLARE_METATYPE(Control::MinimizeToTray)
 
