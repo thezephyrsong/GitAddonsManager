@@ -138,6 +138,9 @@ private:
     AutoPtr<git_reference> remoteRefForBranch(QString name);
     AutoPtr<git_reference> branchRef(QString name);
 
+    void delegate(QString taskname, auto work, auto callback, bool force);
+    void delegate(QString taskname, auto work, bool force);
+
     void delegate(QString taskname, auto work, auto callback);
     void delegate(QString taskname, auto work);
 

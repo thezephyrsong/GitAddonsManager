@@ -150,7 +150,6 @@ Page {
                                     }
 
                                     MenuItem {
-                                        enabled: addon.status == Addon.Status.Ready
                                         id: repairButton
                                         hoverEnabled: true
                                         state: addon.gitStatus === Addon.Error ? "reclone" : "reset"
@@ -158,6 +157,7 @@ Page {
                                             State {
                                                 name: "reset"
                                                 PropertyChanges {
+                                                    enabled: addon.status == Addon.Status.Ready
                                                     target: repairButton
                                                     text: qsTr("repair")
                                                     icon.name: "document-edit-decrypt"
@@ -169,6 +169,7 @@ Page {
                                             State {
                                                 name: "reclone"
                                                 PropertyChanges {
+                                                    enabled: true
                                                     target: repairButton
                                                     text: qsTr("repair repository")
                                                     icon.name: "view-refresh"

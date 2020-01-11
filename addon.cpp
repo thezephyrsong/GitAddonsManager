@@ -536,7 +536,7 @@ void Addon::reclone()
             update();
             scanBranches();
         }
-    });
+    }, true);
 }
 
 void Addon::loadReadme()
@@ -665,10 +665,10 @@ AutoPtr<git_reference> Addon::branchRef(QString name)
     return lbr;
 }
 
-void Addon::delegate(QString taskname, auto work, auto callback)
+void Addon::delegate(QString taskname, auto work, auto callback, bool force)
 {
     Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
-    if (status() != Status::Ready) {
+    if (status() != Status::Ready && !force) {
         qInfo() << name() << "Enqueueing" << taskname;
         m_tasks.enqueue({taskname, [this, taskname, work, callback](){delegate(taskname, work,callback);}});
         return;
@@ -709,11 +709,21 @@ void Addon::delegate(QString taskname, auto work, auto callback)
     fw->setFuture(fut);
 }
 
-void Addon::delegate(QString taskname, auto work)
+void Addon::delegate(QString taskname, auto work, bool force)
 {
     using ret_t = typename std::invoke_result<decltype(work)>::type;
     if constexpr (std::is_same<ret_t, void>::value)
-        delegate(taskname, work, [](){});
+        delegate(taskname, work, [](){}, force);
     else
-        delegate(taskname, work, [](ret_t){});
+        delegate(taskname, work, [](ret_t){}, force);
+}
+
+void Addon::delegate(QString taskname, auto work)
+{
+    delegate(taskname, work, false);
+}
+
+void Addon::delegate(QString taskname, auto work, auto callback)
+{
+    delegate(taskname, work, callback, false);
 }
