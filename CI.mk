@@ -92,6 +92,7 @@ zlib/build/libzlib.dll: zlib/CMakeLists.txt
 	
 quazip/quazip.pro:
 	git clone https://github.com/stachenov/quazip.git
+	cd quazip && git checkout v0.9.x
 	
 quazip/build/release/quazip.dll: quazip/quazip.pro
 	mkdir -p quazip/build
