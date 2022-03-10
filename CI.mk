@@ -16,7 +16,7 @@ finalize:
 	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
 	
 build:
-	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' LIBS+=-lquazip5 INCLUDEPATH+=/usr/include/quazip5 && make
+	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' PKGCONFIG=quazip1-qt5 CONFIG+=link_pkgconfig && make
 	
 linuxdeploy: build
 	mkdir GitAddonsManager
