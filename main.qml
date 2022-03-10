@@ -1,4 +1,4 @@
-/* Copyright 2018 WobLight
+/* Copyright 2022 WobLight
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -244,7 +244,7 @@ ApplicationWindow {
                 id: pathChooser
                 visible: Engine.addonsPaths.length > 1
                 model: Engine.addonsPaths
-                currentIndex: 1
+                currentIndex: 0
                 Layout.fillWidth: true
             }
         }
