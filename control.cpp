@@ -373,16 +373,24 @@ void Control::clone(QUrl url, int i)
 
         QDir dir(m_addonsPaths[i]);
         dir.cd(data.name);
-        QStringList toc = dir.entryList({"*.toc"});
-        if (toc.isEmpty()) {
-        } else if (toc[0].toLower() != dir.dirName().toLower() + ".toc") {
-            git_repository_free(data.repo);
-            dir.cdUp();
-            QString newName = toc[0].chopped(4);
-            dir.rename(data.name, newName);
-            data.name = newName;
-            dir.cd(data.name);
-            git_repository_open(&data.repo, dir.canonicalPath().toLocal8Bit());
+        QStringList tocs = dir.entryList({"*.toc"});
+        if (tocs.isEmpty()) {
+        } else {
+            auto toc = tocs.first();
+            toc.replace("-Classic.toc",".toc", Qt::CaseInsensitive);
+            toc.replace("-BCC.toc",".toc", Qt::CaseInsensitive);
+            toc.replace("_Vanilla.toc",".toc", Qt::CaseInsensitive);
+            toc.replace("_TBC.toc",".toc", Qt::CaseInsensitive);
+            toc.replace("_Mainline.toc",".toc", Qt::CaseInsensitive);
+            if (toc.toLower() != dir.dirName().toLower() + ".toc") {
+                git_repository_free(data.repo);
+                dir.cdUp();
+                QString newName = toc.chopped(4);
+                dir.rename(data.name, newName);
+                data.name = newName;
+                dir.cd(data.name);
+                git_repository_open(&data.repo, dir.canonicalPath().toLocal8Bit());
+            }
         }
         return data;
     },[this, i](auto ret){
