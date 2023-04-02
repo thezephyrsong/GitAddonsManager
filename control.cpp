@@ -374,18 +374,27 @@ void Control::clone(QUrl url, int i)
         QDir dir(m_addonsPaths[i]);
         dir.cd(data.name);
         QStringList tocs = dir.entryList({"*.toc"});
-        if (tocs.isEmpty()) {
-        } else {
-            auto toc = tocs.first();
-            toc.replace("-Classic.toc",".toc", Qt::CaseInsensitive);
-            toc.replace("-BCC.toc",".toc", Qt::CaseInsensitive);
-            toc.replace("_Vanilla.toc",".toc", Qt::CaseInsensitive);
-            toc.replace("_TBC.toc",".toc", Qt::CaseInsensitive);
-            toc.replace("_Mainline.toc",".toc", Qt::CaseInsensitive);
-            if (toc.toLower() != dir.dirName().toLower() + ".toc") {
+        QString expectedTocName = dir.dirName() + ".toc";
+        if (!tocs.isEmpty()) {
+            std::transform(tocs.begin(), tocs.end(),
+                           tocs.begin(),
+                           [](auto toc) {
+                                toc.replace("-Classic.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("-BCC.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("_Vanilla.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("_TBC.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("_Mainline.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("_Wrath.toc",".toc", Qt::CaseInsensitive);
+                                toc.replace("-WOTLKC.toc",".toc", Qt::CaseInsensitive);
+                            return toc;
+            });
+            if (!std::all_of(tocs.begin() + 1, tocs.end(),
+                       [tocs](const auto &toc){ return !QString::compare(toc, tocs.first()); }))
+                qWarning() << "Multiple toc files found! Expect troubles...";
+            else if (QString::compare(tocs.first(), dir.dirName() + ".toc", Qt::CaseInsensitive)) {
                 git_repository_free(data.repo);
                 dir.cdUp();
-                QString newName = toc.chopped(4);
+                QString newName = tocs.first().chopped(4);
                 dir.rename(data.name, newName);
                 data.name = newName;
                 dir.cd(data.name);
