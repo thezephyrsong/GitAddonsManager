@@ -119,6 +119,8 @@ public:
 
     QStringList addonsPaths() const;
 
+    static void removeTocSuffixes(QString &string);
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);

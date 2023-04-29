@@ -66,6 +66,17 @@ QStringList Control::addonsPaths() const
     return m_addonsPaths;
 }
 
+void Control::removeTocSuffixes(QString &string)
+{
+    string.replace("-Classic.toc",".toc", Qt::CaseInsensitive);
+    string.replace("-BCC.toc",".toc", Qt::CaseInsensitive);
+    string.replace("_Vanilla.toc",".toc", Qt::CaseInsensitive);
+    string.replace("_TBC.toc",".toc", Qt::CaseInsensitive);
+    string.replace("_Mainline.toc",".toc", Qt::CaseInsensitive);
+    string.replace("_Wrath.toc",".toc", Qt::CaseInsensitive);
+    string.replace("-WOTLKC.toc",".toc", Qt::CaseInsensitive);
+}
+
 void Control::delegate(QString taskname, auto work, auto callback)
 {
     Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
@@ -379,13 +390,7 @@ void Control::clone(QUrl url, int i)
             std::transform(tocs.begin(), tocs.end(),
                            tocs.begin(),
                            [](auto toc) {
-                                toc.replace("-Classic.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("-BCC.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("_Vanilla.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("_TBC.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("_Mainline.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("_Wrath.toc",".toc", Qt::CaseInsensitive);
-                                toc.replace("-WOTLKC.toc",".toc", Qt::CaseInsensitive);
+                               Control::removeTocSuffixes(toc);
                             return toc;
             });
             if (!std::all_of(tocs.begin() + 1, tocs.end(),

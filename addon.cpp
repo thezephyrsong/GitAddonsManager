@@ -154,12 +154,22 @@ void Addon::scanSubfolders()
             QString path = root;
             if (path.isEmpty())
                 return 0;
+            path = path.chopped(1);
             QStringList *sf = static_cast<QStringList *>(payload);
             QString file = git_tree_entry_name(entry);
-            if (file.toLower() == path.toLower().chopped(1) + ".toc") {
-                *sf << path.chopped(1);
+
+            if (!sf->contains(path) && !file.compare(path + ".toc", Qt::CaseInsensitive)) {
+                *sf << path;
                 return 1;
             }
+
+            Control::removeTocSuffixes(file);
+
+            if (!sf->contains(path) && !file.compare(path + ".toc", Qt::CaseInsensitive)) {
+                *sf << path;
+                return 1;
+            }
+
             if (path.split("/").size() > 1)
                 return 1;
             return 0;
