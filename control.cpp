@@ -373,6 +373,10 @@ void Control::clone(QUrl url, int i)
             QString error;
         } data;
         data.name = url.fileName().section('.',0,0);
+        if (data.name.isEmpty()) {
+            data.error = QString("Invalid url.");
+            return data;
+        }
         git_clone_options opts = GIT_CLONE_OPTIONS_INIT;
         opts.fetch_opts.callbacks.transfer_progress = &clone_progress_cb;
         int error = git_clone(&data.repo, url.toString().toLocal8Bit(), (m_addonsPaths[i] + "/" + data.name).toLocal8Bit(), &opts);
