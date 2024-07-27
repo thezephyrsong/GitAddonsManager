@@ -26,5 +26,8 @@
         <file>fonts/Hack-Italic.ttf</file>
         <file>fonts/Hack-Regular.ttf</file>
         <file>Update.qml</file>
+        <file>MaterialSettings.qml</file>
+        <file>StyleSettingsBase.qml</file>
+        <file>UniversalSettings.qml</file>
     </qresource>
 </RCC>

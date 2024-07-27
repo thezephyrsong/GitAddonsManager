@@ -14,11 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.9
-import GitAddonsManager.engine 1.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
-import QtQuick.Controls.Material 2.4
+import QtQuick
+import GitAddonsManager.engine
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Page {
     title: "Addons"
@@ -31,7 +30,7 @@ Page {
                 action: addAction
                 ToolTip.visible: hovered
                 ToolTip.text: "Download a new addon from a git repository"
-                Material.foreground: Material.background
+                //Material.foreground: Material.background
             }
             ToolButton {
                 hoverEnabled: true
@@ -39,7 +38,7 @@ Page {
                 icon.name: availableUpdates > 0 ? "update-high" : "update-none"
                 ToolTip.visible: hovered
                 ToolTip.text: "Upgrade all addons"
-                Material.foreground: Material.background
+                //Material.foreground: Material.background
             }
 
             Item {
@@ -52,7 +51,7 @@ Page {
                 action: refreshAction
                 ToolTip.visible: hovered
                 ToolTip.text: "Refresh addons list and check for updates"
-                Material.foreground: Material.background
+                //Material.foreground: Material.background
             }
         }
     }
@@ -68,7 +67,7 @@ Page {
             model: Engine.addons
             id: listView
 
-            section.property: "modelData.path"
+            section.property: "path"
             section.criteria: ViewSection.FullString
             section.delegate:
                 Button {
@@ -81,7 +80,7 @@ Page {
 
            delegate: MouseArea {
                property Addon addon: Engine.addons[index]
-                width: parent.width
+                implicitWidth: listView.width
                 implicitHeight: row.height
                 hoverEnabled: true
                 id: ma
@@ -233,7 +232,7 @@ Page {
                 readOnly: true
                 anchors.fill: parent
                 wrapMode: Text.NoWrap
-                font.family: monospaced.name
+                font.family: "Hack"
             }
         }
     }

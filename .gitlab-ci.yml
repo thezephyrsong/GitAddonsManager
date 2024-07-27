@@ -6,7 +6,7 @@ before_script:
 Linux_x64:
   stage: build
   script:
-    - zypper -q install -y find libgit2-devel make gcc gcc-c++ libQt5Concurrent-devel libQt5Core-devel libQt5Gui-devel libQt5QuickControls2-devel libqt5-qtbase-devel libqt5-qtdeclarative-devel quazip-qt5-devel
+    - zypper -q install -y find libgit2-devel make gcc gcc-c++ libQt6Concurrent-devel libQt6Core-devel libQt6Gui-devel libQt6QuickControls2-devel libqt6-qtbase-devel libqt6-qtdeclarative-devel quazip-qt6-devel
     - make -f CI.mk linuxdeploy
     - make -f CI.mk finalize
   artifacts:
@@ -23,7 +23,7 @@ Win32:
       - mingw32
   stage: build
   script:
-    - zypper -q remove -y patterns-base-fips
+    - zypper -q remove -y patterns-base-fips busybox-which
     - zypper -q install -y find wine-staging wine-staging-32bit wget make p7zip tar gzip || true
     - make -f CI.mk windeploy
     - make -f CI.mk finalize

@@ -14,14 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.9
-import GitAddonsManager.engine 1.0
-import QtQuick.Controls 2.4
-import QtQuick.Dialogs 1.0
-import QtQuick.Layouts 1.3
+import QtQuick
+import GitAddonsManager.engine
+import QtQuick.Controls
+import QtQuick.Dialogs
+import QtQuick.Layouts
 
 ApplicationWindow {
-    FontLoader { id: monospaced; name: "Hack" }
     visible: true
     width: 640
     height: 480
@@ -31,6 +30,8 @@ ApplicationWindow {
     property bool addonsReady: false
     Component.onCompleted: {
         availableUpdates = Qt.binding(function(){
+            if (!addonsReady)
+                return -1;
             var count = 0
             for (var i = 0; i < Engine.addons.length; i++) {
                 var addon = Engine.addons[i]
@@ -184,12 +185,11 @@ ApplicationWindow {
             }
         }
     }
-    FileDialog {
+    FolderDialog {
         id: fileDialog
         property int selector: -1
         title: qsTr("Choose addons directory")
-        onAccepted: Engine.setAddonsPath(selector, fileUrl.toString().replace("file://",""))
-        selectFolder: true
+        onAccepted: Engine.setAddonsPath(selector, fileDialog.selectedFolder.toString().replace("file://",""))
         visible: Engine.addonsPaths.length == 0
     }
     Dialog {

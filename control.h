@@ -59,8 +59,12 @@ public:
     Q_PROPERTY(QString statusMessage READ statusMessage WRITE setStatusMessage NOTIFY statusMessageChanged)
     Q_PROPERTY(bool firstBoot READ firstBoot WRITE setFirstBoot NOTIFY firstBootChanged)
     Q_PROPERTY(QString style READ style WRITE setStyle NOTIFY styleChanged)
-    Q_PROPERTY(QStringList availableStyles READ availableStyles WRITE setAvailableStyles NOTIFY availableStylesChanged)
+    Q_PROPERTY(QStringList availableStyles READ availableStyles CONSTANT)
     Q_PROPERTY(QStringList addonsPaths READ addonsPaths WRITE setAddonsPaths NOTIFY addonsPathsChanged)
+    Q_PROPERTY(bool useRepoDirectory READ useRepoDirectory WRITE setUseRepoDirectory NOTIFY useRepoDirectoryChanged)
+
+
+    static QStringList m_availableStyles;
 
     ~Control();
 
@@ -121,6 +125,9 @@ public:
 
     static void removeTocSuffixes(QString &string);
 
+    bool useRepoDirectory() const;
+    void setUseRepoDirectory(bool newUseRepoDirectory);
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);
@@ -144,11 +151,11 @@ private:
 
     QString m_style;
 
-    QStringList m_availableStyles;
-
     UpdateStatus m_updateStatus = UpdateStatus::NoUpdate;
 
     QStringList m_addonsPaths;
+
+    bool m_useRepoDirectory;
 
 signals:
     void addonsChanged(QList<QObject *> addons);
@@ -175,6 +182,8 @@ signals:
 
     void addonsPathChanged(int i, QString path);
 
+    void useRepoDirectoryChanged(bool use);
+
 public slots:
     void setAddons(QList<QObject *> addons);
     void saveAddonsPaths();
@@ -194,6 +203,7 @@ public slots:
     void setUpdateStatus(UpdateStatus updateStatus);
     void setAddonsPaths(QStringList addonsPaths);
     void setAddonsPath(int i, QString path = QString());
+    void saveUseRepoDirectory(bool use);
 };
 Q_DECLARE_METATYPE(Control::MinimizeToTray)
 

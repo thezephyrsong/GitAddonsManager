@@ -14,13 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.9
-import QtQuick.Controls 2.4
-import GitAddonsManager.engine 1.0
-import QtQuick.Layouts 1.3
-import QtQuick.Controls.Material 2.2
-import QtQuick.Controls.Universal 2.2
-import Qt.labs.settings 1.0
+import QtQuick
+import QtQuick.Controls
+import GitAddonsManager.engine
+import QtQuick.Layouts
+import QtCore
 
 Pane {
     ColumnLayout {
@@ -43,7 +41,7 @@ Pane {
                 Button {
                     enabled: Control.status == Control.Ready && addonsReady
                     text: qsTr("Browse")
-                    onClicked: {fileDialog.selector = index; fileDialog.folder = "file://" + Engine.addonsPaths[index]; fileDialog.visible = true}
+                    onClicked: {fileDialog.selector = index; fileDialog.currentFolder = "file://" + Engine.addonsPaths[index]; fileDialog.visible = true}
                     hoverEnabled: true
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Choose the folder containing the addons")
@@ -62,6 +60,16 @@ Pane {
 
         CheckBox {
             Layout.fillWidth: true
+            checked: Engine.useRepoDirectory
+            onCheckedChanged: Engine.useRepoDirectory = checked
+            text: qsTr("Use a dedicated repository directory")
+            hoverEnabled: true
+            ToolTip.visible: hovered
+            ToolTip.text: qsTr("Directories needed to update addons but not directly containing addons will be grouped in a dedicated directory.")
+        }
+
+        CheckBox {
+            Layout.fillWidth: true
             tristate: Engine.minimizeToTray == Engine.MinimizeToTrayAsk
             onCheckedChanged: Engine.minimizeToTray = checked ? Engine.MinimizeToTrayYes : Engine.MinimizeToTrayNo
             checkState: Engine.minimizeToTray == Engine.MinimizeToTrayAsk ?
@@ -76,95 +84,21 @@ Pane {
         GroupBox {
             Layout.fillWidth: true
             title: qsTr("Style")
-            Flow {
-                anchors.fill: parent
-                spacing: 4
-                ComboBox {
-                    model: Engine.availableStyles
-                    currentIndex: Engine.availableStyles.indexOf(Engine.style)
-                    onActivated: {
-                        Engine.style = Engine.availableStyles[currentIndex]
-                        restartDialog.visible = true
-                    }
-                    ToolTip.text: qsTr("Requires restart")
-                    ToolTip.visible: hovered
-                    hoverEnabled: true
-                }
-                ComboBox {
-                    id: materialTheme
-                    visible: Engine.style == "Material"
-                    model: ["Light", "Dark"]
-                    onCurrentIndexChanged: window.Material.theme = currentIndex
-                }
-                ComboBox {
-                    id: universalTheme
-                    visible: Engine.style == "Universal"
-                    model: ["Light", "Dark", "System"]
-                    onActivated: window.Universal.theme = currentIndex
-                }
-                ListModel {
-                    id: materialColors
-                    dynamicRoles: true
-                    Component.onCompleted: {
-                        for (var i = 0; i < 19; i++)
-                            append({"color": Material.color(i)})}
-                }
-                ListModel {
-                    id: materialDarkColors
-                    dynamicRoles: true
-                    Component.onCompleted: {
-                        for (var i = 0; i < 19; i++)
-                            append({"color": Material.color(i,Material.Shade200)})}
-                }
-                ListModel {
-                    id: universalColors
-                    dynamicRoles: true
-                    Component.onCompleted: {
-                        for (var i = 0; i < 20; i++)
-                            append({"color": Universal.color(i)})}
-                }
 
-                ColorPicker {
-                    id: materialPrimary
-                    visible: Engine.style == "Material"
-                    text: qsTr("Primary:")
-                    model: materialTheme.currentIndex === Material.Dark ? materialDarkColors : materialColors
-                    currentIndex: Material.Indigo
-                    onColorChanged: window.Material.primary = color
-                }
-                ColorPicker {
-                    id: materialAccent
-                    visible: Engine.style == "Material"
-                    text: qsTr("Accent:")
-                    model: materialTheme.currentIndex === Material.Dark ? materialDarkColors : materialColors
-                    currentIndex: Material.Pink
-                    onColorChanged: window.Material.accent = color
-                }
-                ColorPicker {
-                    id: universalAccent
-                    visible: Engine.style == "Universal"
-                    text: qsTr("Accent:")
-                    model: universalColors
-                    currentIndex: Universal.Cobalt
-                    onColorChanged: window.Universal.accent = color
-                }
-
-                Settings {
-                    category: "Material"
-                    property alias primary: materialPrimary.currentIndex
-                    property alias accent: materialAccent.currentIndex
-                    property alias theme: materialTheme.currentIndex
-                }
-                Settings {
-                    category: "Universal"
-                    property alias accent: universalAccent.currentIndex
-                    property alias theme: universalTheme.currentIndex
-                }
+            Component.onCompleted: {
+                var settings
+                if (Engine.style == "Material")
+                    settings = Qt.createComponent("MaterialSettings.qml")
+                else if (Engine.style == "Universal")
+                    settings = Qt.createComponent("UniversalSettings.qml")
+                else
+                    settings = Qt.createComponent("StyleSettingsBase.qml")
+                settings.createObject(this.contentItem)
             }
         }
         Dialog {
             id: restartDialog
-            parent: overlay
+            parent: window.overlay
             x: (parent.width - width) / 2
             y: (parent.height - height) / 2
             standardButtons: Dialog.Yes | Dialog.No

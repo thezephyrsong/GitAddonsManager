@@ -14,14 +14,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import Qt.labs.platform 1.0
-import GitAddonsManager.engine 1.0
+import QtQuick
+import Qt.labs.platform
+import GitAddonsManager.engine
 
 
 SystemTrayIcon {
     visible: true
-    iconName: availableUpdates > 0 ? "update-high" : "update-none"
+    icon.name: availableUpdates > 0 ? "update-high" : "update-none"
     onActivated: {
         window.show()
         window.raise()

@@ -29,7 +29,6 @@
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
 
     QCommandLineParser parser;
@@ -51,7 +50,10 @@ int main(int argc, char *argv[])
         QQmlApplicationEngine engine;
         bool ok;
         QSettings setts;
-        QStringList styles = QQuickStyle::availableStyles();
+        QStringList styles = {"Fusion","Material","Imagine","Universal","Basic"};
+        if (!styles.contains(QQuickStyle::name()))
+            styles.prepend(QQuickStyle::name());
+        Control::m_availableStyles = styles;
         QString style = setts.value("style").toString();
         if (style.isNull())
             style = QInputDialog::getItem(nullptr, QObject::tr("Choose a style"), QObject::tr("You will be able to pick another style later by visiting the Options tab."), styles, styles.indexOf(QQuickStyle::name()), false, &ok);

@@ -1,14 +1,15 @@
 # Intended for gitlab CI
 
-qt7z:=5.11.1-0-201806180838£-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z
+qt7z:=6.7.2-0-202406110335£-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z
 pwd:=$(shell pwd)
 wineenv=$(WINEPREFIX) $(WINEENV) WINEDEBUG=-all
 winepath=$(wineenv) winepath
 wine=$(WINEPATH) $(wineenv) wine
+winepwd:=$(shell $(wine) winepath -w $(pwd))
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
-WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw32/bin");$(shell $(winepath) -w "$(pwd)/Qt/5.11.1/mingw53_32/bin")' QTDIR="Z:$(pwd)/Qt/5.11.1/mingw53_32/"
+WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw64/bin");$(shell $(winepath) -w "$(pwd)/Qt/6.7.2/mingw_64/bin")' QTDIR="Z:$(pwd)/Qt/6.7.2/mingw_64/"
 qmake_opts="QMAKE_INCDIR+=Z:$(pwd)/libgit2-0.27.2/include Z:$(pwd)/quazip/quazip" "QMAKE_LIBDIR+=Z:$(pwd)/libgit2-0.27.2/build/ Z:$(pwd)/quazip/build/release Z:$(pwd)/libz/build" -spec win32-g++ LIBS+=-lquazip
-qmake=$(wine) $(pwd)/Qt/5.11.1/mingw53_32/bin/qmake.exe
+qmake=$(wine) $(pwd)/Qt/6.7.2/mingw_64/bin/qmake.exe
 
 .PHONY: build winbuild windeploy linuxdeploy finalize
 
@@ -16,57 +17,62 @@ finalize:
 	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
 	
 build:
-	mkdir -p build && cd build && qmake-qt5 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' PKGCONFIG=quazip1-qt5 CONFIG+=link_pkgconfig && make
+	mkdir -p build && cd build && qmake-qt6 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' PKGCONFIG=quazip1-qt6 CONFIG+=link_pkgconfig && make
 	
 linuxdeploy: build
 	mkdir GitAddonsManager
 	cp build/GitAddonsManager -f GitAddonsManager/GitAddonsManager
 	
-cmake-3.12.0-rc3-win32-x86.msi:
-	wget https://cmake.org/files/v3.12/cmake-3.12.0-rc3-win32-x86.msi
+cmake-3.30.1-windows-x86_64.msi:
+	wget https://github.com/Kitware/CMake/releases/download/v3.30.1/cmake-3.30.1-windows-x86_64.msi
 	
-wine/drive_c/Program\ Files\ (x86)/CMake: cmake-3.12.0-rc3-win32-x86.msi
-	$(wine) msiexec /quiet /i cmake-3.12.0-rc3-win32-x86.msi
+wine/drive_c/Program\ Files\ (x86)/CMake: cmake-3.30.1-windows-x86_64.msi
+	$(wine) msiexec /quiet /i cmake-3.30.1-windows-x86_64.msi
 	
-qt-opensource-windows-x86-5.11.1.exe:
-	wget http://download.qt.io/official_releases/qt/5.11/5.11.1/qt-opensource-windows-x86-5.11.1.exe
+qt-opensource-windows-x86-6.7.2.exe:
+	wget http://download.qt.io/official_releases/qt/6.7/6.7.2/qt-opensource-windows-x86-6.7.2.exe
 	
-5.11.1-0-201806180838%-Windows-Windows_7-Mingw53-Windows-Windows_7-X86.7z:
-	wget http://ftp.fau.de/qtproject/online/qtsdkrepository/windows_x86/desktop/qt5_5111/qt.qt5.5111.win32_mingw53/$@
+6.7.2-0-202406110335%-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z:
+	wget https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_672/qt.qt6.672.win64_mingw/$@
 	
-qt-modules:=Qt/5.11.1/mingw53_32/bin/qmake.exe Qt/5.11.1/mingw53_32/bin/windeployqt.exe Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll Qt/5.11.1/mingw53_32/qml/QtQuick Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets/widgetsplugin.dll Qt/5.11.1/mingw53_32/qml/QtGraphicalEffects Qt/5.11.1/mingw53_32/translations
+qt-modules:=Qt/6.7.2/mingw_64/bin/qmake.exe Qt/6.7.2/mingw_64/bin/windeployqt.exe Qt/6.7.2/mingw_64/bin/Qt6Svg.dll Qt/6.7.2/mingw_64/bin/Qt6Quick.dll Qt/6.7.2/mingw_64/qml/QtQuick Qt/6.7.2/mingw_64/translations Qt/6.7.2/mingw_64/bin/Qt5Compat.dll
 	
-Qt/5.11.1/mingw53_32/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
+Qt/6.7.2/mingw_64/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
 
-Qt/5.11.1/mingw53_32/bin/windeployqt.exe: $(subst £,qttools,$(qt7z))
+Qt/6.7.2/mingw_64/bin/windeployqt.exe: $(subst £,qttools,$(qt7z))
 
-Qt/5.11.1/mingw53_32/bin/Qt5QuickControls2.dll: $(subst £,qtquickcontrols2,$(qt7z))
+Qt/6.7.2/mingw_64/bin/Qt6QuickControls2.dll: $(subst £,qtquickcontrols2,$(qt7z))
 
-Qt/5.11.1/mingw53_32/qml/QtQuick/PrivateWidgets/widgetsplugin.dll: $(subst £,qtquickcontrols,$(qt7z))
+Qt/6.7.2/mingw_64/qml/QtQuick/PrivateWidgets/widgetsplugin.dll: $(subst £,qtquickcontrols,$(qt7z))
 
-Qt/5.11.1/mingw53_32/bin/Qt5Quick.dll: $(subst £,qtdeclarative,$(qt7z))
+Qt/6.7.2/mingw_64/bin/Qt6Quick.dll: $(subst £,qtdeclarative,$(qt7z))
 
-Qt/5.11.1/mingw53_32/bin/Qt5Svg.dll: $(subst £,qtsvg,$(qt7z))
+Qt/6.7.2/mingw_64/bin/Qt6Svg.dll: $(subst £,qtsvg,$(qt7z))
 
-Qt/5.11.1/mingw53_32/qml/QtGraphicalEffects: $(subst £,qtgraphicaleffects,$(qt7z))
+Qt/6.7.2/mingw_64/qml/QtGraphicalEffects: $(subst £,qtgraphicaleffects,$(qt7z))
 
-Qt/5.11.1/mingw53_32/translations: $(subst £,qttranslations,$(qt7z))
+Qt/6.7.2/mingw_64/translations: $(subst £,qttranslations,$(qt7z))
 
 $(qt-modules):
 	7zr x $< -oQt -aos
 	touch -c $@
-	
-Qt/5.11.1/mingw53_32/bin/qt.conf: Qt/5.11.1/mingw53_32/bin/qmake.exe
-	echo "[paths]" > $(pwd)/Qt/5.11.1/mingw53_32/bin/qt.conf
-	echo "Prefix=../" >> $(pwd)/Qt/5.11.1/mingw53_32/bin/qt.conf
 
-Qt: $(qt-modules) Qt/5.11.1/mingw53_32/bin/qt.conf
-	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/5.11.1/mingw53_32/mkspecs/qconfig.pri
+Qt/6.7.2/mingw_64/bin/Qt5Compat.dll:
+	wget https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_672/qt.qt6.672.qt5compat.win64_mingw/6.7.2-0-202406110335qt5compat-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z
+	7zr x 6.7.2-0-202406110335qt5compat-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z -oQt -aos
+	touch -c $@
+
+Qt/6.7.2/mingw_64/bin/qt.conf: Qt/6.7.2/mingw_64/bin/qmake.exe
+	echo "[paths]" > $(pwd)/Qt/6.7.2/mingw_64/bin/qt.conf
+	echo "Prefix=../" >> $(pwd)/Qt/6.7.2/mingw_64/bin/qt.conf
+
+Qt: $(qt-modules) Qt/6.7.2/mingw_64/bin/qt.conf
+	sed -i.bak 's/Enterprise/OpenSource/' $(pwd)/Qt/6.7.2/mingw_64/mkspecs/qconfig.pri
 
 mingw.7z:
-	wget https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-posix/dwarf/i686-8.1.0-release-posix-dwarf-rt_v6-rev0.7z/download -O mingw.7z
+	wget https://github.com/niXman/mingw-builds-binaries/releases/download/13.2.0-rt_v11-rev0/x86_64-13.2.0-release-posix-seh-msvcrt-rt_v11-rev0.7z -O mingw.7z
 	
-mingw32/bin/gcc.exe: mingw.7z
+mingw64/bin/gcc.exe: mingw.7z
 	7zr x mingw.7z
 	touch -c $@
 	
@@ -77,44 +83,50 @@ libgit2-0.27.2/CMakeLists.txt: libgit2-v0.27.2.tar.gz
 	tar -xf libgit2-v0.27.2.tar.gz
 	touch -c $@
 	
-libgit2-0.27.2/build/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgit2-0.27.2/CMakeLists.txt mingw32/bin/gcc.exe
+libgit2-0.27.2/release/bin/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake libgit2-0.27.2/CMakeLists.txt mingw64/bin/gcc.exe
 	mkdir -p libgit2-0.27.2/build
-	cd libgit2-0.27.2/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=libgit2-0.27.2/build -G"MinGW Makefiles" -DBUILD_CLAR=OFF
+	cd libgit2-0.27.2/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=libgit2-0.27.2/build -G"MinGW Makefiles" -DBUILD_CLAR=OFF --install-prefix="$(winepwd)/libgit2-0.27.2/release" -DCMAKE_BUILD_TYPE=Release
 	$(wine) mingw32-make -C libgit2-0.27.2/build -j $(shell nproc)
+	$(wine) mingw32-make -C libgit2-0.27.2/build install
 	
 zlib/CMakeLists.txt:
 	git clone https://github.com/madler/zlib.git
 	
 zlib/build/libzlib.dll: zlib/CMakeLists.txt
 	mkdir -p zlib/build
-	cd zlib/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=zlib/build -G"MinGW Makefiles"
+	cd zlib/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=zlib/build -G"MinGW Makefiles" --install-prefix="$(winepwd)/zlib/release" -DCMAKE_BUILD_TYPE=Release
 	$(wine) mingw32-make -C zlib/build -j $(shell nproc)
+	$(wine) mingw32-make -C zlib/build install
 	
-quazip/quazip.pro:
+quazip/CMakeLists.txt:
 	git clone https://github.com/stachenov/quazip.git
-	cd quazip && git checkout v0.9.x
+	cd quazip
 	
-quazip/build/release/quazip.dll: quazip/quazip.pro
+quazip/release/bin/libquazip1-qt6.dll: quazip/CMakeLists.txt
 	mkdir -p quazip/build
-	cd quazip/build && $(qmake) ../quazip/quazip.pro QMAKE_LIBDIR+="Z:$(pwd)/zlib/build" LIBS+=-lzlib QMAKE_INCDIR+="Z:$(pwd)/zlib" -spec win32-g++
-	$(wine) mingw32-make -C quazip/build
+	cd quazip/build && $(wine) cmake ../ -G"MinGW Makefiles" -DZLIB_LIBRARY=$(pwd)/zlib/build/libzlib.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DQUAZIP_ENABLE_TESTS=OFF -DQUAZIP_BZIP2=OFF --install-prefix="$(winepwd)/quazip/release" -DCMAKE_BUILD_TYPE=Release
+	$(wine) mingw32-make -C quazip/build -j $(shell nproc)
+	$(wine) mingw32-make -C quazip/build install
 
-build_win32/GitAddonsManager.exe: Qt libgit2-0.27.2/build/libgit2.dll zlib/build/libzlib.dll quazip/build/release/quazip.dll
-	mkdir -p build_win32 && cd build_win32 && $(qmake) $(qmake_opts) ../GitAddonsManager.pro GIT_DESCRIBE="$(shell git describe --tags --long)" DEFINES+='GAM_BUILD_NAME=\\\"Win32\\\"'
-	$(wine) mingw32-make -C build_win32
+build_win64/GitAddonsManager.exe: Qt libgit2-0.27.2/release/bin/libgit2.dll zlib/build/libzlib.dll quazip/release/bin/libquazip1-qt6.dll
+	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Win64 -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip1-qt6/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DCMAKE_BUILD_TYPE=Release -DBUILD_CLAR=OFF --install-prefix="$(winepwd)/release"
+	$(wine) mingw32-make -C build_win64 -j $(shell nproc)
+	$(wine) mingw32-make -C build_win64 install
 
-winbuild: build_win32/GitAddonsManager.exe
+winbuild: build_win64/GitAddonsManager.exe
 
-build_win32/release/GitAddonsManager.exe: winbuild
+build_win64/release/GitAddonsManager.exe: winbuild
 
-windeploy: build_win32/release/GitAddonsManager.exe libgit2-0.27.2/build/libgit2.dll
+windeploy: build_win64/release/GitAddonsManager.exe libgit2-0.27.2/release/bin/libgit2.dll
 	mkdir -p GitAddonsManager/
-	cp libgit2-0.27.2/build/libgit2.dll -f GitAddonsManager/libgit2.dll
+	cp libgit2-0.27.2/release/bin/libgit2.dll -f GitAddonsManager/libgit2.dll
 	cp zlib/build/libzlib.dll -f GitAddonsManager/libzlib.dll
-	cp quazip/build/release/quazip.dll -f GitAddonsManager/quazip.dll
-	cp mingw32/opt/bin/libeay32.dll -f GitAddonsManager/libeay32.dll
-	cp mingw32/opt/bin/ssleay32.dll -f GitAddonsManager/ssleay32.dll
-	cp build_win32/release/GitAddonsManager.exe -f GitAddonsManager/
+	cp quazip/release/bin/libquazip1-qt6.dll -f GitAddonsManager/libquazip1-qt6.dll
+	cp Qt/6.7.2/mingw_64/bin/Qt6Core5Compat.dll GitAddonsManager/Qt6Core5Compat.dll
+	cp mingw64/bin/libstdc++-6.dll GitAddonsManager/libstdc++-6.dll
+	cp mingw64/bin/libgcc_s_seh-1.dll GitAddonsManager/libgcc_s_seh-1.dll
+	cp mingw64/bin/libwinpthread-1.dll GitAddonsManager/libwinpthread-1.dll
+	cp release/bin/GitAddonsManager.exe -f GitAddonsManager/
 	mkdir -p tmpqmls && cp -f *.qml tmpqmls/
-	$(wine) Qt/5.11.1/mingw53_32/bin/windeployqt.exe --qmldir tmpqmls GitAddonsManager/GitAddonsManager.exe
+	$(wine) Qt/6.7.2/mingw_64/bin/windeployqt.exe --qmldir tmpqmls GitAddonsManager/GitAddonsManager.exe
 	rm -fr tmpqmls

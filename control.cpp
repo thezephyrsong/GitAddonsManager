@@ -19,7 +19,6 @@
 #include <QDir>
 #include <QFutureWatcher>
 #include <QQuickStyle>
-#include <QQuickStyle>
 #include <QDesktopServices>
 #include "addon.h"
 #include <git2.h>
@@ -34,14 +33,14 @@
 #include <quazipfile.h>
 
 Control *Control::m_instance = nullptr;
+QStringList Control::m_availableStyles;
 QNetworkAccessManager *nam = nullptr;
 
 Control::Control(QObject *parent) : QObject(parent),
     m_progress(0), m_total(0), m_status(Status::Ready), m_statusMessage(""), m_pool(new QThreadPool(this)),
-    m_style(QQuickStyle::name()),m_availableStyles(QQuickStyle::availableStyles())
+    m_style(QQuickStyle::name())
 {
     connect(this, &Control::addonsPathChanged, this, &Control::scanForAddons);
-    connect(this, &Control::addonsPathsChanged, this, &Control::saveAddonsPaths);
 }
 
 void Control::init() {
@@ -55,10 +54,14 @@ void Control::init() {
         for (int i = 0; i < paths.length(); i++)
             setAddonsPath(-1, paths[i]);
     }
+    setUseRepoDirectory(settings.value("useRepoDirectory", false).toBool());
     setFirstBoot(settings.value("firstBoot",true).toBool());
     setMinimizeToTray((MinimizeToTray)settings.value("minimizeToTray",(int)MinimizeToTrayAsk).toInt());
     nam = new QNetworkAccessManager(this);
     checkForUpdates();
+
+    connect(this, &Control::addonsPathsChanged, this, &Control::saveAddonsPaths);
+    connect(this, &Control::useRepoDirectoryChanged, this, &Control::saveUseRepoDirectory);
 }
 
 QStringList Control::addonsPaths() const
@@ -232,7 +235,7 @@ void Control::completeUpdate(const QString &path)
             setProgress(0);
             setTotal(-1);
         }
-        walkFoldersIf({root.absolutePath()},[&newRoot, &files, &root, &oldFiles](const QFileInfo &info){
+        walkFoldersIf(QFileInfo{root.absolutePath()},[&newRoot, &files, &root, &oldFiles](const QFileInfo &info){
             QFileInfo dest(newRoot.absoluteFilePath(root.relativeFilePath(info.absoluteFilePath())));
             files << info.absoluteFilePath();
             if (dest.exists())
@@ -294,6 +297,8 @@ void Control::setAddonsPath(int index, QString addonsPath)
                 emit addonsChanged(m_addons);
             else i++;
         }
+        if (index < 0)
+            return;
         m_addonsPaths.removeAt(index);
         emit addonsPathsChanged(m_addonsPaths);
         return;
@@ -315,6 +320,12 @@ void Control::setAddonsPath(int index, QString addonsPath)
 
     emit addonsPathChanged(index, m_addonsPaths[index]);
     emit addonsPathsChanged(m_addonsPaths);
+}
+
+void Control::saveUseRepoDirectory(bool use)
+{
+    QSettings settings;
+    settings.setValue("useRepoDirectory", use);
 }
 
 void Control::saveAddonsPaths()
@@ -505,16 +516,17 @@ void Control::checkForUpdates()
 {
 #ifdef GAM_BUILD_NAME
     QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
-    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     connect(nam, &QNetworkAccessManager::finished, [](auto reply){
         QApplication::setApplicationDisplayName(reply->errorString());
     });
     auto reply = nam->head(req);
     setUpdateStatus(UpdateStatus::CheckingForUpdate);
     connect(reply, &QNetworkReply::finished,[this, reply](){
-        QRegExp shaCapt(QString("GitAddonsManager_%1-(\\w{40})\\.zip").arg(GAM_BUILD_NAME));
-        if (shaCapt.indexIn(reply->url().toString()) != -1) {
-            if (!QString(GIT_DESCRIBE).endsWith(shaCapt.cap(1).chopped(33)))
+        QRegularExpression shaCapt(QString("GitAddonsManager_%1-(\\w{40})\\.zip").arg(GAM_BUILD_NAME));
+        auto match = shaCapt.match(reply->url().toString());
+        if (match.hasMatch()) {
+            if (!QString(GIT_DESCRIBE).endsWith(match.captured(1).chopped(33)))
                 setUpdateStatus(UpdateStatus::UpdateAvailable);
             else setUpdateStatus(UpdateStatus::NoUpdate);
         };
@@ -532,7 +544,7 @@ void Control::downloadUpdate()
     }
 
     QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
-    req.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto reply = nam->get(req);
     setUpdateStatus(UpdateStatus::DownloadingUpdate);
     connect(reply, &QNetworkReply::readyRead,[reply, zip]() {
@@ -639,4 +651,17 @@ int check_git_return(int code)
 {
     if (code < 0 && giterr_last() && code != GIT_ITEROVER && code != GIT_ENOTFOUND) throw GitException(code);
     else return code;
+}
+
+bool Control::useRepoDirectory() const
+{
+    return m_useRepoDirectory;
+}
+
+void Control::setUseRepoDirectory(bool newUseRepoDirectory)
+{
+    if (m_useRepoDirectory == newUseRepoDirectory)
+        return;
+    m_useRepoDirectory = newUseRepoDirectory;
+    emit useRepoDirectoryChanged(newUseRepoDirectory);
 }
