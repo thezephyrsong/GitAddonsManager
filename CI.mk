@@ -17,7 +17,7 @@ finalize:
 	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
 	
 build:
-	mkdir -p build && cd build && qmake-qt6 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' PKGCONFIG=quazip1-qt6 CONFIG+=link_pkgconfig && make
+	mkdir -p build && cd build && qmake6 .. -spec linux-g++ DEFINES+='GAM_BUILD_NAME=\\\"Linux_x64\\\"' PKGCONFIG=quazip1-qt6 CONFIG+=link_pkgconfig && make
 	
 linuxdeploy: build
 	mkdir GitAddonsManager
@@ -109,7 +109,7 @@ quazip/release/bin/libquazip1-qt6.dll: quazip/CMakeLists.txt
 	$(wine) mingw32-make -C quazip/build install
 
 build_win64/GitAddonsManager.exe: Qt libgit2-0.27.2/release/bin/libgit2.dll zlib/build/libzlib.dll quazip/release/bin/libquazip1-qt6.dll
-	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Win64 -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip1-qt6/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DCMAKE_BUILD_TYPE=Release -DBUILD_CLAR=OFF --install-prefix="$(winepwd)/release"
+	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Win64 -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip/release/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release"
 	$(wine) mingw32-make -C build_win64 -j $(shell nproc)
 	$(wine) mingw32-make -C build_win64 install
 
