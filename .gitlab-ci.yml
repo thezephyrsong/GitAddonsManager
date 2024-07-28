@@ -14,13 +14,12 @@ Linux_x64:
       - GitAddonsManager
     name: "GitAddonsManager_Linux_x64-$CI_COMMIT_SHA"
 
-Win32:
+Win64:
   cache:
     paths:  
       - Qt/
-      - .wine
+      - wine
       - libgit2-0.27.2
-      - mingw32
   stage: build
   script:
     - zypper -q remove -y patterns-base-fips busybox-which
