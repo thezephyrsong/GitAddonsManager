@@ -15,7 +15,7 @@ finalize:
 	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
 	
 build:
-	mkdir -p build && cd build && cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Linux_x64 -G"Ninja" -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release" && ninja
+	mkdir -p build && cd build && cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Linux_x64 -G"Ninja" -DCMAKE_BUILD_TYPE=Release --install-prefix="$(pwd)/release" && ninja && ninja install
 	
 linuxdeploy: build
 	mkdir GitAddonsManager
