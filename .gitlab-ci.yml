@@ -6,7 +6,7 @@ before_script:
 Linux_x64:
   stage: build
   script:
-    - zypper -q install -y find libgit2-devel make gcc gcc-c++ qt6-concurrent-devel qt6-core-devel qt6-gui-devel qt6-quickcontrols2-devel qt6-base-devel qt6-qml-devel quazip-qt6-devel
+    - zypper -q install -y find libgit2-devel make gcc gcc-c++ qt6-concurrent-devel qt6-core-devel qt6-gui-devel qt6-quickcontrols2-devel qt6-base-devel qt6-qml-devel qt6-quick-devel qt6-quick-private-devel quazip-qt6-devel ninja
     - make -f CI.mk linuxdeploy
     - make -f CI.mk finalize
   artifacts:
