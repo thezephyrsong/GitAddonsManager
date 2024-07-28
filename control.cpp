@@ -384,6 +384,9 @@ void Control::clone(QUrl url, int i)
             QString error;
         } data;
         data.name = url.fileName().section('.',0,0);
+        if (data.name.isEmpty())
+            data.name = url.path().split('/', Qt::SkipEmptyParts).last();
+
         if (data.name.isEmpty()) {
             data.error = QString("Invalid url.");
             return data;
