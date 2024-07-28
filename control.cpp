@@ -31,6 +31,9 @@
 #include <QApplication>
 #include <quazip.h>
 #include <quazipfile.h>
+#include <QTextStream>
+#include <ranges>
+#include <algorithm>
 
 Control *Control::m_instance = nullptr;
 QStringList Control::m_availableStyles;
@@ -129,7 +132,7 @@ Control::~Control()
     m_instance = nullptr;
 }
 
-QList<QObject *> Control::addons() const
+QList<Addon *> Control::addons() const
 {
     return m_addons;
 }
@@ -277,7 +280,7 @@ void Control::completeUpdate(const QString &path)
     });
 }
 
-void Control::setAddons(QList<QObject *> addons)
+void Control::setAddons(QList<Addon *> addons)
 {
     if (m_addons == addons)
         return;
@@ -337,9 +340,9 @@ void Control::saveAddonsPaths()
 void Control::scanForAddons(int i)
 {
     if (i == -1) {
-        foreach (QObject *addon, m_addons)
+        foreach (Addon *addon, m_addons)
             addon->deleteLater();
-        QObjectList ol;
+        QList<Addon *> ol;
         setAddons(ol);
         for (int k = 0; k < m_addonsPaths.size(); ++k)
             scanForAddons(k);
@@ -667,4 +670,22 @@ void Control::setUseRepoDirectory(bool newUseRepoDirectory)
         return;
     m_useRepoDirectory = newUseRepoDirectory;
     emit useRepoDirectoryChanged(newUseRepoDirectory);
+}
+
+void Control::exportAddonList(const QUrl &path)
+{
+    QFile outFile(path.toLocalFile());
+    outFile.open(QFile::WriteOnly);
+    QTextStream out(&outFile);
+    out << Qt::endl;
+    foreach (auto addon, m_addons) {
+        QStringList remotes;
+        foreach (auto remote, addon->remotes()) {
+            if (remote == addon->remote())
+                remotes << addon->getUrl(remote).toString().prepend("*");
+            else
+                remotes << addon->getUrl(remote).toString();
+        }
+        out << addon->path() << " " << addon->name() << " " << remotes.join(" ") << " " << addon->currentBranch() << Qt::endl;
+    }
 }

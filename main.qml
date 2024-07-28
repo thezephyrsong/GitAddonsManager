@@ -90,6 +90,14 @@ ApplicationWindow {
         shortcut: StandardKey.New
     }
     Action {
+        id: exportList
+        icon.name: "export-symbolic"
+        onTriggered: exportListDialog.visible = true
+
+        enabled: Control.status == Control.Ready && addonsReady
+        shortcut: StandardKey.SaveAs
+    }
+    Action {
         id: updateAllAction
         onTriggered: updateAll()
         enabled: availableUpdates > 0
@@ -411,5 +419,11 @@ ApplicationWindow {
         }
         closePolicy: Engine.updateStatus !== Engine.DownloadingUpdate ? Dialog.CloseOnPressOutside | Dialog.CloseOnEscape : Dialog.NoAutoClose
         standardButtons: Engine.updateStatus !== Engine.DownloadingUpdate ? Dialog.Close : Dialog.NoButton
+    }
+    FileDialog {
+        id: exportListDialog
+        onAccepted: Engine.exportAddonList(selectedFile)
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: "txt"
     }
 }

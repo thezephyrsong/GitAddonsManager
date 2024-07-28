@@ -640,10 +640,12 @@ QString Addon::path() const
     return m_path;
 }
 
-QUrl Addon::getUrl() const
+QUrl Addon::getUrl(QString name) const
 {
     git_remote *remote = nullptr;
-    if (git_remote_lookup(&remote, m_repo.get(), m_remote.toLocal8Bit()))
+    if (name.isNull())
+        name = m_remote;
+    if (git_remote_lookup(&remote, m_repo.get(), name.toLocal8Bit()))
         return QUrl();
     auto url = QUrl(git_remote_url(remote));
     git_remote_free(remote);

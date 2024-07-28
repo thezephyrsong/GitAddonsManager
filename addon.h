@@ -124,7 +124,7 @@ public:
 
     QString path() const;
 
-    Q_INVOKABLE QUrl getUrl() const;
+    Q_INVOKABLE QUrl getUrl(QString name = QString()) const;
 
 private:
 

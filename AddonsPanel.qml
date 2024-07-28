@@ -34,6 +34,13 @@ Page {
             }
             ToolButton {
                 hoverEnabled: true
+                action: exportList
+                ToolTip.visible: hovered
+                ToolTip.text: "Export the list of installed addons"
+                //Material.foreground: Material.background
+            }
+            ToolButton {
+                hoverEnabled: true
                 action: updateAllAction
                 icon.name: availableUpdates > 0 ? "update-high" : "update-none"
                 ToolTip.visible: hovered

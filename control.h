@@ -17,6 +17,7 @@
 #ifndef GITCONTROL_H
 #define GITCONTROL_H
 
+#include "addon.h"
 #include <QException>
 #include <QObject>
 #include <QQueue>
@@ -24,6 +25,7 @@
 #include <functional>
 
 class QThreadPool;
+class Addon;
 class GitException : public QException
 {
     int m_code;
@@ -50,10 +52,10 @@ class Control : public QObject
     using TaskQueue = QQueue<QPair<QString,std::function<void()>>>;
     TaskQueue m_tasks;
 
-    QList<QObject *> m_addons;
+    QList<Addon *> m_addons;
 
 public:
-    Q_PROPERTY(QList<QObject *> addons READ addons WRITE setAddons NOTIFY addonsChanged)
+    Q_PROPERTY(QList<Addon *> addons READ addons WRITE setAddons NOTIFY addonsChanged)
     Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
     Q_PROPERTY(QString statusMessage READ statusMessage WRITE setStatusMessage NOTIFY statusMessageChanged)
@@ -95,7 +97,7 @@ public:
     };
     Q_ENUM(UpdateStatus)
     Q_PROPERTY(UpdateStatus updateStatus READ updateStatus WRITE setUpdateStatus NOTIFY updateStatusChanged)
-    QList<QObject *> addons() const;
+    QList<Addon *> addons() const;
 
     static Control *instance();
 
@@ -128,6 +130,8 @@ public:
     bool useRepoDirectory() const;
     void setUseRepoDirectory(bool newUseRepoDirectory);
 
+    Q_INVOKABLE void exportAddonList(const QUrl &path);
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);
@@ -158,7 +162,7 @@ private:
     bool m_useRepoDirectory;
 
 signals:
-    void addonsChanged(QList<QObject *> addons);
+    void addonsChanged(QList<Addon *> addons);
 
     void progressChanged(int progress);
 
@@ -185,7 +189,7 @@ signals:
     void useRepoDirectoryChanged(bool use);
 
 public slots:
-    void setAddons(QList<QObject *> addons);
+    void setAddons(QList<Addon *> addons);
     void saveAddonsPaths();
     void scanForAddons(int i = -1);
     void clone(QUrl url, int i);
