@@ -29,4 +29,4 @@ Win64:
   artifacts:
     paths:
       - GitAddonsManager
-    name: "GitAddonsManager_Win32-$CI_COMMIT_SHA"
+    name: "GitAddonsManager_Win64-$CI_COMMIT_SHA"
