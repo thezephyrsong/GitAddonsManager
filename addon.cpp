@@ -640,6 +640,16 @@ QString Addon::path() const
     return m_path;
 }
 
+QUrl Addon::getUrl() const
+{
+    git_remote *remote = nullptr;
+    if (git_remote_lookup(&remote, m_repo.get(), m_remote.toLocal8Bit()))
+        return QUrl();
+    auto url = QUrl(git_remote_url(remote));
+    git_remote_free(remote);
+    return url;
+}
+
 void Addon::closeRepo()
 {
     m_repo.reset();

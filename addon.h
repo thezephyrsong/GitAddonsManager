@@ -25,6 +25,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include "utils.h"
+#include <QUrl>
 
 class git_repository;
 class git_reference;
@@ -122,6 +123,8 @@ public:
     QString readme() const;
 
     QString path() const;
+
+    Q_INVOKABLE QUrl getUrl() const;
 
 private:
 

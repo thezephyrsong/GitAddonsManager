@@ -147,6 +147,15 @@ Page {
                                         }
                                         hoverEnabled: true
                                     }
+                                    MenuItem {
+                                        id: websiteButton
+                                        text: qsTr("website")
+                                        icon.name: "internet-services-symbolic"
+                                        onTriggered: {
+                                            Qt.openUrlExternally(addon.getUrl())
+                                        }
+                                        hoverEnabled: true
+                                    }
 
                                     MenuItem {
                                         id: repairButton
