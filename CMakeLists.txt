@@ -105,4 +105,9 @@ install(TARGETS GitAddonsManager
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+install(
+  PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.desktop
+  DESTINATION ${DATAROOTDIR}/applications
+)
+
 qt_finalize_executable(GitAddonsManager)

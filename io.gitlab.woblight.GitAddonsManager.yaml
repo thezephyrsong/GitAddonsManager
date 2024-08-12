@@ -1,0 +1,37 @@
+id: io.gitlab.woblight.GitAddonsManager
+runtime: org.kde.Platform
+runtime-version: '6.7'
+sdk: org.kde.Sdk
+command: GitAddonsManager
+finish-args:
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --share=network
+  - --device=dri
+modules:
+  - name: QuaZip-Qt6
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/stachenov/quazip.git
+    config-opts":
+      - -DQUAZIP_ENABLE_TESTS=OFF
+      - -DQUAZIP_BZIP2=OFF
+      - -DCMAKE_BUILD_TYPE=Release
+  - name: libgit2
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/libgit2/libgit2.git
+        tag: v0.27.2
+    config-opts":
+      - -DCMAKE_BUILD_TYPE=Release
+  - name: GitAddonsManager
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://gitlab.com/woblight/GitAddonsManager.git
+        branch: testing
+        disable-shallow-clone: true
+    config-opts":
+      - -DCMAKE_BUILD_TYPE=Release
