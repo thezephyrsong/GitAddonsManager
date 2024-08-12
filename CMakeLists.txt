@@ -95,9 +95,7 @@ target_link_libraries(GitAddonsManager PRIVATE Qt6::QmlPrivate Qt6::QuickPrivate
 set(APPNAME GitAddonsManager)
 
 install(TARGETS GitAddonsManager
-        CONFIGURATIONS Release
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 qt_finalize_executable(GitAddonsManager)
