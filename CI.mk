@@ -37,7 +37,7 @@ qt-opensource-windows-x86-6.7.2.exe:
 6.7.2-0-202406110335%-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z:
 	wget https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_672/qt.qt6.672.win64_mingw/$@
 	
-qt-modules:=Qt/6.7.2/mingw_64/bin/qmake.exe Qt/6.7.2/mingw_64/bin/windeployqt.exe Qt/6.7.2/mingw_64/bin/Qt6Svg.dll Qt/6.7.2/mingw_64/bin/Qt6Quick.dll Qt/6.7.2/mingw_64/qml/QtQuick Qt/6.7.2/mingw_64/translations Qt/6.7.2/mingw_64/bin/Qt5Compat.dll
+qt-modules:=Qt/6.7.2/mingw_64/bin/qmake.exe Qt/6.7.2/mingw_64/bin/windeployqt.exe Qt/6.7.2/mingw_64/bin/Qt6Svg.dll Qt/6.7.2/mingw_64/bin/Qt6Quick.dll Qt/6.7.2/mingw_64/qml/QtQuick Qt/6.7.2/mingw_64/translations Qt/6.7.2/mingw_64/bin/Qt6Core5Compat.dll
 	
 Qt/6.7.2/mingw_64/bin/qmake.exe: $(subst £,qtbase,$(qt7z))
 
@@ -59,7 +59,7 @@ $(qt-modules):
 	7zr x $< -oQt -aos
 	touch -c $@
 
-Qt/6.7.2/mingw_64/bin/Qt5Compat.dll:
+Qt/6.7.2/mingw_64/bin/Qt6Core5Compat.dll:
 	wget https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt6_672/qt.qt6.672.qt5compat.win64_mingw/6.7.2-0-202406110335qt5compat-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z
 	7zr x 6.7.2-0-202406110335qt5compat-Windows-Windows_10_22H2-Mingw-Windows-Windows_10_22H2-X86_64.7z -oQt -aos
 	touch -c $@
