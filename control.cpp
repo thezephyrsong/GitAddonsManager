@@ -520,8 +520,8 @@ void Control::setAvailableStyles(QStringList availableStyles)
 
 void Control::checkForUpdates()
 {
-#ifdef GAM_BUILD_NAME
-    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
+#if defined(GAM_BUILD_NAME) && defined(GAM_BRANCH_NAME)
+    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/%1/download?job=%2").arg(GAM_BRANCH_NAME).arg(GAM_BUILD_NAME)));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     connect(nam, &QNetworkAccessManager::finished, [](auto reply){
         QApplication::setApplicationDisplayName(reply->errorString());
@@ -542,7 +542,7 @@ void Control::checkForUpdates()
 
 void Control::downloadUpdate()
 {
-#ifdef GAM_BUILD_NAME
+#if defined(GAM_BUILD_NAME) && defined(GAM_BRANCH_NAME)
     QFile *zip = new QFile(QApplication::applicationDirPath() + "/GitAddonsManager.zip");
     if (!zip->open(QFile::WriteOnly)) {
         setUpdateStatus(UpdateStatus::UpdateError);

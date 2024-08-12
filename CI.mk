@@ -8,6 +8,10 @@ wine=$(WINEPATH) $(wineenv) wine
 winepwd:=$(shell $(wine) winepath -w $(pwd))
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
 WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw64/bin");$(shell $(winepath) -w "$(pwd)/Qt/6.7.2/mingw_64/bin")' QTDIR="Z:$(pwd)/Qt/6.7.2/mingw_64/"
+branch:=$(CI_COMMIT_BRANCH)
+ifeq ($(branch),)
+branch:=$(CI_DEFAULT_BRANCH)
+endif
 
 .PHONY: build winbuild windeploy linuxdeploy finalize
 
@@ -15,7 +19,7 @@ finalize:
 	cd GitAddonsManager && echo "# DO NOT EDIT" > .installedFiles && find ! -path . >> .installedFiles
 	
 build:
-	mkdir -p build && cd build && cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Linux_x64 -G"Ninja" -DCMAKE_BUILD_TYPE=Release --install-prefix="$(pwd)/release" && ninja && ninja install
+        mkdir -p build && cd build && cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGitAddonsManager_BUILD_NAME=$(CI_JOB_NAME) -DGitAddonsManager_BRANCH_NAME=$(branch) -G"Ninja" -DCMAKE_BUILD_TYPE=Release --install-prefix="$(pwd)/release" && ninja && ninja install
 	
 linuxdeploy: build
 	mkdir GitAddonsManager
@@ -107,7 +111,7 @@ quazip/release/bin/libquazip1-qt6.dll: quazip/CMakeLists.txt
 	$(wine) mingw32-make -C quazip/build install
 
 build_win64/GitAddonsManager.exe: Qt libgit2-0.27.2/release/bin/libgit2.dll zlib/build/libzlib.dll quazip/release/bin/libquazip1-qt6.dll
-	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGAM_BUILD_NAME=Win64 -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip/release/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DZLIB_LIBRARY=$(pwd)/zlib/build/libzlib.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release"
+        mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ -DGIT_DESCRIBE="$(shell git describe --tags --long)" -DGitAddonsManager_BUILD_NAME=$(CI_JOB_NAME) -DGitAddonsManager_BRANCH_NAME=$(branch) -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip/release/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DZLIB_LIBRARY=$(pwd)/zlib/build/libzlib.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release"
 	$(wine) mingw32-make -C build_win64 -j $(shell nproc)
 	$(wine) mingw32-make -C build_win64 install
 
