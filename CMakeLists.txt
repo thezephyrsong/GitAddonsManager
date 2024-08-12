@@ -55,6 +55,8 @@ set(${PROJECT_NAME}_BUILD_NAME "" CACHE STRING "name of the build pipeline for s
 
 set(${PROJECT_NAME}_BRANCH_NAME "" CACHE STRING "name of the branch for self updates")
 
+option(${PROJECT_NAME}_SELF_UPDATE "Enable the self-update feature")
+
 qt_add_executable(GitAddonsManager
     addon.h  control.h  utils.h
     main.cpp addon.cpp  control.cpp
@@ -70,11 +72,16 @@ add_compile_definitions(
     GAM_EXEC="GitAddonsManager${CMAKE_EXECUTABLE_SUFFIX}"
     )
 
-if (NOT ${PROJECT_NAME}_BUILD_NAME STREQUAL "")
-    add_compile_definitions(GAM_BUILD_NAME="${${PROJECT_NAME}_BUILD_NAME}")
-endif()
-if (NOT ${PROJECT_NAME}_BRANCH_NAME STREQUAL "")
+if (${PROJECT_NAME}_SELF_UPDATE)
+    if (${PROJECT_NAME}_BUILD_NAME STREQUAL "")
+        message(FATAL_ERROR "${PROJECT_NAME}_SELF_UPDATE is enabled but ${PROJECT_NAME}_BUILD_NAME is not set" )
+    endif()
+    if (${PROJECT_NAME}_BRANCH_NAME STREQUAL "")
+        message(FATAL_ERROR "${PROJECT_NAME}_SELF_UPDATE is enabled but ${PROJECT_NAME}_BRANCH_NAME is not set" )
+    endif()
     add_compile_definitions(GAM_BRANCH_NAME="${${PROJECT_NAME}_BRANCH_NAME}")
+    add_compile_definitions(GAM_BUILD_NAME="${${PROJECT_NAME}_BUILD_NAME}")
+    add_compile_definitions(GAM_SELF_UPDATE)
 endif()
 
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Core)

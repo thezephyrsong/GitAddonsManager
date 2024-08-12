@@ -154,12 +154,13 @@ ApplicationWindow {
                     }
                     TextArea {
                         readOnly: true
-                        text: gitVersion
+                        text: Engine.version
                         selectByMouse: true
                         onFocusChanged: if (focus) selectAll()
                     }
                     Button {
                         id: updateButton
+                        visible: Engine.selfUpdates
                         contentItem: RowLayout {
                             BusyIndicator {
                                 implicitHeight: parent.height

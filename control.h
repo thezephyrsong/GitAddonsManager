@@ -55,6 +55,8 @@ class Control : public QObject
     QList<Addon *> m_addons;
 
 public:
+    Q_PROPERTY(QString version READ version CONSTANT)
+    Q_PROPERTY(bool selfUpdates READ selfUpdates CONSTANT)
     Q_PROPERTY(QList<Addon *> addons READ addons WRITE setAddons NOTIFY addonsChanged)
     Q_PROPERTY(int progress READ progress WRITE setProgress NOTIFY progressChanged)
     Q_PROPERTY(int total READ total WRITE setTotal NOTIFY totalChanged)
@@ -132,6 +134,10 @@ public:
 
     Q_INVOKABLE void exportAddonList(const QUrl &path);
 
+    QString version() const;
+
+    bool selfUpdates() const;
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);
@@ -160,6 +166,19 @@ private:
     QStringList m_addonsPaths;
 
     bool m_useRepoDirectory;
+
+    QString m_version = QString("%1 (%2 %3)").arg(GIT_DESCRIBE)
+#ifdef GAM_BUILD_NAME
+                                                                   .arg(GAM_BUILD_NAME)
+#else
+                                                                   .arg(QSysInfo::productType())
+#endif
+#ifdef GAM_BANCH_NAME
+                                                                   .arg(GAM_BANCH_NAME)
+#else
+                                                                   .arg(QSysInfo::buildCpuArchitecture())
+#endif
+                                                 ;
 
 signals:
     void addonsChanged(QList<Addon *> addons);

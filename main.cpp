@@ -71,18 +71,6 @@ int main(int argc, char *argv[])
         } else {
             Control::instance()->init();
             qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
-            engine.rootContext()->setContextProperty("gitVersion", QString("%1 (%2 %3)").arg(GIT_DESCRIBE)
-#ifdef GAM_BUILD_NAME
-                                                                        .arg(GAM_BUILD_NAME)
-#else
-                                                                        .arg(QSysInfo::productType())
-#endif
-#ifdef GAM_BANCH_NAME
-                                                                       .arg(GAM_BANCH_NAME)
-#else
-                                                                       .arg(QSysInfo::buildCpuArchitecture())
-#endif
-                                                     );
             engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
         }
         if (engine.rootObjects().isEmpty())
