@@ -549,7 +549,7 @@ void Control::downloadUpdate()
         return;
     }
 
-    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/master/download?job=%1").arg(GAM_BUILD_NAME)));
+    QNetworkRequest req(QUrl(QString("https://gitlab.com/woblight/GitAddonsManager/-/jobs/artifacts/%1/download?job=%2").arg(GAM_BRANCH_NAME).arg(GAM_BUILD_NAME)));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto reply = nam->get(req);
     setUpdateStatus(UpdateStatus::DownloadingUpdate);
