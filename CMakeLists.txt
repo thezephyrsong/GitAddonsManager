@@ -4,6 +4,18 @@ find_package(Qt6 COMPONENTS Quick Core QuickControls2 Concurrent Network Widgets
 find_package(Qt6LinguistTools)
 find_package(QuaZip-Qt6)
 
+find_package(Git)
+
+
+if(GIT_EXECUTABLE)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} describe --tags --long --dirty
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE ${PROJECT_NAME}_GIT_DESCRIBE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif()
+
 if (NOT WIN32)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBGIT2 REQUIRED IMPORTED_TARGET libgit2)
@@ -54,7 +66,7 @@ qt_add_executable(GitAddonsManager
 set_property(TARGET GitAddonsManager PROPERTY CXX_STANDARD 20)
 
 add_compile_definitions(
-    GIT_DESCRIBE="${GIT_DESCRIBE}"
+    GIT_DESCRIBE="${${PROJECT_NAME}_GIT_DESCRIBE}"
     GAM_EXEC="GitAddonsManager${CMAKE_EXECUTABLE_SUFFIX}"
     )
 
