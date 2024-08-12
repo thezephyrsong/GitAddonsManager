@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(GitAddonsManager LANGUAGES CXX)
-find_package(Qt6 COMPONENTS Quick Gui Core QuickControls2 Concurrent Network Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Quick Core QuickControls2 Concurrent Network Widgets REQUIRED)
 find_package(Qt6LinguistTools)
 find_package(QuaZip-Qt6)
 
@@ -44,8 +44,8 @@ set(${PROJECT_NAME}_BUILD_NAME "" CACHE STRING "name of the build pipeline for s
 set(${PROJECT_NAME}_BRANCH_NAME "" CACHE STRING "name of the branch for self updates")
 
 qt_add_executable(GitAddonsManager
-    addon.h  control.h  remote.h  utils.h
-    main.cpp addon.cpp  control.cpp  remote.cpp
+    addon.h  control.h  utils.h
+    main.cpp addon.cpp  control.cpp
     CI.mk .gitlab-ci.yml
         ${RESOURCES}
         MANUAL_FINALIZATION
@@ -67,7 +67,6 @@ endif()
 
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Core)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Quick)
-target_link_libraries(GitAddonsManager PUBLIC Qt6::Gui)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::QuickControls2)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Concurrent)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Network)
