@@ -8,6 +8,7 @@ finish-args:
   - --socket=wayland
   - --share=network
   - --device=dri
+  - --share=ipc
 modules:
   - name: QuaZip-Qt6
     buildsystem: cmake-ninja
