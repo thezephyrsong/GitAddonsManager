@@ -148,6 +148,16 @@ ApplicationWindow {
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
+                Label {
+                    text: "Website: <a href=\"https://woblight.gitlab.io/overview/gitaddonsmanager/\">woblight.gitlab.io</a>"
+                    onLinkActivated: Qt.openUrlExternally(link)
+                    textFormat: Text.RichText
+                }
+                Label {
+                    text: "Discord: <a href=\"https://discord.gg/YZQcPMQ\">YZQcPMQ</a>"
+                    onLinkActivated: Qt.openUrlExternally(link)
+                    textFormat: Text.RichText
+                }
                 RowLayout {
                     Label {
                         text: "Version:"
