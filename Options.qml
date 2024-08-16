@@ -47,12 +47,14 @@ Pane {
                     ToolTip.text: qsTr("Choose the folder containing the addons")
                 }
                 Button {
+                    enabled: Engine.status == Engine.Ready && addonsReady
                     icon.name: "delete"
                     onClicked: Engine.setAddonsPath(index)
                 }
             }
         }
         Button {
+            enabled: Engine.status == Engine.Ready && addonsReady
             text: qsTr("Add directory")
             Layout.alignment: Qt.AlignRight
             onClicked: {fileDialog.selector = -1; fileDialog.visible = true}
