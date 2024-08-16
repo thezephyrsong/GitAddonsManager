@@ -30,7 +30,7 @@ ApplicationWindow {
     property bool addonsReady: false
     Component.onCompleted: {
         availableUpdates = Qt.binding(function(){
-            if (!addonsReady)
+            if (!(Engine.status == Engine.Ready && addonsReady))
                 return -1;
             var count = 0
             for (var i = 0; i < Engine.addons.length; i++) {
@@ -40,16 +40,18 @@ ApplicationWindow {
             }
             return count
         })
-        addonsReady = Qt.binding(function(){
-            for (var i = 0; i < Engine.addons.length; i++) {
-                var addon = Engine.addons[i]
-                if (addon.status == Addon.Status.Busy)
-                    return false
-            }
-            return true
-        })
+        addonsReady = Qt.binding(checkAddonsReady)
     }
 
+    function checkAddonsReady(){
+        for (var i = 0; i < Engine.addons.length; i++) {
+            var addon = Engine.addons[i]
+            console.debug(addon.status)
+            if (addon.status == Addon.Status.Busy)
+                return false
+        }
+        return true
+    }
     function updateAll() {
         for (var i = 0; i < Engine.addons.length; i++) {
             var addon = Engine.addons[i]
@@ -59,6 +61,8 @@ ApplicationWindow {
     }
 
     onAvailableUpdatesChanged: {
+        if (availableUpdates == -1)
+            return;
         if (availableUpdates > 0) {
             tray.showMessage("Addons updates available", "You have " + availableUpdates + " addons waiting for update.", 1, 5000)
         } else {
@@ -81,7 +85,7 @@ ApplicationWindow {
         icon.name: "view-refresh"
         onTriggered: Engine.scanForAddons()
         shortcut: StandardKey.Refresh
-        enabled: Control.status == Control.Ready && addonsReady
+        enabled: Engine.status == Engine.Ready && addonsReady
     }
     Action {
         id: addAction
@@ -94,7 +98,7 @@ ApplicationWindow {
         icon.name: "export-symbolic"
         onTriggered: exportListDialog.visible = true
 
-        enabled: Control.status == Control.Ready && addonsReady
+        enabled: Engine.status == Engine.Ready && addonsReady
         shortcut: StandardKey.SaveAs
     }
     Action {

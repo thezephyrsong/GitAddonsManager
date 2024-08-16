@@ -691,7 +691,7 @@ AutoPtr<git_reference> Addon::branchRef(QString name)
 void Addon::delegate(QString taskname, auto work, auto callback, bool force)
 {
     Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
-    if (status() != Status::Ready && !force) {
+    if (m_lock && !force) {
         qInfo() << name() << "Enqueueing" << taskname;
         m_tasks.enqueue({taskname, [this, taskname, work, callback](){delegate(taskname, work,callback);}});
         return;
@@ -700,10 +700,12 @@ void Addon::delegate(QString taskname, auto work, auto callback, bool force)
     setProgress(0);
     setTotal(0);
     setStatus(Status::Busy);
+    m_lock = true;
     using ret_t = typename std::invoke_result<decltype(work)>::type;
     QFuture<ret_t> fut = QtConcurrent::run(m_pool, work);
     QFutureWatcher<ret_t> *fw = new QFutureWatcher<ret_t>();
     connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw, taskname](){
+        m_lock = false;
         if (fw->isCanceled()) {
             try {
                 fw->waitForFinished();
@@ -714,7 +716,6 @@ void Addon::delegate(QString taskname, auto work, auto callback, bool force)
             }
             return;
         }
-        setStatus(Status::Ready);
         TaskQueue old;
         m_tasks.swap(old);
 
@@ -725,7 +726,9 @@ void Addon::delegate(QString taskname, auto work, auto callback, bool force)
 
         m_tasks.append(old);
 
-        if (!m_tasks.isEmpty() && status() != Status::Busy)
+        if (m_tasks.empty())
+            setStatus(Status::Ready);
+        else if (!m_lock)
             m_tasks.dequeue().second();
     });
     connect(fw, &QFutureWatcher<ret_t>::finished, fw, &QFutureWatcher<ret_t>::deleteLater);

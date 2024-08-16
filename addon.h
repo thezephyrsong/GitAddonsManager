@@ -59,6 +59,8 @@ class Addon : public QObject
     QMutex m_mutex;
     QWaitCondition m_wait;
     void *m_result;
+
+    bool m_lock = false;
 public:
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QStringList branches READ branches WRITE setBranches NOTIFY branchesChanged)

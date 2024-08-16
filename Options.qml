@@ -36,10 +36,10 @@ Pane {
                     hoverEnabled: true
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Path to the folder containing the addons")
-                    enabled: Control.status == Control.Ready && addonsReady
+                    enabled: Engine.status == Engine.Ready && addonsReady
                 }
                 Button {
-                    enabled: Control.status == Control.Ready && addonsReady
+                    enabled: Engine.status == Engine.Ready && addonsReady
                     text: qsTr("Browse")
                     onClicked: {fileDialog.selector = index; fileDialog.currentFolder = "file://" + Engine.addonsPaths[index]; fileDialog.visible = true}
                     hoverEnabled: true

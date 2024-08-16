@@ -45,14 +45,26 @@ public:
 
 int check_git_return(int code);
 
+
 class Control : public QObject
 {
+
+    class BusyLock
+    {
+        static int count;
+        Control* m_locked = nullptr;
+    public:
+        BusyLock(Control* c);
+        BusyLock(BusyLock&& other);
+        ~BusyLock();
+    };
     Q_OBJECT
 
     using TaskQueue = QQueue<QPair<QString,std::function<void()>>>;
     TaskQueue m_tasks;
 
     QList<Addon *> m_addons;
+    bool m_lock = false;
 
 public:
     Q_PROPERTY(QString version READ version CONSTANT)

@@ -86,7 +86,7 @@ void Control::removeTocSuffixes(QString &string)
 void Control::delegate(QString taskname, auto work, auto callback)
 {
     Q_ASSERT_X(QThread::currentThread() == thread(), "delegate", "Attempt to delegate from another thread.");
-    if (status() != Status::Ready) {
+    if (m_lock) {
         qInfo() << "Enqueueing" << taskname;
         m_tasks.enqueue({taskname, [this, taskname, work, callback](){delegate(taskname, work,callback);}});
         return;
@@ -95,12 +95,13 @@ void Control::delegate(QString taskname, auto work, auto callback)
     setStatusMessage(taskname);
     setProgress(0);
     setTotal(0);
-    setStatus(Status::Busy);
+    BusyLock lock(this);
+    m_lock = true;
     using ret_t = typename std::invoke_result<decltype(work)>::type;
     QFuture<ret_t> fut = QtConcurrent::run(m_pool, work);
     QFutureWatcher<ret_t> *fw = new QFutureWatcher<ret_t>();
-    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw](){
-        setStatus(Status::Ready);
+    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw, lock=std::move(lock)](){
+        m_lock = false;
         TaskQueue old;
         m_tasks.swap(old);
 
@@ -111,7 +112,9 @@ void Control::delegate(QString taskname, auto work, auto callback)
 
         m_tasks.append(old);
 
-        if (!m_tasks.isEmpty() && status() != Status::Busy)
+        if (m_tasks.empty())
+            setStatus(Status::Ready);
+        else if (!m_lock)
             m_tasks.dequeue().second();
     });
     connect(fw, &QFutureWatcher<ret_t>::finished, fw, &QFutureWatcher<ret_t>::deleteLater);
@@ -340,6 +343,7 @@ void Control::saveAddonsPaths()
 void Control::scanForAddons(int i)
 {
     if (i == -1) {
+        BusyLock lock(this);
         foreach (Addon *addon, m_addons)
             addon->deleteLater();
         QList<Addon *> ol;
@@ -702,4 +706,26 @@ bool Control::selfUpdates() const
 #else
     return false;
 #endif
+}
+
+int Control::BusyLock::count = 0;
+
+Control::BusyLock::BusyLock(Control *c)
+{
+    m_locked = c;
+    m_locked->setStatus(Status::Busy);
+    count++;
+}
+
+Control::BusyLock::BusyLock(BusyLock &&other)
+{
+    m_locked = other.m_locked;
+    other.m_locked = nullptr;
+}
+
+Control::BusyLock::~BusyLock()
+{
+    if (m_locked)
+        if (!--count && m_locked->m_tasks.empty())
+            m_locked->setStatus(Status::Ready);
 }
