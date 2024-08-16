@@ -65,7 +65,11 @@ qt_add_executable(GitAddonsManager
         MANUAL_FINALIZATION
 )
 
-set_property(TARGET GitAddonsManager PROPERTY CXX_STANDARD 20)
+set_target_properties(GitAddonsManager PROPERTIES
+    CXX_STANDARD 20
+    WIN32_EXECUTABLE ON
+)
+
 
 add_compile_definitions(
     GIT_DESCRIBE="${${PROJECT_NAME}_GIT_DESCRIBE}"
