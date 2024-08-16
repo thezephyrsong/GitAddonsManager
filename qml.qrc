@@ -30,5 +30,6 @@
         <file>MaterialSettings.qml</file>
         <file>StyleSettingsBase.qml</file>
         <file>UniversalSettings.qml</file>
+        <file>icons/breeze/svg/export-symbolic.svg</file>
     </qresource>
 </RCC>
