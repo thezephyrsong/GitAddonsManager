@@ -46,7 +46,6 @@ ApplicationWindow {
     function checkAddonsReady(){
         for (var i = 0; i < Engine.addons.length; i++) {
             var addon = Engine.addons[i]
-            console.debug(addon.status)
             if (addon.status == Addon.Status.Busy)
                 return false
         }
