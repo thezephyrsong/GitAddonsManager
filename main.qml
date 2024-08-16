@@ -285,8 +285,8 @@ ApplicationWindow {
     }
 
     Dialog {
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
+        x: (parent.width - implicitWidth) / 2
+        y: (parent.height - implicitHeight) / 2
         title: Engine.statusMessage
         id: cloningDialong
         ProgressBar {

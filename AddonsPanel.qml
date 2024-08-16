@@ -210,8 +210,8 @@ Page {
                 }
                 Dialog {
                     parent: window.overlay
-                    x: (parent.width - width) / 2
-                    y: (parent.height - height) / 2
+                    x: (parent.width - implicitWidth) / 2
+                    y: (parent.height - implicitHeight) / 2
                     title: qsTr("Following files will be deleted:")
                     standardButtons: Dialog.Ok | Dialog.Cancel
                     onAccepted: addon.confirmFileRemove(true)
@@ -219,7 +219,8 @@ Page {
                     modal: true
                     visible: addon.filesToRemove != ""
                     closePolicy: Popup.NoAutoClose
-                    contentItem:  ScrollView{
+                    ScrollView{
+                        anchors.fill: parent
                         TextArea {
                             text: addon.filesToRemove
                             readOnly: true
