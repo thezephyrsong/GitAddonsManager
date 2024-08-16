@@ -9,7 +9,7 @@ winepwd:=$(shell $(wine) winepath -w $(pwd))
 WINEPREFIX=WINEPREFIX="$(pwd)/wine"
 WINEPATH=WINEPATH='C:\Program Files (x86)\CMake\bin;$(shell $(winepath) -w "$(pwd)/mingw64/bin");$(shell $(winepath) -w "$(pwd)/Qt/6.7.2/mingw_64/bin")' QTDIR="Z:$(pwd)/Qt/6.7.2/mingw_64/"
 branch:=$(CI_COMMIT_BRANCH)
-gam_opts:=-DDGitAddonsManager_SELF_UPDATE=ON -DGitAddonsManager_GIT_DESCRIBE="$(shell git describe --tags --long)" -DGitAddonsManager_BUILD_NAME=$(CI_JOB_NAME) -DGitAddonsManager_BRANCH_NAME=$(branch)
+gam_opts:=-DGitAddonsManager_SELF_UPDATE=ON -DGitAddonsManager_GIT_DESCRIBE="$(shell git describe --tags --long)" -DGitAddonsManager_BUILD_NAME=$(CI_JOB_NAME) -DGitAddonsManager_BRANCH_NAME=$(branch)
 ifeq ($(branch),)
 branch:=$(CI_DEFAULT_BRANCH)
 endif
