@@ -219,8 +219,7 @@ Page {
                     modal: true
                     visible: addon.filesToRemove != ""
                     closePolicy: Popup.NoAutoClose
-                    ScrollView{
-                        anchors.fill: parent
+                    contentItem:  ScrollView{
                         TextArea {
                             text: addon.filesToRemove
                             readOnly: true
