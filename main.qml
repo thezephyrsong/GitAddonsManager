@@ -332,6 +332,7 @@ ApplicationWindow {
         id: invalidDialog
         visible: invalidPaths.length > 0
         title: qsTr("Warning")
+        standardButtons: Dialog.Close
         Label {
             anchors.fill: parent
             text: {
