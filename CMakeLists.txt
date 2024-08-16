@@ -110,4 +110,9 @@ install(
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
 )
 
+install(
+  PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.metainfo.xml
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
+)
+
 qt_finalize_executable(GitAddonsManager)
