@@ -112,10 +112,13 @@ void Control::delegate(QString taskname, auto work, auto callback)
 
         m_tasks.append(old);
 
-        if (m_tasks.empty())
-            setStatus(Status::Ready);
-        else if (!m_lock)
-            m_tasks.dequeue().second();
+        if (m_status != Status::Error) {
+            setStatusMessage("");
+            if (m_tasks.empty())
+                setStatus(Status::Ready);
+            else if (!m_lock)
+                m_tasks.dequeue().second();
+        }
     });
     connect(fw, &QFutureWatcher<ret_t>::finished, fw, &QFutureWatcher<ret_t>::deleteLater);
     fw->setFuture(fut);
@@ -726,6 +729,6 @@ Control::BusyLock::BusyLock(BusyLock &&other)
 Control::BusyLock::~BusyLock()
 {
     if (m_locked)
-        if (!--count && m_locked->m_tasks.empty())
+        if (!--count && m_locked->m_tasks.empty() && m_locked->status() != Status::Error)
             m_locked->setStatus(Status::Ready);
 }
