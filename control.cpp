@@ -100,16 +100,19 @@ void Control::delegate(QString taskname, auto work, auto callback)
     using ret_t = typename std::invoke_result<decltype(work)>::type;
     QFuture<ret_t> fut = QtConcurrent::run(m_pool, work);
     QFutureWatcher<ret_t> *fw = new QFutureWatcher<ret_t>();
-    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, fw, lock=std::move(lock)](){
+    connect(fw, &QFutureWatcher<ret_t>::finished, [this, callback, taskname, fw, lock=std::move(lock)](){
         m_lock = false;
         TaskQueue old;
         m_tasks.swap(old);
 
+        qInfo() << "Executing callback for " << taskname;
         if constexpr (std::is_same<ret_t, void>::value)
             callback();
         else
             callback(fw->result());
-
+        
+        qInfo() << "Completed " << taskname;
+        
         m_tasks.append(old);
 
         if (m_status != Status::Error) {
@@ -732,3 +735,30 @@ Control::BusyLock::~BusyLock()
         if (!--count && m_locked->m_tasks.empty() && m_locked->status() != Status::Error)
             m_locked->setStatus(Status::Ready);
 }
+
+void Control::log(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+    QString message = QString("<span style=\" color:%1;\">%2</span>");
+    QString color;
+    switch(type)
+    {
+        case QtDebugMsg:
+            color = "silver";
+            break;
+        case QtInfoMsg:
+            color = "black";
+            break;
+        case QtWarningMsg:
+            color = "orange";
+            break;
+        case QtFatalMsg:
+            color = "red";
+            break;
+        case QtCriticalMsg:
+            color = "darkred";
+            break;
+    }
+
+    emit logMessage(message.arg(color, msg));
+}
+

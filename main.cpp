@@ -26,11 +26,29 @@
 #include <QProcess>
 #include <QFontDatabase>
 #include <QCommandLineParser>
+#include <QtLogging>
+
+QtMessageHandler originalHandler = nullptr;
+
+void logger(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString message = qFormatLogMessage(type, context, msg);
+    static FILE *f = fopen("log.txt", "w");
+    fprintf(f, "%s\n", qPrintable(message));
+    fflush(f);
+
+    Control::instance()->log(type, context, msg);
+    if (originalHandler)
+        originalHandler(type, context, msg);
+}
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    qSetMessagePattern("[%{time yyyyMMdd h:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{message}");
+    originalHandler = qInstallMessageHandler(&logger);
+    
     QCommandLineParser parser;
     parser.addOption({"update", "directory to update", "updateLocation"});
     parser.process(app);

@@ -22,7 +22,6 @@ import QtQuick.Layouts
 Page {
     title: "Addons"
     header: ToolBar {
-        Layout.fillWidth: true
         RowLayout {
             anchors.fill: parent
             ToolButton {

@@ -5,6 +5,7 @@
         <file>Options.qml</file>
         <file>AddonUpdateButton.qml</file>
         <file>AddonsPanel.qml</file>
+        <file>LogWindow.qml</file>
         <file>github_clone_url.jpg</file>
         <file>gitlab_clone_url.jpg</file>
         <file>icons/breeze/svg/delete.svg</file>

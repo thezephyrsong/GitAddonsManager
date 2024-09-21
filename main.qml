@@ -95,7 +95,10 @@ ApplicationWindow {
     Action {
         id: exportList
         icon.name: "export-symbolic"
-        onTriggered: exportListDialog.visible = true
+        onTriggered: {
+            exportListDialog.targetPath = null
+            exportListDialog.visible = true
+        }
 
         enabled: Engine.status == Engine.Ready && addonsReady
         shortcut: StandardKey.SaveAs
@@ -106,10 +109,30 @@ ApplicationWindow {
         enabled: availableUpdates > 0
     }
 
-    ColumnLayout{
+    Page {
         anchors.fill: parent
-        TabBar {
-            Layout.fillWidth: true
+        footer: ToolBar {
+            height: messageLabel.implicitHeight
+            RowLayout
+            {
+                anchors.fill: parent
+                Label {
+                    id: messageLabel
+                    text: Engine.statusMessage
+                }
+                Label {
+                    id: logButton
+                    text: qsTr("[View log]")
+                    MouseArea {
+                        onClicked: logWindow.visible = !logWindow.visible
+                        anchors.fill: parent
+                    }
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignRight
+                }
+            }
+        }
+        header: TabBar {
             id: bar
             TabButton {
                 text: qsTr("Addons")
@@ -122,19 +145,12 @@ ApplicationWindow {
             }
         }
 
-        StackLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+        contentItem: StackLayout {
             currentIndex: bar.currentIndex
             AddonsPanel {
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-
             }
 
             Options {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
             }
 
             ColumnLayout {
@@ -304,7 +320,7 @@ ApplicationWindow {
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         title: "An error occourred"
-        id: errorDialong
+        id: errorDialog
         Label {
             text: Engine.statusMessage
         }
@@ -437,8 +453,12 @@ ApplicationWindow {
     }
     FileDialog {
         id: exportListDialog
-        onAccepted: Engine.exportAddonList(selectedFile)
+        property string targetPath
+        onAccepted: Engine.exportAddonList(selectedFile, targetPath)
         fileMode: FileDialog.SaveFile
         defaultSuffix: "txt"
+    }
+    LogWindow {
+        id: logWindow
     }
 }

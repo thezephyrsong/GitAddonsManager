@@ -79,7 +79,6 @@ public:
     Q_PROPERTY(QStringList addonsPaths READ addonsPaths WRITE setAddonsPaths NOTIFY addonsPathsChanged)
     Q_PROPERTY(bool useRepoDirectory READ useRepoDirectory WRITE setUseRepoDirectory NOTIFY useRepoDirectoryChanged)
 
-
     static QStringList m_availableStyles;
 
     ~Control();
@@ -149,6 +148,8 @@ public:
     QString version() const;
 
     bool selfUpdates() const;
+    
+    void log(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
 private:
     static Control *m_instance;
@@ -219,6 +220,8 @@ signals:
 
     void useRepoDirectoryChanged(bool use);
 
+    void logMessage(QString log);
+    
 public slots:
     void setAddons(QList<Addon *> addons);
     void saveAddonsPaths();

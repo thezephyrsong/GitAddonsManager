@@ -49,6 +49,7 @@ set(qml_files
     Tray.qml
     UniversalSettings.qml
     Update.qml
+    LogWindow.qml
 )
 
 set(${PROJECT_NAME}_BUILD_NAME "" CACHE STRING "name of the build pipeline for self updates")

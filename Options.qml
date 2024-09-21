@@ -20,9 +20,10 @@ import GitAddonsManager.engine
 import QtQuick.Layouts
 import QtCore
 
-Pane {
+ScrollView {
+    id: optPage
     ColumnLayout {
-        width: parent.width
+        width: Math.max(optPage.availableWidth, implicitWidth)
         Repeater {
             model: Engine.addonsPaths.length
             RowLayout {
