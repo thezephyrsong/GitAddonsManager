@@ -22,7 +22,6 @@ Win64:
       - libgit2-0.27.2
   stage: build
   script:
-    - zypper -q remove -y patterns-base-fips busybox-which
     - zypper -q install -y find wine-staging wine-staging-32bit wget make p7zip tar gzip git || true
     - make -f CI.mk windeploy
     - make -f CI.mk finalize
