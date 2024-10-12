@@ -340,7 +340,7 @@ ApplicationWindow {
         property var invalidPaths: {
             var l = []
             for (var i = 0; i < Engine.addonsPaths.length; i++)
-                if (Engine.addonsPaths[i] != "" && !(Engine.addonsPaths[i].toLowerCase().match("interface/addons$") || Engine.addonsPaths[i].toLowerCase().match("doc/\\w{8}/addons$")))
+                if (Engine.addonsPaths[i] != "" && !(Engine.addonsPaths[i].toLowerCase().match("interface/addons$") || Engine.addonsPaths[i].toLowerCase().match("/run/user/\\d+/doc/\\w+/addons$")))
                     l.push(Engine.addonsPaths[i])
             return l
         }
