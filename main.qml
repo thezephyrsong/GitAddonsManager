@@ -70,13 +70,17 @@ ApplicationWindow {
     }
 
     onClosing: {
-       if (Engine.minimizeToTray == Engine.MinimizeToTrayAsk) {
+        if (Engine.minimizeToTray == Engine.MinimizeToTrayAsk) {
             close.accepted = false
             closeDialog.visible = true
-        } else if (Engine.minimizeToTray == Engine.MinimizeToTrayNo)
+        } else if (Engine.minimizeToTray == Engine.MinimizeToTrayNo) {
             Qt.quit()
-       else if (Qt.platform.os == "windows")
-           window.visible = false
+        }
+        else
+        {
+            close.accepted = false
+            window.visible = false
+        }
     }
 
     Action {
