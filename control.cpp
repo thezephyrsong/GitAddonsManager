@@ -29,8 +29,10 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QApplication>
+#ifdef GAM_SELF_UPDATE
 #include <quazip.h>
 #include <quazipfile.h>
+#endif
 #include <QTextStream>
 #include <ranges>
 #include <algorithm>
@@ -581,6 +583,7 @@ void Control::downloadUpdate()
 
 void Control::executeUpdate()
 {
+#ifdef GAM_SELF_UPDATE
     delegate("Apply Update", [this](){
         QDir appRoot(QApplication::applicationDirPath());
         QuaZip zip(appRoot.absoluteFilePath("GitAddonsManager.zip"));
@@ -616,6 +619,7 @@ void Control::executeUpdate()
         setUpdateStatus(UpdateStatus::UpdateDone);
         QApplication::exit(2);
     });
+#endif
 }
 
 void Control::setUpdateStatus(Control::UpdateStatus updateStatus)
