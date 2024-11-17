@@ -10,15 +10,6 @@ finish-args:
   - --device=dri
   - --share=ipc
 modules:
-  - name: QuaZip-Qt6
-    buildsystem: cmake-ninja
-    sources:
-      - type: git
-        url: https://github.com/stachenov/quazip.git
-    config-opts":
-      - -DQUAZIP_ENABLE_TESTS=OFF
-      - -DQUAZIP_BZIP2=OFF
-      - -DCMAKE_BUILD_TYPE=Release
   - name: libgit2
     buildsystem: cmake-ninja
     sources:
