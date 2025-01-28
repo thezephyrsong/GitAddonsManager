@@ -26,6 +26,7 @@
 #include <QWaitCondition>
 #include "utils.h"
 #include <QUrl>
+#include <QFuture>
 
 class git_repository;
 class git_reference;
@@ -209,6 +210,7 @@ public slots:
     void reclone();
     void loadReadme();
     void setReadme(QString readme);
+    QFuture<void> updateIfBehind();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Addon::GitStatus)

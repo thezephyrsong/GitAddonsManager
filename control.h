@@ -151,6 +151,8 @@ public:
     
     void log(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 
+    void updateAllAndClose();
+
 private:
     static Control *m_instance;
     explicit Control(QObject *parent = nullptr);

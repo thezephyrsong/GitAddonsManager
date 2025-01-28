@@ -766,3 +766,19 @@ void Control::log(QtMsgType type, const QMessageLogContext& context, const QStri
     emit logMessage(message.arg(color, msg));
 }
 
+void Control::updateAllAndClose()
+{
+    delegate("UpdateAllAndClose", [](){
+    },[this](){
+        std::vector<QFuture<void>> futs(m_addons.size());
+        foreach (auto addon, m_addons) {
+            futs.push_back(addon->updateIfBehind());
+        }
+        delegate("WaitForFinish", [this, futs](){
+            foreach(auto fut, futs)
+                fut.waitForFinished();
+            QApplication::quit();
+        });
+    });
+}
+

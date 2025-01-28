@@ -580,6 +580,20 @@ void Addon::setReadme(QString readme)
     emit readmeChanged(m_readme);
 }
 
+QFuture<void> Addon::updateIfBehind()
+{
+    std::shared_ptr<QPromise<void>> p(new QPromise<void>());
+    delegate("UpdateIfBehind", [this](){
+        },[this, p](){
+            if (m_gitStatus == Addon::GitStatusFlag::Behind)
+                update();
+            delegate("Finished", [p](){
+                p->finish();
+            });
+        });
+    return p->future();
+}
+
 QStringList Addon::branches() const
 {
     return m_branches;

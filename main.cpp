@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
     
     QCommandLineParser parser;
     parser.addOption({"update", "directory to update", "updateLocation"});
+    parser.addOption({"oneshot", "Updates all addons and exits"});
     parser.process(app);
     QString update = parser.value("update");
     app.setApplicationDisplayName(QObject::tr("Git Addons Manager"));
@@ -80,9 +81,7 @@ int main(int argc, char *argv[])
             setts.setValue("style", style);
             setts.sync();
         }
-        qmlRegisterSingletonType<Control>("GitAddonsManager.engine",1,0,"Engine",[](QQmlEngine *, QJSEngine *)->QObject*{
-            return Control::instance();
-        });
+        qmlRegisterSingletonInstance<Control>("GitAddonsManager.engine",1,0,"Engine", Control::instance());
         if (!update.isEmpty()) {
             Control::instance()->completeUpdate(update);
             engine.load(QUrl(QStringLiteral("qrc:/Update.qml")));
@@ -90,6 +89,10 @@ int main(int argc, char *argv[])
             Control::instance()->init();
             qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
             engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+            if (parser.isSet("oneshot")) {
+                QMetaObject::invokeMethod(Control::instance(), &Control::updateAllAndClose, Qt::QueuedConnection);
+            }
+
         }
         if (engine.rootObjects().isEmpty())
             return -1;
