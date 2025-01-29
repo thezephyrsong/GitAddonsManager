@@ -49,6 +49,8 @@ Control::Control(QObject *parent) : QObject(parent),
 }
 
 void Control::init() {
+    if (m_initDone)
+        return;
     git_libgit2_init();
     QSettings settings;
     if (settings.value("addonsPaths").isNull()) {
@@ -67,6 +69,7 @@ void Control::init() {
 
     connect(this, &Control::addonsPathsChanged, this, &Control::saveAddonsPaths);
     connect(this, &Control::useRepoDirectoryChanged, this, &Control::saveUseRepoDirectory);
+    m_initDone = true;
 }
 
 QStringList Control::addonsPaths() const

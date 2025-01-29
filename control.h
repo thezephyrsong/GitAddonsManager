@@ -65,6 +65,7 @@ class Control : public QObject
 
     QList<Addon *> m_addons;
     bool m_lock = false;
+    bool m_initDone = false;
 
 public:
     Q_PROPERTY(QString version READ version CONSTANT)

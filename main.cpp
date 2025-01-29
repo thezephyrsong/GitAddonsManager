@@ -47,6 +47,8 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     qSetMessagePattern("[%{time yyyyMMdd h:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{message}");
+    // make sure Control is not instantiated in the logger thread
+    Control::instance();
     originalHandler = qInstallMessageHandler(&logger);
     
     QCommandLineParser parser;
@@ -90,7 +92,7 @@ int main(int argc, char *argv[])
             qmlRegisterUncreatableType<Addon>("GitAddonsManager.engine",1,0,"Addon","");
             engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
             if (parser.isSet("oneshot")) {
-                QMetaObject::invokeMethod(Control::instance(), &Control::updateAllAndClose, Qt::QueuedConnection);
+                Control::instance()->updateAllAndClose();
             }
 
         }
