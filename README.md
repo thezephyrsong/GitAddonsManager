@@ -8,7 +8,7 @@ This application exclusively manage git repositories, addons not containing a gi
 
 ### Requirements:
 
-- Qt Modules:
+- Qt6 Modules:
     - Core
     - Quick
     - QuickControls2
