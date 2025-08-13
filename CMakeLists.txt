@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.5.0)
 project(GitAddonsManager LANGUAGES CXX)
 find_package(Qt6 COMPONENTS Quick Core QuickControls2 Concurrent Network Widgets REQUIRED)
 find_package(Qt6LinguistTools)

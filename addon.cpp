@@ -59,6 +59,26 @@ void Addon::update()
         auto tr = remoteRefForBranch(m_currentBranch.toLocal8Bit());
         AutoPtr ubr(&git_reference_free);
 
+        if (git_reference_is_remote(lbr))
+        {
+            git_buf buf = GIT_BUF_INIT_CONST(0, nullptr);
+            AutoPtr<git_buf> remote(&buf, git_buf_free);
+            check_git_return(git_branch_remote_name(remote, m_repo.get(), git_reference_name(lbr)));
+            git_reference* nlbr = nullptr;
+            git_commit* commit = nullptr;
+            AutoPtr<git_commit> commit_g(commit, git_commit_free);
+            check_git_return(git_commit_lookup(&commit, m_repo.get(), git_reference_target(tr)));
+            QString newName;
+            if (strcmp(buf.ptr, "origin") == 0)
+                newName = m_currentBranch.sliced(7);
+            else
+                newName = QString(m_currentBranch).replace(strlen(buf.ptr), 1, '_');
+            if (git_branch_create(&nlbr, m_repo.get(), newName.toLocal8Bit(), commit, 1) != GIT_OK)
+                git_branch_lookup(&nlbr, m_repo.get(), newName.toLocal8Bit(), GIT_BRANCH_LOCAL);
+            check_git_return(git_branch_set_upstream(nlbr, git_reference_name(lbr)));
+            lbr.reset(nlbr);
+        }
+
         if (!git_branch_is_head(lbr))
             check_git_return(git_repository_set_head(m_repo.get(), git_reference_name(lbr)));
 
@@ -67,7 +87,7 @@ void Addon::update()
         git_checkout_options opts = GIT_CHECKOUT_OPTIONS_INIT;
         opts.checkout_strategy = GIT_CHECKOUT_FORCE;
         check_git_return(git_checkout_head(m_repo.get(), &opts));
-    }, [this](){updateGitStatus();});
+    }, [this](){scanBranches(); updateGitStatus();});
     unpackSubfolders();
 }
 
@@ -98,10 +118,11 @@ void Addon::scanBranches()
             if (git_branch_is_head(ref)) {
                 data.cb = bname;
                 git_buf buf = GIT_BUF_INIT_CONST(0, nullptr);
+                AutoPtr<git_buf> buf_g(&buf, git_buf_free);
                 (git_reference_is_remote(ref) ?
-                            git_branch_remote_name :
-                            git_branch_upstream_remote
-                            )(&buf, m_repo.get(), git_reference_name(ref));
+                    git_branch_remote_name :
+                    git_branch_upstream_remote
+                )(&buf, m_repo.get(), git_reference_name(ref));
                 data.cr = buf.ptr;
             }
             ref.reset();
@@ -122,6 +143,7 @@ void Addon::scanBranches()
                         }
                         if (!ref) break;
                         git_buf buf = GIT_BUF_INIT_CONST(0, nullptr);
+                        AutoPtr<git_buf> buf_g(&buf, git_buf_free);
                         if (!f(&buf, m_repo.get(), git_reference_name(ref))) {
                             data.cr = buf.ptr;
                             data.cb = match.captured(1);
@@ -278,6 +300,12 @@ void Addon::updateGitStatus()
             return GitStatusFlag::UpToDate;
         AutoPtr lr(&git_reference_free);
         check_git_return(git_repository_head(&lr, m_repo.get()));
+
+        const char* name = nullptr;
+
+        if (git_reference_is_remote(lr) || git_branch_name(&name, lr) == GIT_OK && m_currentBranch != name)
+            return GitStatusFlag::Diverged;
+
         AutoPtr uc(&git_annotated_commit_free);
         AutoPtr lc(&git_annotated_commit_free);
         check_git_return(git_annotated_commit_from_ref(&uc, m_repo.get(), tr));
@@ -348,8 +376,8 @@ void Addon::uninstall()
     removeSubfolders();
     closeRepo();
     delegate("Removing addon folder", [this](){
-        removeFolder(m_path + "/" + m_name);
-    }, [](){Control::instance()->scanForAddons();});
+            removeFolder(m_path + "/" + m_name);
+        }, [](){Control::instance()->scanForAddons();});
 }
 
 void Addon::setSubfolders(QStringList subfolders)
@@ -447,7 +475,7 @@ void Addon::unpackSubfolders(){
                 }
                 errors << QString("The folder \"%1\" already existed and has been renamed to \"%2\"").arg(subfn, dest.fileName());
             }
-    #ifdef Q_OS_WIN32
+#ifdef Q_OS_WIN32
             QString link = subfn;
             link.replace("/","\\");
             QString target = "./"+m_name+"/"+subfn;
@@ -458,9 +486,9 @@ void Addon::unpackSubfolders(){
             link_w[pos] = '\0';
             pos = target.toWCharArray(target_w);
             target_w[pos] = '\0';
-    #else
+#else
             QFile::link("./"+m_name+"/"+subfn, subfn);
-    #endif
+#endif
             if (!QFileInfo(subfn).exists()) {
                 dir.rename(subfn, "../"+subfn);
             }
@@ -471,10 +499,10 @@ void Addon::unpackSubfolders(){
         }
         return errors;
     }, [this](auto errors){
-         if (errors.size() > 0) {
-             setStatus(Status::Error);
-             //setStatusMessage(errors.join('\n'));
-         }
+        if (errors.size() > 0) {
+            setStatus(Status::Error);
+            //setStatusMessage(errors.join('\n'));
+        }
     });
 }
 
@@ -584,13 +612,13 @@ QFuture<void> Addon::updateIfBehind()
 {
     std::shared_ptr<QPromise<void>> p(new QPromise<void>());
     delegate("UpdateIfBehind", [this](){
-        },[this, p](){
-            if (m_gitStatus == Addon::GitStatusFlag::Behind)
-                update();
-            delegate("Finished", [p](){
-                p->finish();
-            });
+    },[this, p](){
+        if (m_gitStatus == Addon::GitStatusFlag::Behind)
+            update();
+        delegate("Finished", [p](){
+            p->finish();
         });
+    });
     return p->future();
 }
 

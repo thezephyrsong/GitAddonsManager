@@ -126,9 +126,20 @@ Page {
                     ComboBox {
                         id: branchSelector
                         model: addon.branches
-                        onModelChanged: currentIndex = find(addon.currentBranch)
-                        Component.onCompleted: currentIndex = find(addon.currentBranch)
                         onActivated: addon.currentBranch = currentText
+                        implicitContentWidthPolicy: ComboBox.WidestText
+                        Connections
+                        {
+                            target: addon
+                            function onCurrentBranchChanged()
+                            {
+                                branchSelector.currentIndex = branchSelector.find(addon.currentBranch)
+                            }
+                            function onBranchesChanged()
+                            {
+                                branchSelector.currentIndex = branchSelector.find(addon.currentBranch)
+                            }
+                        }
                     }
                         RowLayout {
                             spacing: 0
