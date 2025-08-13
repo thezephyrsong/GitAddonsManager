@@ -95,7 +95,7 @@ libgit2-0.27.2/release/bin/libgit2.dll: wine/drive_c/Program\ Files\ (x86)/CMake
 zlib/CMakeLists.txt:
 	git clone https://github.com/madler/zlib.git
 	
-zlib/build/libzlib.dll: zlib/CMakeLists.txt
+zlib/release/bin/libz.dll: zlib/CMakeLists.txt
 	mkdir -p zlib/build
 	cd zlib/build && $(wine) cmake .. -DCMAKE_BINARY_DIR=zlib/build -G"MinGW Makefiles" --install-prefix="$(winepwd)/zlib/release" -DCMAKE_BUILD_TYPE=Release
 	$(wine) mingw32-make -C zlib/build -j $(shell nproc)
@@ -107,12 +107,12 @@ quazip/CMakeLists.txt:
 	
 quazip/release/bin/libquazip1-qt6.dll: quazip/CMakeLists.txt
 	mkdir -p quazip/build
-	cd quazip/build && $(wine) cmake ../ -G"MinGW Makefiles" -DZLIB_LIBRARY=$(pwd)/zlib/build/libzlib.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DQUAZIP_ENABLE_TESTS=OFF -DQUAZIP_BZIP2=OFF --install-prefix="$(winepwd)/quazip/release" -DCMAKE_BUILD_TYPE=Release
+	cd quazip/build && $(wine) cmake ../ -G"MinGW Makefiles" -DZLIB_LIBRARY=$(pwd)/zlib/release/lib/libz.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DQUAZIP_ENABLE_TESTS=OFF -DQUAZIP_BZIP2=OFF --install-prefix="$(winepwd)/quazip/release" -DCMAKE_BUILD_TYPE=Release
 	$(wine) mingw32-make -C quazip/build -j $(shell nproc)
 	$(wine) mingw32-make -C quazip/build install
 
-build_win64/GitAddonsManager.exe: Qt libgit2-0.27.2/release/bin/libgit2.dll zlib/build/libzlib.dll quazip/release/bin/libquazip1-qt6.dll
-	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ $(gam_opts) -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip/release/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DZLIB_LIBRARY=$(pwd)/zlib/build/libzlib.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release"
+build_win64/GitAddonsManager.exe: Qt libgit2-0.27.2/release/bin/libgit2.dll zlib/release/bin/libz.dll quazip/release/bin/libquazip1-qt6.dll
+	mkdir -p build_win64 && cd build_win64 && $(wine) cmake ../ $(gam_opts) -G"MinGW Makefiles" -DQuaZip-Qt6_DIR=$(pwd)/quazip/release/lib/cmake/QuaZip-Qt6-1.4/ -DLIBGIT2_LIBRARY=$(pwd)/libgit2-0.27.2/release/bin/libgit2.dll -DLIBGIT2_INCLUDE_DIR=$(pwd)/libgit2-0.27.2/release/include -DZLIB_LIBRARY=$(pwd)/zlib/release/lib/libz.dll.a -DZLIB_INCLUDE_DIR=$(pwd)/zlib -DCMAKE_BUILD_TYPE=Release --install-prefix="$(winepwd)/release"
 	$(wine) mingw32-make -C build_win64 -j $(shell nproc)
 	$(wine) mingw32-make -C build_win64 install
 
@@ -123,7 +123,7 @@ build_win64/release/GitAddonsManager.exe: winbuild
 windeploy: build_win64/release/GitAddonsManager.exe libgit2-0.27.2/release/bin/libgit2.dll
 	mkdir -p GitAddonsManager/
 	cp libgit2-0.27.2/release/bin/libgit2.dll -f GitAddonsManager/libgit2.dll
-	cp zlib/build/libzlib.dll -f GitAddonsManager/libzlib.dll
+	cp zlib/release/bin/libz.dll -f GitAddonsManager/libz.dll
 	cp quazip/release/bin/libquazip1-qt6.dll -f GitAddonsManager/libquazip1-qt6.dll
 	cp Qt/6.7.2/mingw_64/bin/Qt6Core5Compat.dll GitAddonsManager/Qt6Core5Compat.dll
 	cp mingw64/bin/libstdc++-6.dll GitAddonsManager/libstdc++-6.dll
