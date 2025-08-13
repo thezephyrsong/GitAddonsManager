@@ -128,6 +128,7 @@ Page {
                         model: addon.branches
                         onActivated: addon.currentBranch = currentText
                         implicitContentWidthPolicy: ComboBox.WidestText
+                        Component.onCompleted: branchSelector.currentIndex = branchSelector.find(addon.currentBranch)
                         Connections
                         {
                             target: addon
