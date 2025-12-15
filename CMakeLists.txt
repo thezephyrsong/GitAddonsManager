@@ -30,13 +30,6 @@ qt_add_resources(RESOURCES
     qml.qrc
 )
 
-if (qt6QuickCompiler_FOUND)
-    qtquick_compiler_add_resources(RESOURCES qml.qrc)
-    message(STATUS "Using qtquickcompiler")
-else()
-    message(STATUS "qtquickcompiler not found, skipping")
-endif()
-
 set(qml_files
     AddonsPanel.qml 
     AddonUpdateButton.qml
@@ -90,6 +83,15 @@ if (${PROJECT_NAME}_SELF_UPDATE)
     target_link_libraries(GitAddonsManager PUBLIC QuaZip::QuaZip)
 endif()
 
+
+if (qt6QuickCompiler_FOUND)
+    qtquick_compiler_add_resources(RESOURCES qml.qrc)
+    target_link_libraries(GitAddonsManager PRIVATE Qt6::QmlPrivate Qt6::QuickPrivate)
+    message(STATUS "Using qtquickcompiler")
+else()
+    message(STATUS "qtquickcompiler not found, skipping")
+endif()
+
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Core)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::Quick)
 target_link_libraries(GitAddonsManager PUBLIC Qt6::QuickControls2)
@@ -103,7 +105,6 @@ else()
 endif()
 
 
-target_link_libraries(GitAddonsManager PRIVATE Qt6::QmlPrivate Qt6::QuickPrivate)
 set(APPNAME GitAddonsManager)
 
 install(TARGETS GitAddonsManager
