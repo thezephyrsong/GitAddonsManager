@@ -159,15 +159,15 @@ ApplicationWindow {
 
             ColumnLayout {
                 Label {
-                    text: "Author: woblight - minor update by Zae
+                    text: "Author: woblight - minor update by Zae"
                 }
                 Label {
-                    text: "Source code: <a href=\"https://github.com/thezephyrsong/GitAddonsManager\">GitLab</a>"
+                    text: "Source code: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/\">GitLab</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
                 Label {
-                    text: "Report an issue: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/issues\">GitLab</a>"
+                    text: "Report an issue: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/issues/\">GitLab</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
