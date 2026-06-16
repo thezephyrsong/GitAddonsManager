@@ -159,20 +159,25 @@ ApplicationWindow {
 
             ColumnLayout {
                 Label {
-                    text: "Author: woblight - minor update by Zae
+                    text: "Author: woblight <woblight@gmail.com>"
                 }
                 Label {
-                    text: "Source code: <a href=\"https://github.com/thezephyrsong/GitAddonsManager\">GitLab</a>"
+                    text: "Source code: <a href=\"https://gitlab.com/woblight/GitAddonsManager\">GitLab</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
                 Label {
-                    text: "Report an issue: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/issues\">GitLab</a>"
+                    text: "Report an issue: <a href=\"https://gitlab.com/woblight/GitAddonsManager/-/issues\">GitLab</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
                 Label {
-                    text: "Original Website: <a href=\"https://woblight.gitlab.io/overview/gitaddonsmanager/\">woblight.gitlab.io</a>"
+                    text: "Website: <a href=\"https://woblight.gitlab.io/overview/gitaddonsmanager/\">woblight.gitlab.io</a>"
+                    onLinkActivated: Qt.openUrlExternally(link)
+                    textFormat: Text.RichText
+                }
+                Label {
+                    text: "Discord: <a href=\"https://discord.gg/YZQcPMQ\">YZQcPMQ</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
