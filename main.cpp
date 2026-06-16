@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QApplication>
+#include "singleapplication.h"
 #include <QQmlApplicationEngine>
 #include "control.h"
 #include "addon.h"
@@ -27,6 +27,7 @@
 #include <QFontDatabase>
 #include <QCommandLineParser>
 #include <QtLogging>
+#include <QWindow>
 
 QtMessageHandler originalHandler = nullptr;
 
@@ -44,7 +45,7 @@ void logger(QtMsgType type, const QMessageLogContext &context, const QString &ms
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    SingleApplication app(argc, argv);
 
     qSetMessagePattern("[%{time yyyyMMdd h:mm:ss.zzz t} %{if-debug}D%{endif}%{if-info}I%{endif}%{if-warning}W%{endif}%{if-critical}C%{endif}%{if-fatal}F%{endif}] %{message}");
     // make sure Control is not instantiated in the logger thread
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
         qmlClearTypeRegistrations();
 
         QQmlApplicationEngine engine;
-        bool ok;
+        bool ok = false;
         QSettings setts;
         QStringList styles = {"Fusion","Material","Imagine","Universal","Basic"};
         if (!styles.contains(QQuickStyle::name()))
@@ -98,10 +99,25 @@ int main(int argc, char *argv[])
         }
         if (engine.rootObjects().isEmpty())
             return -1;
+
+        QMetaObject::Connection wakeConn = QObject::connect(&app, &SingleApplication::instanceStarted, [&engine]() {
+            if (!engine.rootObjects().isEmpty()) {
+                QWindow* rootWindow = qobject_cast<QWindow*>(engine.rootObjects().first());
+                if (rootWindow) {
+                    rootWindow->show();             // Restore from system tray
+                    rootWindow->raise();            // Bring to top
+                    rootWindow->requestActivate();  // Focus
+                }
+            }
+        });
+
         QObject::connect(Control::instance(), &Control::styleChanged,[&setts](const QString &style){
             setts.setValue("style", style);
         });
         res = app.exec();
+
+		QObject::disconnect(wakeConn);
+
     } while (res == 1);
     if (res == 2) {
         QStringList args = app.arguments().mid(1);

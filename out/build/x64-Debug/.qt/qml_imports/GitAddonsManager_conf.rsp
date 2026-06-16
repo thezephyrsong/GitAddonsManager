@@ -1,0 +1,9 @@
+-rootPath
+C:/Users/d4nk3/source/repos/GitAddonsManager
+-cmake-output
+-output-file
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/.qt/qml_imports/GitAddonsManager_conf.cmake
+-importPath
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug
+-importPath
+C:/Qt/6.11.1/msvc2022_64/qml

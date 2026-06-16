@@ -480,8 +480,10 @@ void Addon::unpackSubfolders(){
             link.replace("/","\\");
             QString target = "./"+m_name+"/"+subfn;
             target.replace("/","\\");
-            wchar_t link_w[link.size() +1];
-            wchar_t target_w[target.size() +1];
+            std::vector<wchar_t> link_buf(link.size() + 1);
+            std::vector<wchar_t> target_buf(target.size() + 1);
+            wchar_t* link_w = link_buf.data();
+            wchar_t* target_w = target_buf.data();
             int pos = link.toWCharArray(link_w);
             link_w[pos] = '\0';
             pos = target.toWCharArray(target_w);

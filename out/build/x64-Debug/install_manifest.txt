@@ -1,0 +1,3 @@
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/GitAddonsManager.exe
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/share/applications/io.gitlab.woblight.GitAddonsManager.desktop
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/share/metainfo/io.gitlab.woblight.GitAddonsManager.metainfo.xml

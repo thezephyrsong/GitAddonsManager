@@ -1,0 +1,9 @@
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager_qmlimportscan.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/list_install_components.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/install.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/install/local.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager_autogen_timestamp_deps.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager_autogen.dir

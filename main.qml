@@ -69,7 +69,7 @@ ApplicationWindow {
         }
     }
 
-    onClosing: {
+    onClosing: function(close) {
         if (Engine.minimizeToTray == Engine.MinimizeToTrayAsk) {
             close.accepted = false
             closeDialog.visible = true

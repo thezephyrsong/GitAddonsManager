@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(GitAddonsManager LANGUAGES CXX)
+set(CMAKE_PREFIX_PATH "C:/Qt/6.11.1/msvc2022_64")
+set(LIBGIT2_INCLUDE_DIR "C:/libgit2/include")
+set(LIBGIT2_LIBRARY "C:/libgit2/lib/git2.lib")
 find_package(Qt6 COMPONENTS Quick Core QuickControls2 Concurrent Network Widgets REQUIRED)
 find_package(Qt6LinguistTools)
 
@@ -19,6 +22,30 @@ if (NOT WIN32)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBGIT2 REQUIRED IMPORTED_TARGET libgit2)
 else()
+    # Try to find libgit2 on Windows. Allow overriding with LIBGIT2_DIR or LIBGIT2_INCLUDE_DIR/LIBGIT2_LIBRARY
+    if (NOT DEFINED LIBGIT2_INCLUDE_DIR)
+        find_path(LIBGIT2_INCLUDE_DIR git2.h
+            PATHS
+                ENV LIBGIT2_DIR
+                "C:/Program Files/libgit2/include"
+                "C:/Program Files (x86)/libgit2/include"
+                "C:/libgit2/include"
+            NO_DEFAULT_PATH
+        )
+    endif()
+    if (NOT DEFINED LIBGIT2_LIBRARY)
+        find_library(LIBGIT2_LIBRARY NAMES libgit2 git2
+            PATHS
+                ENV LIBGIT2_DIR
+                "C:/Program Files/libgit2/lib"
+                "C:/Program Files (x86)/libgit2/lib"
+                "C:/libgit2/lib"
+            NO_DEFAULT_PATH
+        )
+    endif()
+    if (NOT LIBGIT2_INCLUDE_DIR OR NOT LIBGIT2_LIBRARY)
+        message(FATAL_ERROR "libgit2 not found. Install libgit2 and set LIBGIT2_DIR or pass -DLIBGIT2_INCLUDE_DIR=<path> -DLIBGIT2_LIBRARY=<path> to CMake.")
+    endif()
     include_directories(${LIBGIT2_INCLUDE_DIR})
 endif()
 
@@ -53,6 +80,7 @@ option(${PROJECT_NAME}_SELF_UPDATE "Enable the self-update feature")
 qt_add_executable(GitAddonsManager
     addon.h  control.h  utils.h
     main.cpp addon.cpp  control.cpp
+    singleapplication.h singleapplication_p.h singleapplication.cpp singleapplication_p.cpp
     CI.mk .gitlab-ci.yml
         ${RESOURCES}
         MANUAL_FINALIZATION
@@ -67,6 +95,7 @@ set_target_properties(GitAddonsManager PROPERTIES
 add_compile_definitions(
     GIT_DESCRIBE="${${PROJECT_NAME}_GIT_DESCRIBE}"
     GAM_EXEC="GitAddonsManager${CMAKE_EXECUTABLE_SUFFIX}"
+
     )
 
 if (${PROJECT_NAME}_SELF_UPDATE)
