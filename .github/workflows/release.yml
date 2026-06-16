@@ -28,9 +28,20 @@ jobs:
         python -m aqt install-qt windows desktop 6.8.3 win64_msvc2022_64 --outputdir ${{ github.workspace }}/Qt
         echo "${{ github.workspace }}/Qt/6.8.3/msvc2022_64/bin" >> $GITHUB_PATH
 
+    - name: Install libgit2 via vcpkg
+      run: |
+        vcpkg install libgit2:x64-windows
+        echo "LIBGIT2_INCLUDE_DIR=C:/vcpkg/installed/x64-windows/include" >> $GITHUB_ENV
+        echo "LIBGIT2_LIBRARY=C:/vcpkg/installed/x64-windows/lib/git2.lib" >> $GITHUB_ENV
+
     - name: Configure CMake
       run: |
-        cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+        $version = "${{ github.ref_name }}" -replace '^v', ''
+        cmake -B build -S . `
+        -DCMAKE_BUILD_TYPE=Release `
+        -DCMAKE_PREFIX_PATH="${{ github.workspace }}/Qt/6.8.3/msvc2022_64" `
+        -DLIBGIT2_INCLUDE_DIR="${{ env.LIBGIT2_INCLUDE_DIR }}" `
+        -DLIBGIT2_LIBRARY="${{ env.LIBGIT2_LIBRARY }}"
 
     - name: Build Project
       run: |

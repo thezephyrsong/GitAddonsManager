@@ -1,3 +1,9 @@
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/GitAddonsManager.exe
-C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/share/applications/io.gitlab.woblight.GitAddonsManager.desktop
-C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/share/metainfo/io.gitlab.woblight.GitAddonsManager.metainfo.xml
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/msvcp140.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/msvcp140_1.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/msvcp140_2.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/msvcp140_atomic_wait.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/msvcp140_codecvt_ids.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/vcruntime140_1.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/vcruntime140.dll
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/concrt140.dll

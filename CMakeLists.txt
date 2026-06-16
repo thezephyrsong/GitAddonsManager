@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(GitAddonsManager LANGUAGES CXX)
-set(CMAKE_PREFIX_PATH "C:/Qt/6.11.1/msvc2022_64")
-set(LIBGIT2_INCLUDE_DIR "C:/libgit2/include")
-set(LIBGIT2_LIBRARY "C:/libgit2/lib/git2.lib")
+if(NOT DEFINED CMAKE_PREFIX_PATH)
+    set(CMAKE_PREFIX_PATH "C:/Qt/6.11.1/msvc2022_64")
+endif()
+if(NOT DEFINED LIBGIT2_INCLUDE_DIR)
+    set(LIBGIT2_INCLUDE_DIR "C:/libgit2/include")
+endif()
+if(NOT DEFINED LIBGIT2_LIBRARY)
+    set(LIBGIT2_LIBRARY "C:/libgit2/lib/git2.lib")
+endif()
 find_package(Qt6 COMPONENTS Quick Core QuickControls2 Concurrent Network Widgets REQUIRED)
 find_package(Qt6LinguistTools)
 
@@ -140,14 +146,38 @@ install(TARGETS GitAddonsManager
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(
-  PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.desktop
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
-)
+if(WIN32)
+    # Run windeployqt and capture its output into the install tree
+    find_program(WINDEPLOYQT windeployqt HINTS "${CMAKE_PREFIX_PATH}/bin")
+    install(CODE "
+        execute_process(
+            COMMAND \"${WINDEPLOYQT}\"
+                --qmldir \"${CMAKE_SOURCE_DIR}\"
+                \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/GitAddonsManager.exe\"
+        )
+    ")
+    install(FILES C:/vcpkg/installed/x64-windows/bin/git2.dll
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()
 
-install(
-  PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.metainfo.xml
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
-)
+if(NOT WIN32)
+    install(
+        PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.desktop
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications
+    )
+    install(
+        PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/io.gitlab.woblight.GitAddonsManager.metainfo.xml
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo
+    )
+endif()
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "NSIS")  # or "ZIP" for a simple zip
+set(CPACK_PACKAGE_NAME "GitAddonsManager")
+set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_EXECUTABLES "GitAddonsManager" "GitAddonsManager")
+set(CPACK_PACKAGE_FILE_NAME "GitAddonsManager_Setup")
+include(CPack)
 
 qt_finalize_executable(GitAddonsManager)

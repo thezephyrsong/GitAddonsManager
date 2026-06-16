@@ -1,5 +1,7 @@
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager.dir
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/GitAddonsManager_qmlimportscan.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/package.dir
+C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/package_source.dir
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/edit_cache.dir
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
 C:/Users/d4nk3/source/repos/GitAddonsManager/out/build/x64-Debug/CMakeFiles/list_install_components.dir
