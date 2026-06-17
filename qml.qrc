@@ -32,5 +32,8 @@
         <file>StyleSettingsBase.qml</file>
         <file>UniversalSettings.qml</file>
         <file>icons/breeze/svg/export-symbolic.svg</file>
+		<file>icons/breeze/svg/edit-link.svg</file>
+		<file>icons/breeze/svg/editpath.svg</file>
+		<file>icons/breeze/svg/editpath-symbolic.svg</file>
     </qresource>
 </RCC>

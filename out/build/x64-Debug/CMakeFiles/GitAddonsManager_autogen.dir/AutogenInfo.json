@@ -1292,7 +1292,7 @@
 	"MOC_DEFINITIONS" : 
 	[
 		"GAM_EXEC=\"GitAddonsManager.exe\"",
-		"GIT_DESCRIBE=\"v1.0.10-0-gdc2f182-dirty\"",
+		"GIT_DESCRIBE=\"V1.0.0-2-gd599665-dirty\"",
 		"QT_CONCURRENT_LIB",
 		"QT_CORE_LIB",
 		"QT_DEPRECATED_WARNINGS",

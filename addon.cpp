@@ -797,3 +797,11 @@ void Addon::delegate(QString taskname, auto work, auto callback)
 {
     delegate(taskname, work, callback, false);
 }
+void Addon::setRemoteUrl(QString newUrl)
+{
+    delegate("Changing Remote URL", [this, newUrl]() {
+        check_git_return(git_remote_set_url(m_repo.get(), m_remote.toLocal8Bit(), newUrl.toLocal8Bit()));
+        }, [this]() {
+            fetchRemote(m_remote);
+            });
+}

@@ -187,6 +187,7 @@ signals:
 
 public slots:
     void setName(QString name);
+    void setRemoteUrl(QString newUrl);
     void update();
     void scanBranches();
     void scanSubfolders();

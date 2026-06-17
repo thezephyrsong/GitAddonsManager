@@ -69,6 +69,8 @@ template <> constexpr inline auto Addon::qt_create_metaobjectdata<qt_meta_tag_ZN
         "pathChanged",
         "path",
         "setName",
+        "setRemoteUrl",
+        "newUrl",
         "update",
         "scanBranches",
         "scanSubfolders",
@@ -168,86 +170,90 @@ template <> constexpr inline auto Addon::qt_create_metaobjectdata<qt_meta_tag_ZN
         QtMocHelpers::SlotData<void(QString)>(30, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 3 },
         }}),
+        // Slot 'setRemoteUrl'
+        QtMocHelpers::SlotData<void(QString)>(31, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 32 },
+        }}),
         // Slot 'update'
-        QtMocHelpers::SlotData<void()>(31, 2, QMC::AccessPublic, QMetaType::Void),
-        // Slot 'scanBranches'
-        QtMocHelpers::SlotData<void()>(32, 2, QMC::AccessPublic, QMetaType::Void),
-        // Slot 'scanSubfolders'
         QtMocHelpers::SlotData<void()>(33, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'scanBranches'
+        QtMocHelpers::SlotData<void()>(34, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'scanSubfolders'
+        QtMocHelpers::SlotData<void()>(35, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'setBranches'
-        QtMocHelpers::SlotData<void(QStringList)>(34, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(QStringList)>(36, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QStringList, 5 },
         }}),
         // Slot 'setCurrentBranch'
-        QtMocHelpers::SlotData<void(QString)>(35, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(QString)>(37, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 7 },
         }}),
         // Slot 'setRemote'
-        QtMocHelpers::SlotData<void(QString)>(36, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 9 },
-        }}),
-        // Slot 'setRemotes'
-        QtMocHelpers::SlotData<void(QStringList)>(37, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QStringList, 11 },
-        }}),
-        // Slot 'fetchRemote'
         QtMocHelpers::SlotData<void(QString)>(38, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 9 },
         }}),
+        // Slot 'setRemotes'
+        QtMocHelpers::SlotData<void(QStringList)>(39, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QStringList, 11 },
+        }}),
+        // Slot 'fetchRemote'
+        QtMocHelpers::SlotData<void(QString)>(40, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 9 },
+        }}),
         // Slot 'setProgress'
-        QtMocHelpers::SlotData<void(int)>(39, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(int)>(41, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::Int, 13 },
         }}),
         // Slot 'setTotal'
-        QtMocHelpers::SlotData<void(int)>(40, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(int)>(42, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::Int, 15 },
         }}),
         // Slot 'setStatus'
-        QtMocHelpers::SlotData<void(enum Status)>(41, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(enum Status)>(43, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 17, 18 },
         }}),
         // Slot 'setGitStatus'
-        QtMocHelpers::SlotData<void(GitStatus)>(42, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(GitStatus)>(44, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 20, 21 },
         }}),
         // Slot 'updateGitStatus'
-        QtMocHelpers::SlotData<void()>(43, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(45, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'uninstall'
-        QtMocHelpers::SlotData<void()>(44, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(46, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'setSubfolders'
-        QtMocHelpers::SlotData<void(QStringList)>(45, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(QStringList)>(47, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QStringList, 23 },
         }}),
         // Slot 'removeSubfolders'
-        QtMocHelpers::SlotData<void()>(46, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(48, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'unpackSubfolders'
-        QtMocHelpers::SlotData<void()>(47, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SlotData<void()>(49, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'setFilesToRemove'
-        QtMocHelpers::SlotData<void(QString)>(48, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(QString)>(50, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 25 },
         }}),
         // Slot 'confirmFileRemove'
-        QtMocHelpers::SlotData<void(bool)>(49, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Bool, 50 },
+        QtMocHelpers::SlotData<void(bool)>(51, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Bool, 52 },
         }}),
         // Slot 'reset'
-        QtMocHelpers::SlotData<void()>(51, 2, QMC::AccessPublic, QMetaType::Void),
-        // Slot 'reclone'
-        QtMocHelpers::SlotData<void()>(52, 2, QMC::AccessPublic, QMetaType::Void),
-        // Slot 'loadReadme'
         QtMocHelpers::SlotData<void()>(53, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'reclone'
+        QtMocHelpers::SlotData<void()>(54, 2, QMC::AccessPublic, QMetaType::Void),
+        // Slot 'loadReadme'
+        QtMocHelpers::SlotData<void()>(55, 2, QMC::AccessPublic, QMetaType::Void),
         // Slot 'setReadme'
-        QtMocHelpers::SlotData<void(QString)>(54, 2, QMC::AccessPublic, QMetaType::Void, {{
+        QtMocHelpers::SlotData<void(QString)>(56, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::QString, 27 },
         }}),
         // Slot 'updateIfBehind'
-        QtMocHelpers::SlotData<QFuture<void>()>(55, 2, QMC::AccessPublic, 0x80000000 | 56),
+        QtMocHelpers::SlotData<QFuture<void>()>(57, 2, QMC::AccessPublic, 0x80000000 | 58),
         // Method 'getUrl'
-        QtMocHelpers::MethodData<QUrl(QString) const>(57, 2, QMC::AccessPublic, 0x80000000 | 58, {{
+        QtMocHelpers::MethodData<QUrl(QString) const>(59, 2, QMC::AccessPublic, 0x80000000 | 60, {{
             { QMetaType::QString, 3 },
         }}),
         // Method 'getUrl'
-        QtMocHelpers::MethodData<QUrl() const>(57, 2, QMC::AccessPublic | QMC::MethodCloned, 0x80000000 | 58),
+        QtMocHelpers::MethodData<QUrl() const>(59, 2, QMC::AccessPublic | QMC::MethodCloned, 0x80000000 | 60),
     };
     QtMocHelpers::UintData qt_properties {
         // property 'name'
@@ -280,33 +286,33 @@ template <> constexpr inline auto Addon::qt_create_metaobjectdata<qt_meta_tag_ZN
     QtMocHelpers::UintData qt_enums {
         // enum 'Status'
         QtMocHelpers::EnumData<enum Status>(17, 17, QMC::EnumIsScoped).add({
-            {   59, Status::Error },
-            {   60, Status::Ready },
-            {   61, Status::Busy },
+            {   61, Status::Error },
+            {   62, Status::Ready },
+            {   63, Status::Busy },
         }),
         // enum 'GitStatusFlag'
-        QtMocHelpers::EnumData<enum GitStatusFlag>(62, 62, QMC::EnumFlags{}).add({
-            {   59, GitStatusFlag::Error },
-            {   63, GitStatusFlag::UpToDate },
-            {   64, GitStatusFlag::Ahead },
-            {   65, GitStatusFlag::Behind },
-            {   66, GitStatusFlag::Diverged },
-            {   67, GitStatusFlag::FastForward },
-            {   68, GitStatusFlag::Merge },
-            {   69, GitStatusFlag::Conflict },
-            {   70, GitStatusFlag::MergeStatusMask },
+        QtMocHelpers::EnumData<enum GitStatusFlag>(64, 64, QMC::EnumFlags{}).add({
+            {   61, GitStatusFlag::Error },
+            {   65, GitStatusFlag::UpToDate },
+            {   66, GitStatusFlag::Ahead },
+            {   67, GitStatusFlag::Behind },
+            {   68, GitStatusFlag::Diverged },
+            {   69, GitStatusFlag::FastForward },
+            {   70, GitStatusFlag::Merge },
+            {   71, GitStatusFlag::Conflict },
+            {   72, GitStatusFlag::MergeStatusMask },
         }),
         // flag 'GitStatus'
-        QtMocHelpers::EnumData<GitStatus>(20, 62, QMC::EnumIsFlag).add({
-            {   59, GitStatusFlag::Error },
-            {   63, GitStatusFlag::UpToDate },
-            {   64, GitStatusFlag::Ahead },
-            {   65, GitStatusFlag::Behind },
-            {   66, GitStatusFlag::Diverged },
-            {   67, GitStatusFlag::FastForward },
-            {   68, GitStatusFlag::Merge },
-            {   69, GitStatusFlag::Conflict },
-            {   70, GitStatusFlag::MergeStatusMask },
+        QtMocHelpers::EnumData<GitStatus>(20, 64, QMC::EnumIsFlag).add({
+            {   61, GitStatusFlag::Error },
+            {   65, GitStatusFlag::UpToDate },
+            {   66, GitStatusFlag::Ahead },
+            {   67, GitStatusFlag::Behind },
+            {   68, GitStatusFlag::Diverged },
+            {   69, GitStatusFlag::FastForward },
+            {   70, GitStatusFlag::Merge },
+            {   71, GitStatusFlag::Conflict },
+            {   72, GitStatusFlag::MergeStatusMask },
         }),
     };
     return QtMocHelpers::metaObjectData<Addon, qt_meta_tag_ZN5AddonE_t>(QMC::MetaObjectFlag{}, qt_stringData,
@@ -341,34 +347,35 @@ void Addon::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         case 11: _t->readmeChanged((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
         case 12: _t->pathChanged((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
         case 13: _t->setName((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 14: _t->update(); break;
-        case 15: _t->scanBranches(); break;
-        case 16: _t->scanSubfolders(); break;
-        case 17: _t->setBranches((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
-        case 18: _t->setCurrentBranch((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 19: _t->setRemote((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 20: _t->setRemotes((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
-        case 21: _t->fetchRemote((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 22: _t->setProgress((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
-        case 23: _t->setTotal((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
-        case 24: _t->setStatus((*reinterpret_cast<std::add_pointer_t<enum Status>>(_a[1]))); break;
-        case 25: _t->setGitStatus((*reinterpret_cast<std::add_pointer_t<GitStatus>>(_a[1]))); break;
-        case 26: _t->updateGitStatus(); break;
-        case 27: _t->uninstall(); break;
-        case 28: _t->setSubfolders((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
-        case 29: _t->removeSubfolders(); break;
-        case 30: _t->unpackSubfolders(); break;
-        case 31: _t->setFilesToRemove((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 32: _t->confirmFileRemove((*reinterpret_cast<std::add_pointer_t<bool>>(_a[1]))); break;
-        case 33: _t->reset(); break;
-        case 34: _t->reclone(); break;
-        case 35: _t->loadReadme(); break;
-        case 36: _t->setReadme((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
-        case 37: { QFuture<void> _r = _t->updateIfBehind();
+        case 14: _t->setRemoteUrl((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 15: _t->update(); break;
+        case 16: _t->scanBranches(); break;
+        case 17: _t->scanSubfolders(); break;
+        case 18: _t->setBranches((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
+        case 19: _t->setCurrentBranch((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 20: _t->setRemote((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 21: _t->setRemotes((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
+        case 22: _t->fetchRemote((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 23: _t->setProgress((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
+        case 24: _t->setTotal((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
+        case 25: _t->setStatus((*reinterpret_cast<std::add_pointer_t<enum Status>>(_a[1]))); break;
+        case 26: _t->setGitStatus((*reinterpret_cast<std::add_pointer_t<GitStatus>>(_a[1]))); break;
+        case 27: _t->updateGitStatus(); break;
+        case 28: _t->uninstall(); break;
+        case 29: _t->setSubfolders((*reinterpret_cast<std::add_pointer_t<QStringList>>(_a[1]))); break;
+        case 30: _t->removeSubfolders(); break;
+        case 31: _t->unpackSubfolders(); break;
+        case 32: _t->setFilesToRemove((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 33: _t->confirmFileRemove((*reinterpret_cast<std::add_pointer_t<bool>>(_a[1]))); break;
+        case 34: _t->reset(); break;
+        case 35: _t->reclone(); break;
+        case 36: _t->loadReadme(); break;
+        case 37: _t->setReadme((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 38: { QFuture<void> _r = _t->updateIfBehind();
             if (_a[0]) *reinterpret_cast<QFuture<void>*>(_a[0]) = std::move(_r); }  break;
-        case 38: { QUrl _r = _t->getUrl((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
+        case 39: { QUrl _r = _t->getUrl((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])));
             if (_a[0]) *reinterpret_cast<QUrl*>(_a[0]) = std::move(_r); }  break;
-        case 39: { QUrl _r = _t->getUrl();
+        case 40: { QUrl _r = _t->getUrl();
             if (_a[0]) *reinterpret_cast<QUrl*>(_a[0]) = std::move(_r); }  break;
         default: ;
         }
@@ -459,14 +466,14 @@ int Addon::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 40)
+        if (_id < 41)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 40;
+        _id -= 41;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 40)
+        if (_id < 41)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 40;
+        _id -= 41;
     }
     if (_c == QMetaObject::ReadProperty || _c == QMetaObject::WriteProperty
             || _c == QMetaObject::ResetProperty || _c == QMetaObject::BindableProperty

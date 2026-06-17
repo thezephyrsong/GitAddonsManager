@@ -151,8 +151,9 @@ if(WIN32)
     install(CODE "
         execute_process(
             COMMAND \"${WINDEPLOYQT}\"
-                --qmldir \"${CMAKE_SOURCE_DIR}\"
-                \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/GitAddonsManager.exe\"
+                 --release
+                 --qmldir \"${CMAKE_SOURCE_DIR}\"
+                 \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/GitAddonsManager.exe\"
         )
     ")
     install(CODE "

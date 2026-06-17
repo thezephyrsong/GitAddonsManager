@@ -176,6 +176,19 @@ Page {
                                     }
 
                                     MenuItem {
+                                        id: changeUrlButton
+                                        text: qsTr("change url")
+                                        icon.name: "edit-link"
+                                        enabled: addon.status == Addon.Status.Ready || addon.status == Addon.Status.Error
+                                        hoverEnabled: true
+                                        onTriggered: {
+                                            urlDialog.addon = addon
+                                            urlDialog.newUrlText = addon.getUrl().toString()
+                                            urlDialog.visible = true
+                                        }
+                                    }
+
+                                    MenuItem {
                                         id: repairButton
                                         hoverEnabled: true
                                         state: addon.gitStatus === Addon.Error ? "reclone" : "reset"
@@ -260,6 +273,35 @@ Page {
                 anchors.fill: parent
                 wrapMode: Text.NoWrap
                 font.family: "Hack"
+            }
+        }
+    }
+Dialog {
+        property Addon addon
+        property alias newUrlText: urlInput.text
+        id: urlDialog
+        parent: window.overlay
+        x: (parent.width - width) / 1.5
+        y: (parent.height - height) / 2
+        title: addon ? qsTr("Change URL for %1").arg(addon.name) : ""
+        standardButtons: Dialog.Save | Dialog.Cancel
+        
+        onAccepted: {
+            if (addon && urlInput.text !== "") {
+                addon.setRemoteUrl(urlInput.text)
+            }
+        }
+        
+        ColumnLayout {
+            anchors.fill: parent
+            Label { 
+                text: "New Git Repository URL:" 
+            }
+            TextField {
+                id: urlInput
+                Layout.fillWidth: true
+                selectByMouse: true
+                placeholderText: "https://github.com/user/repo.git"
             }
         }
     }

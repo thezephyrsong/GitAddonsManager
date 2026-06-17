@@ -1,4 +1,4 @@
-set(qml_import_scanner_imports_count 33)
+set(qml_import_scanner_imports_count 38)
 set(qml_import_scanner_import_0 "CLASSNAME;QtQuick2Plugin;LINKTARGET;Qt6::qtquick2plugin;NAME;QtQuick;PATH;C:/Qt/6.11.1/msvc2022_64/qml/QtQuick;PLUGIN;qtquick2plugin;PLUGINISOPTIONAL;;PREFER;:/qt-project.org/imports/QtQuick/;RELATIVEPATH;QtQuick;TYPE;module;")
 set(qml_import_scanner_import_1 "CLASSNAME;QtQmlPlugin;LINKTARGET;Qt6::qmlplugin;NAME;QtQml;PATH;C:/Qt/6.11.1/msvc2022_64/qml/QtQml;PLUGIN;qmlplugin;PLUGINISOPTIONAL;;PREFER;:/qt-project.org/imports/QtQml/;RELATIVEPATH;QtQml;TYPE;module;")
 set(qml_import_scanner_import_2 "NAME;QML;PATH;C:/Qt/6.11.1/msvc2022_64/qml/QML;PREFER;:/qt-project.org/imports/QML/;RELATIVEPATH;QML;TYPE;module;")
@@ -32,4 +32,9 @@ set(qml_import_scanner_import_29 "CLASSNAME;QtQuickDialogs2QuickImplPlugin;COMPO
 set(qml_import_scanner_import_30 "CLASSNAME;QmlFolderListModelPlugin;LINKTARGET;Qt6::qmlfolderlistmodelplugin;NAME;Qt.labs.folderlistmodel;PATH;C:/Qt/6.11.1/msvc2022_64/qml/Qt/labs/folderlistmodel;PLUGIN;qmlfolderlistmodelplugin;PLUGINISOPTIONAL;;PREFER;:/qt-project.org/imports/Qt/labs/folderlistmodel/;RELATIVEPATH;Qt/labs/folderlistmodel;TYPE;module;")
 set(qml_import_scanner_import_31 "CLASSNAME;QtQmlCorePlugin;LINKTARGET;Qt6::qtqmlcoreplugin;NAME;QtCore;PATH;C:/Qt/6.11.1/msvc2022_64/qml/QtCore;PLUGIN;qtqmlcoreplugin;PLUGINISOPTIONAL;;PREFER;:/qt-project.org/imports/QtCore/;RELATIVEPATH;QtCore;TYPE;module;")
 set(qml_import_scanner_import_32 "CLASSNAME;QtLabsPlatformPlugin;LINKTARGET;Qt6::LabsPlatformplugin;NAME;Qt.labs.platform;PATH;C:/Qt/6.11.1/msvc2022_64/qml/Qt/labs/platform;PLUGIN;labsplatformplugin;PLUGINISOPTIONAL;;PREFER;:/qt-project.org/imports/Qt/labs/platform/;RELATIVEPATH;Qt/labs/platform;TYPE;module;")
+set(qml_import_scanner_import_33 "NAME;.;PATH;C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/qml/QtQuick/Dialogs/quickimpl/qml;TYPE;directory;")
+set(qml_import_scanner_import_34 "NAME;.;PATH;C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/qml/QtQuick/Dialogs/quickimpl/qml/+Fusion;TYPE;directory;")
+set(qml_import_scanner_import_35 "NAME;.;PATH;C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/qml/QtQuick/Dialogs/quickimpl/qml/+Imagine;TYPE;directory;")
+set(qml_import_scanner_import_36 "NAME;.;PATH;C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/qml/QtQuick/Dialogs/quickimpl/qml/+Material;TYPE;directory;")
+set(qml_import_scanner_import_37 "NAME;.;PATH;C:/Users/d4nk3/source/repos/GitAddonsManager/out/install/x64-Debug/bin/qml/QtQuick/Dialogs/quickimpl/qml/+Universal;TYPE;directory;")
 

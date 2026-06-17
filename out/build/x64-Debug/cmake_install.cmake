@@ -40,14 +40,18 @@ if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT
   
         execute_process(
             COMMAND "C:/Qt/6.11.1/msvc2022_64/bin/windeployqt.exe"
-                --qmldir "C:/Users/d4nk3/source/repos/GitAddonsManager"
-                "${CMAKE_INSTALL_PREFIX}/bin/GitAddonsManager.exe"
+                 --release
+                 --qmldir "C:/Users/d4nk3/source/repos/GitAddonsManager"
+                 "${CMAKE_INSTALL_PREFIX}/bin/GitAddonsManager.exe"
         )
     
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/bin" TYPE FILE FILES "C:/vcpkg/installed/x64-windows/bin/git2.dll")
+  
+        file(GLOB VCPKG_DLLS "C:/vcpkg/installed/x64-windows/bin/*.dll")
+        file(INSTALL ${VCPKG_DLLS} DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
