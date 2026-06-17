@@ -17,14 +17,14 @@ find_package(Git)
 
 if(GIT_EXECUTABLE)
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --tags --long --dirty
+        COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE ${PROJECT_NAME}_GIT_DESCRIBE
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 endif()
 
-string(REGEX REPLACE "^v" "" CLEAN_APP_VERSION "${RAW_GIT_VERSION}")
+string(REGEX REPLACE "^v" "" VERSION_STRING "${${PROJECT_NAME}_GIT_TAG}")
 
 if(NOT CLEAN_APP_VERSION)
     set(CLEAN_APP_VERSION "1.0.0")
@@ -182,9 +182,9 @@ endif()
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "NSIS")
 set(CPACK_PACKAGE_NAME "GitAddonsManager")
-set(CPACK_PACKAGE_VERSION "{CLEAN_APP_VERSION}")
+set(CPACK_PACKAGE_VERSION "${VERSION_STRING}")
 set(CPACK_PACKAGE_EXECUTABLES "GitAddonsManager" "GitAddonsManager")
-set(CPACK_PACKAGE_FILE_NAME "GitAddonsManager-${CLEAN_APP_VERSION}")
+set(CPACK_PACKAGE_FILE_NAME "GitAddonsManager-${VERSION_STRING}")
 include(CPack)
 
 qt_finalize_executable(GitAddonsManager)
