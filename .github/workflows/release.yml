@@ -74,6 +74,6 @@ jobs:
     - name: Upload Artifacts to Release
       uses: softprops/action-gh-release@v2
       with:
-        files: build/GitAddonsManager_Setup.exe
+        files: build/GitAddonsManager_*.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
