@@ -147,7 +147,6 @@ install(TARGETS GitAddonsManager
 )
 
 if(WIN32)
-    # Run windeployqt and capture its output into the install tree
     find_program(WINDEPLOYQT windeployqt HINTS "${CMAKE_PREFIX_PATH}/bin")
     install(CODE "
         execute_process(
@@ -156,12 +155,10 @@ if(WIN32)
                 \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/GitAddonsManager.exe\"
         )
     ")
-    install(FILES 
-        C:/vcpkg/installed/x64-windows/bin/git2.dll
-        C:/vcpkg/installed/x64-windows/bin/zlib1.dll
-        C:/vcpkg/installed/x64-windows/bin/pcre2-8.dll
-        DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
+    install(CODE "
+        file(GLOB VCPKG_DLLS \"C:/vcpkg/installed/x64-windows/bin/*.dll\")
+        file(INSTALL \${VCPKG_DLLS} DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\")
+    ")
 endif()
 
 if(NOT WIN32)
