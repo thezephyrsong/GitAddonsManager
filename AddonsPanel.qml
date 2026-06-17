@@ -263,26 +263,71 @@ Page {
         parent: window.overlay
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
+        width: Math.min(800, parent.width * 0.75)
+        height: Math.min(600, parent.height * 0.75)
         title: addon?qsTr("%1 Readme").arg(addon.name):""
         standardButtons: Dialog.Close
-        ScrollView{
+        ScrollView {
             anchors.fill: parent
-            TextArea {
-                text: readmeDialog.addon?readmeDialog.addon.readme:""
-                readOnly: true
-                anchors.fill: parent
-                wrapMode: Text.NoWrap
-                font.family: "Hack"
+            contentWidth: parent.width
+            ColumnLayout {
+                width: parent.width
+                Label {
+                    id: readmeLabel
+                    Layout.fillWidth: true
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    textFormat: Text.MarkdownText
+
+                    Layout.maximumWidth: parent.width
+
+                    font.pixelSize: 14
+
+                    topPadding: 15
+                    bottomPadding: 15 
+                    leftPadding: 10
+                    rightPadding: 10
+                
+                    text: {
+                        let rawText = readmeDialog.addon ? readmeDialog.addon.readme : "";
+                        return rawText.replace(/<[^>]*>/g, '');
+                        let listText = cleanText.replace(/\|(.*)\|(.*)\|/g, (match, p1, p2) => {
+                            if (p1.includes("---")) return "";
+                            return "• **" + p1.trim() + "**: " + p2.trim();
+                            });
+                            return listText;
+                    }
+                
+                    baseUrl: {
+                        if (readmeDialog.addon) {
+                            // 1. Remove the ".git" from the end of the repository URL
+                            let cleanUrl = readmeDialog.addon.getUrl().toString().replace(".git", "");
+                        
+                            // 2. Get the current branch (e.g., "master" or "main")
+                            let branch = readmeDialog.addon.currentBranch;
+                            if (branch === "") branch = "master"; // Fallback
+                        
+                            // 3. Construct the GitHub raw content link
+                            // Result: https://github.com/user/repo/raw/master/
+                            return cleanUrl + "/raw/" + branch + "/";
+                        }
+                        return "";
+                    }
+
+                    onLinkActivated: function(link) { Qt.openUrlExternally(link) }
+                                   
+                }
             }
-        }
-    }
+       }
+}
 Dialog {
         property Addon addon
         property alias newUrlText: urlInput.text
         id: urlDialog
         parent: window.overlay
-        x: (parent.width - width) / 1.5
+        x: (parent.width - width) / 2
         y: (parent.height - height) / 2
+        width: Math.min(500, parent.width * 0.75)
         title: addon ? qsTr("Change URL for %1").arg(addon.name) : ""
         standardButtons: Dialog.Save | Dialog.Cancel
         

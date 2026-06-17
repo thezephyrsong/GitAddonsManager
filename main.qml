@@ -162,12 +162,12 @@ ApplicationWindow {
                     text: "Author: woblight - minor update by Zae"
                 }
                 Label {
-                    text: "Source code: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/\">GitLab</a>"
+                    text: "Source code: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/\">GitHub</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }
                 Label {
-                    text: "Report an issue: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/issues/\">GitLab</a>"
+                    text: "Report an issue: <a href=\"https://github.com/thezephyrsong/GitAddonsManager/issues/\">GitHub</a>"
                     onLinkActivated: Qt.openUrlExternally(link)
                     textFormat: Text.RichText
                 }

@@ -24,6 +24,12 @@ if(GIT_EXECUTABLE)
     )
 endif()
 
+string(REGEX REPLACE "^v" "" CLEAN_APP_VERSION "${RAW_GIT_VERSION}")
+
+if(NOT CLEAN_APP_VERSION)
+    set(CLEAN_APP_VERSION "1.0.0")
+endif()
+
 if (NOT WIN32)
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(LIBGIT2 REQUIRED IMPORTED_TARGET libgit2)
@@ -174,11 +180,11 @@ if(NOT WIN32)
 endif()
 
 include(InstallRequiredSystemLibraries)
-set(CPACK_GENERATOR "NSIS")  # or "ZIP" for a simple zip
+set(CPACK_GENERATOR "NSIS")
 set(CPACK_PACKAGE_NAME "GitAddonsManager")
-set(CPACK_PACKAGE_VERSION "1.0.0")
+set(CPACK_PACKAGE_VERSION "{CLEAN_APP_VERSION}")
 set(CPACK_PACKAGE_EXECUTABLES "GitAddonsManager" "GitAddonsManager")
-set(CPACK_PACKAGE_FILE_NAME "GitAddonsManager_Setup")
+set(CPACK_PACKAGE_FILE_NAME "GitAddonsManager-${CLEAN_APP_VERSION}")
 include(CPack)
 
 qt_finalize_executable(GitAddonsManager)
