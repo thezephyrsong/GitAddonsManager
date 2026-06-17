@@ -56,6 +56,9 @@ jobs:
       run: |
         cmake --build build --config Release
 
+    - name: Install NSIS
+      run: choco install nsis -y
+
     - name: Run CPack (Generate Installer)
       working-directory: build
       run: |
