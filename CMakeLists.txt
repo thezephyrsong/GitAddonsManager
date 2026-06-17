@@ -156,7 +156,10 @@ if(WIN32)
                 \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/GitAddonsManager.exe\"
         )
     ")
-    install(FILES C:/vcpkg/installed/x64-windows/bin/git2.dll
+    install(FILES 
+        C:/vcpkg/installed/x64-windows/bin/git2.dll
+        C:/vcpkg/installed/x64-windows/bin/zlib1.dll
+        C:/vcpkg/installed/x64-windows/bin/pcre2-8.dll
         DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 endif()
